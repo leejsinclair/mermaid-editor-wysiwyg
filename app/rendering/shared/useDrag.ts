@@ -1,0 +1,74 @@
+import { useCallback, useEffect, useRef, useState, type RefObject } from "react";
+
+/** Movement below this many pixels is a click, not a drag. */
+const DRAG_THRESHOLD = 5;
+
+interface Drag<K> {
+  readonly what: K;
+  readonly startX: number;
+  readonly startY: number;
+  readonly x: number;
+  readonly y: number;
+}
+
+export interface DragEnd<K> {
+  readonly what: K;
+  /** The point released at, in the drawing's own coordinates. */
+  readonly x: number;
+  readonly y: number;
+}
+
+/**
+ * Tracks one pointer drag over the drawing. `begin` starts it from a pointer-down; moving past a few pixels makes it
+ * a drag, and releasing then calls `onDrop` with where it ended. A release without movement is left to the click.
+ */
+export function useDrag<K>(svg: RefObject<SVGSVGElement | null>, onDrop: (end: DragEnd<K>) => void) {
+  const [drag, setDrag] = useState<Drag<K> | undefined>();
+  // The drag as of the last pointer event, so a release reads it without running side effects inside a state update.
+  const latest = useRef<Drag<K> | undefined>(undefined);
+  const active = drag !== undefined;
+
+  const update = useCallback((next: Drag<K> | undefined) => {
+    latest.current = next;
+    setDrag(next);
+  }, []);
+
+  useEffect(() => {
+    if (!active) return;
+    const local = (event: PointerEvent) => {
+      const box = svg.current?.getBoundingClientRect();
+      return { x: event.clientX - (box?.left ?? 0), y: event.clientY - (box?.top ?? 0) };
+    };
+    const onMove = (event: PointerEvent) => {
+      if (latest.current) update({ ...latest.current, ...local(event) });
+    };
+    const onUp = (event: PointerEvent) => {
+      const point = local(event);
+      const current = latest.current;
+      update(undefined);
+      if (current && Math.hypot(point.x - current.startX, point.y - current.startY) >= DRAG_THRESHOLD) onDrop({ what: current.what, ...point });
+    };
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") update(undefined);
+    };
+    window.addEventListener("pointermove", onMove);
+    window.addEventListener("pointerup", onUp);
+    window.addEventListener("keydown", onKey);
+    return () => {
+      window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointerup", onUp);
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [active, svg, onDrop, update]);
+
+  const begin = (what: K) => (event: { clientX: number; clientY: number; button: number }) => {
+    if (event.button !== 0) return;
+    const box = svg.current?.getBoundingClientRect();
+    const x = event.clientX - (box?.left ?? 0);
+    const y = event.clientY - (box?.top ?? 0);
+    update({ what, startX: x, startY: y, x, y });
+  };
+
+  const moved = drag !== undefined && Math.hypot(drag.x - drag.startX, drag.y - drag.startY) >= DRAG_THRESHOLD;
+  return { begin, current: moved ? drag : undefined };
+}
