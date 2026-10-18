@@ -108,7 +108,8 @@ scripts/crew.sh implement "Phase 1: Setup"
 ```
 
 Runs qa, developer, tech-lead and business-analyst in sequence, with up to 3 rounds, until both reviewers say `Verdict: Ready to merge`.
-The micro-kanban bar will not show here (it is for `/speckit-implement` only); use the viewer's board at `/specs/<story>/kanban` instead.
+The micro-kanban bar will not show here (it is for `/speckit-implement` only); use the viewer's board instead: <http://localhost:8000/specs/002-visual-diagram-editor/kanban>
+(start the viewer first with `python3 tools/specview.py`; if port 8000 is taken it uses the next free port up to 8019, so use the URL it prints).
 Add `CREWS_MOCK=true` to dry-run.
 
 **B. Interactive [you]**

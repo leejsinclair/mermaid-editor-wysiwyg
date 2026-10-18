@@ -1,6 +1,10 @@
 <!--
 Sync Impact Report (temporary; remove before commit)
-- Version change: (unfilled template) → 1.0.0
+- Version change: 1.1.0 → 1.2.0 (MINOR: local persistence brought into scope; approved by the Business Analyst
+  on 2026-10-18, following setup.md's amended Scope)
+- Migration: specs/002-visual-diagram-editor/spec.md updated in the same change (User Story 7, FR-018, FR-023,
+  FR-040 to FR-052). No plans or tasks existed yet.
+- Previous: 1.0.0 → 1.1.0 (MINOR: supported diagram types widened); (unfilled template) → 1.0.0
 - Modified principles: none renamed; all five template principle slots filled
   (I. Visual Model Is the Source of Truth, II. Layered Architecture, III. Test-First (NON-NEGOTIABLE),
   IV. Invalid Operations Never Corrupt, V. Undoable, Consistent, Honest Feedback)
@@ -16,7 +20,9 @@ Sync Impact Report (temporary; remove before commit)
 The visual diagram model is the only editable state. Mermaid source MUST be generated from the
 model, MUST be read-only in the editor, and MUST NOT be parsed back into, or stored as, editable
 state. Importing or hand-editing Mermaid source is out of scope. Users MUST NOT need to know
-Mermaid syntax to create or modify a diagram.
+Mermaid syntax to create or modify a diagram. The model MAY be kept in the user's browser and
+saved to or opened from files in the editor's own format; stored or opened data is untrusted
+and MUST be validated in full before it becomes the model.
 
 Rationale: a single source of truth is the only way to keep the model, the rendering and the
 source consistent (setup.md business rules 1, 2 and 10).
@@ -57,11 +63,14 @@ actually occurred. Controls MUST NOT be offered for unsupported actions.
 
 - Language is TypeScript in strict mode; `any` requires a comment stating why.
 - The deliverable is a browser web app with no server component.
-- Only Mermaid flowcharts are supported initially. Another diagram type MAY be added only after its
-  elements, relationships, editing operations and validation rules are explicitly specified and
-  tested.
-- Excluded: direct source editing, source import, SVG/PNG export, real-time collaboration, and
-  version history or persistence across sessions.
+- Supported diagram types are Mermaid flowchart, sequence diagram and C4 diagram (Context, Container,
+  Component, Dynamic, Deployment). Another diagram type MAY be added only after its elements,
+  relationships, editing operations and validation rules are explicitly specified and tested, and
+  each supported type MUST meet that bar before release.
+- Persistence is local only: in the user's browser storage and in files the user saves or opens.
+  A save MUST be reported only after it succeeds and MUST NOT damage previously saved diagrams.
+- Excluded: direct source editing, Mermaid source import, SVG/PNG export, real-time collaboration,
+  version history, and server-side or cloud storage or sync.
 - Dependencies, test frameworks, linters and build tools MUST be those named by the approved plan.
 
 ## Workflow and Quality Gates
@@ -86,4 +95,4 @@ principle or materially expanded guidance, PATCH for clarifications. Every plan,
 review MUST check compliance with these principles, and any departure MUST be justified in the
 plan's complexity record. Runtime guidance lives in `CLAUDE.md` and `.crews/directives.md`.
 
-**Version**: 1.0.0 | **Ratified**: 2026-10-18 | **Last Amended**: 2026-10-18
+**Version**: 1.2.0 | **Ratified**: 2026-10-18 | **Last Amended**: 2026-10-18
