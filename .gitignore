@@ -1,0 +1,8 @@
+node_modules/
+build/
+.react-router/
+playwright-report/
+test-results/
+.crews/output/
+tasks/
+.claude/settings.local.json
