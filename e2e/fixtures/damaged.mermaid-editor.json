@@ -1,0 +1,1 @@
+{"format":"mermaid-editor-wysiwyg","formatVersion":1,"diagram":{"name":"Broken","type":"flowchart","nextId":5,"content":{"nodes":[{"id":1,"shape":"rectangle","label":"A","x":0,"y":0}],"connections":[{"id":2,"from":1,"to":42,"line":"solid","ending":"arrow","label":""}]}}}

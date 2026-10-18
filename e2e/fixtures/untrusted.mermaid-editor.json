@@ -1,0 +1,37 @@
+{
+ "format": "mermaid-editor-wysiwyg",
+ "formatVersion": 1,
+ "diagram": {
+  "name": "<img src=x onerror=\"window.__pwned=1\">",
+  "type": "flowchart",
+  "nextId": 5,
+  "content": {
+   "nodes": [
+    {
+     "id": 1,
+     "shape": "rectangle",
+     "label": "<script>window.__pwned=1</script>",
+     "x": 40,
+     "y": 40
+    },
+    {
+     "id": 2,
+     "shape": "circle",
+     "label": "%%{init: {\"securityLevel\":\"loose\"}}%%",
+     "x": 300,
+     "y": 40
+    }
+   ],
+   "connections": [
+    {
+     "id": 3,
+     "from": 1,
+     "to": 2,
+     "line": "solid",
+     "ending": "arrow",
+     "label": "<b onmouseover=\"window.__pwned=1\">bold</b>"
+    }
+   ]
+  }
+ }
+}
