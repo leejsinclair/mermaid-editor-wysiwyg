@@ -1,6 +1,9 @@
 <!--
 Sync Impact Report (temporary; remove before commit)
-- Version change: 1.1.0 → 1.2.0 (MINOR: local persistence brought into scope; approved by the Business Analyst
+- Version change: 1.2.0 → 1.2.1 (PATCH: Workflow and Quality Gates, commit rule; instructed by the user on
+  2026-10-19: agents may commit and push when the user asks; the crew still never does). No spec, plan or task
+  is affected.
+- Previous: 1.1.0 → 1.2.0 (MINOR: local persistence brought into scope; approved by the Business Analyst
   on 2026-10-18, following setup.md's amended Scope)
 - Migration: specs/002-visual-diagram-editor/spec.md updated in the same change (User Story 7, FR-018, FR-023,
   FR-040 to FR-052). No plans or tasks existed yet.
@@ -82,7 +85,7 @@ actually occurred. Controls MUST NOT be offered for unsupported actions.
   `.crews/decisions.md`. A lower item never overrides a higher one.
 - Ambiguity or contradiction in the spec MUST be raised as an open question, not resolved by
   assumption.
-- The human commits and pushes; agents MUST NOT run `git commit` or `git push`.
+- Agents commit and push only when the user asks; the crew (`scripts/crew.sh`) never commits or pushes.
 - The Definition of Done in `setup.md` (all AC1–AC17 passing, among other items) gates release.
 
 ## Governance
@@ -95,4 +98,4 @@ principle or materially expanded guidance, PATCH for clarifications. Every plan,
 review MUST check compliance with these principles, and any departure MUST be justified in the
 plan's complexity record. Runtime guidance lives in `CLAUDE.md` and `.crews/directives.md`.
 
-**Version**: 1.2.0 | **Ratified**: 2026-10-18 | **Last Amended**: 2026-10-18
+**Version**: 1.2.1 | **Ratified**: 2026-10-18 | **Last Amended**: 2026-10-19

@@ -71,7 +71,7 @@ Cycles, fan-in/fan-out and disconnected nodes are valid.
 
 ## Boundaries
 
-- Do not run `git commit`, `git push`, `git checkout -b` or open PRs. The human commits.
+- Crew agents (run by `scripts/crew.sh`) do not run `git commit`, `git push`, `git checkout -b` or open PRs. In an interactive session, commit and push only when the user asks.
 - Do not edit `.specify/`, `.crews/`, `.claude/`, `tools/` or `setup.md`.
 - Do not add dependencies the plan does not list.
 - Stay inside the scope named in the task description; do not refactor outside it.
