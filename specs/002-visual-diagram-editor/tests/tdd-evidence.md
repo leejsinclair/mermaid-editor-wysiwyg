@@ -4,7 +4,7 @@
 
 ## Summary
 
-_Generated from the tables below on 2026-10-18T14:30:24Z._
+_Generated from the tables below on 2026-10-18T23:02:44Z._
 
 | Obligation | Requirements | Status | Tests | Latest result |
 |------------|--------------|--------|-------|---------------|
@@ -32,9 +32,9 @@ _Generated from the tables below on 2026-10-18T14:30:24Z._
 | VO-022 | US2-AS6 | verified | app/model/flowchart/deleteConnection.test.ts | pass (#74) |
 | VO-023 | FR-010, FR-025, US2-AS7 | verified | app/model/flowchart/structures.test.ts | pass (#76) |
 | VO-024 | FR-009, US2-AS8, SC-006 | verified | app/history/rejections.test.ts, app/history/rejections | pass (#325) |
-| VO-025 | FR-009, US2-AS8 | verified | e2e/rejections, e2e/(new-diagram flowchart-layout-note labels-special rejections canvas-source-agree controls) | pass (#258) |
+| VO-025 | FR-009, US2-AS8 | verified | e2e/rejections, e2e/(new-diagram flowchart-layout-note labels-special rejections canvas-source-agree controls) | pass (#447) |
 | VO-026 | FR-040, US2-AS9 | verified | app/model/flowchart/changeShape.test.ts | pass (#84) |
-| VO-027 | FR-040, FR-041, US2-AS10, EC-18 | verified | app/model/flowchart/changeConnection.test.ts, e2e/controls | pass (#96) |
+| VO-027 | FR-040, FR-041, US2-AS10, EC-18 | verified | app/model/flowchart/changeConnection.test.ts, e2e/controls, app/model/flowchart/changeConnection | pass (#446) |
 | VO-028 | FR-041, US2-AS11 | verified | app/model/flowchart/reverse.test.ts | pass (#91) |
 | VO-029 | FR-008, US3-AS1, US3-AS2, SC-004 | verified | app/history/history.test.ts, app/history/history.test | pass (#327) |
 | VO-030 | US3-AS3 | verified | e2e/undo-redo | pass (#112) |
@@ -69,17 +69,17 @@ _Generated from the tables below on 2026-10-18T14:30:24Z._
 | VO-059 | FR-054 | verified | e2e/c4-title | pass (#376) |
 | VO-060 | FR-040, US5-AS11, EC-17 | verified | app/model/c4/changeType, app/model/c4 | pass (#299) |
 | VO-061 | FR-041, US5-AS12 | verified | app/model/c4/relationshipEnds, app/model/c4 | pass (#352) |
-| VO-062 | FR-019, FR-020, US6-AS1, SC-008 | planned | - | - |
-| VO-063 | FR-019, EC-19 | verified | app/history/merge, app/history | pass (#391) |
-| VO-064 | FR-019, EC-20 | planned | - | - |
-| VO-065 | FR-018, US6-AS2 | planned | - | - |
-| VO-066 | FR-018, US6-AS3 | planned | - | - |
-| VO-067 | FR-017, US6-AS4 | planned | - | - |
-| VO-068 | FR-013, US6-AS5, EC-05 | planned | - | - |
-| VO-069 | US6-AS5, EC-05 | planned | - | - |
-| VO-070 | FR-020, US6-AS6 | planned | - | - |
-| VO-071 | FR-020, SC-009 | planned | - | - |
-| VO-072 | FR-020 | planned | - | - |
+| VO-062 | FR-019, FR-020, US6-AS1, SC-008 | verified | e2e/keyboard-only | pass (#405) |
+| VO-063 | FR-019, EC-19 | verified | app/history/merge, app/history, e2e/node-arrow-move | pass (#393) |
+| VO-064 | FR-019, EC-20 | verified | app/editor/targets | pass (#397) |
+| VO-065 | FR-018, US6-AS2 | verified | e2e/leave-page | pass (#414) |
+| VO-066 | FR-018, US6-AS3 | verified | e2e/return-to-start, app/editor | pass (#418) |
+| VO-067 | FR-017, US6-AS4 | verified | e2e/zoom-pan | pass (#411) |
+| VO-068 | FR-013, US6-AS5, EC-05 | verified | app/generation/empty | pass (#399) |
+| VO-069 | US6-AS5, EC-05 | verified | e2e/empty-state | pass (#402) |
+| VO-070 | FR-020, US6-AS6 | verified | e2e/announcements | pass (#420) |
+| VO-071 | FR-020, SC-009 | verified | e2e/wcag | pass (#426) |
+| VO-072 | FR-020 | verified | e2e/accessible-names | pass (#423) |
 | VO-073 | FR-042, US7-AS1, SC-013 | verified | e2e/save-status | pass (#153) |
 | VO-074 | FR-044, US7-AS2, US7-AS12 | verified | e2e/saved-list | pass (#160) |
 | VO-075 | FR-046, US7-AS3, US3-AS6, SC-013 | verified | e2e/reopen, e2e/new-diagram e2e/flowchart-layout-note e2e/labels-special e2e/canvas-source-agree e2e/controls e2e/reopen, e2e/(new-diagram flowchart-layout-note labels-special canvas-source-agree controls reopen) | pass (#384) |
@@ -98,17 +98,17 @@ _Generated from the tables below on 2026-10-18T14:30:24Z._
 | VO-088 | FR-050, EC-11 | verified | e2e/unreadable-record | pass (#169) |
 | VO-089 | FR-050, EC-12 | verified | app/persistence/migrations.test.ts | pass (#143) |
 | VO-090 | FR-049, DC-04 | verified | e2e/untrusted-text | pass (#193) |
-| VO-091 | FR-021, FR-052, SC-010 | planned | - | - |
-| VO-092 | FR-003, FR-004, FR-015, FR-023 | planned | - | - |
+| VO-091 | FR-021, FR-052, SC-010 | verified | e2e/static-offline | pass (#441) |
+| VO-092 | FR-003, FR-004, FR-015, FR-023 | verified | e2e/not-offered | pass (#443) |
 | VO-093 | FR-015, EC-09 | verified | e2e/controls, e2e/(new-diagram flowchart-layout-note labels-special rejections canvas-source-agree controls), e2e/new-diagram e2e/flowchart-layout-note e2e/labels-special e2e/canvas-source-agree e2e/controls e2e/reopen, e2e/(new-diagram flowchart-layout-note labels-special canvas-source-agree controls reopen) | pass (#384) |
 | VO-094 | FR-038 | verified | app/rendering/layout/sequenceLayout, app/rendering/layout/c4Layout, app/rendering/layout | pass (#343) |
-| VO-095 | SC-012 | planned | - | - |
-| VO-096 | SC-016 | planned | - | - |
+| VO-095 | SC-012 | verified | e2e/performance | pass (#438) |
+| VO-096 | SC-016 | verified | app/model/familyChanges | pass (#434) |
 | VO-097 | FR-013, FR-034 | verified | app/generation/c4.notices, app/generation | pass (#271) |
 | VO-098 | FR-013, FR-034 | verified | e2e/c4-notices | pass (#381) |
 | VO-099 | FR-049, DC-05 | verified | app/persistence/openFile.size.test.ts | pass (#137) |
 | VO-100 | FR-009, SC-006, DC-06 | verified | app/validation/checkDiagram.property.test.ts, app/validation/checkDiagram.property | pass (#329) |
-| VO-101 | US2-AS1, FR-020 | planned | - | - |
+| VO-101 | US2-AS1, FR-020 | verified | e2e/selection-feedback | pass (#430) |
 
 | Behaviour item | Scenario | Obligations | Status | Tests |
 |----------------|----------|-------------|--------|-------|
@@ -124,7 +124,7 @@ _Generated from the tables below on 2026-10-18T14:30:24Z._
 | BI-010 | US1-AS10 | VO-012 | verified | e2e/flowchart-preview |
 | BI-011 | US1-AS11 | VO-014 | verified | e2e/copy-markdown, e2e/copy- |
 | BI-012 | US2-AS1 | VO-015, VO-016 | verified | app/model/flowchart/moveNode.test.ts app/history/noChange.test.ts, app/model/flowchart/moveNode.test.ts, app/history/noChange.test.ts, e2e/flowchart-move |
-| BI-095 | US2-AS1 | VO-101 | planned | - |
+| BI-095 | US2-AS1 | VO-101 | verified | e2e/selection-feedback |
 | BI-013 | US2-AS2 | VO-017, VO-018 | verified | app/generation/escape.fidelity.test.ts, app/generation/escape.fidelity, e2e/labels-special, e2e/(new-diagram flowchart-layout-note labels-special rejections canvas-source-agree controls), e2e/new-diagram e2e/flowchart-layout-note e2e/labels-special e2e/canvas-source-agree e2e/controls e2e/reopen, e2e/(new-diagram flowchart-layout-note labels-special canvas-source-agree controls reopen) |
 | BI-014 | US2-AS3 | VO-019 | verified | app/validation/label.test.ts, app/validation/label.test, app/validation/label |
 | BI-015 | US2-AS4 | VO-020 | verified | app/model/flowchart/connectionLabel.test.ts |
@@ -133,7 +133,7 @@ _Generated from the tables below on 2026-10-18T14:30:24Z._
 | BI-018 | US2-AS7 | VO-023 | verified | app/model/flowchart/structures.test.ts |
 | BI-019 | US2-AS8 | VO-024, VO-025 | verified | app/history/rejections.test.ts, app/history/rejections, e2e/rejections, e2e/(new-diagram flowchart-layout-note labels-special rejections canvas-source-agree controls) |
 | BI-020 | US2-AS9 | VO-026 | verified | app/model/flowchart/changeShape.test.ts |
-| BI-021 | US2-AS10 | VO-027 | verified | app/model/flowchart/changeConnection.test.ts, e2e/controls |
+| BI-021 | US2-AS10 | VO-027 | verified | app/model/flowchart/changeConnection.test.ts, e2e/controls, app/model/flowchart/changeConnection |
 | BI-022 | US2-AS11 | VO-028 | verified | app/model/flowchart/reverse.test.ts |
 | BI-023 | US3-AS1 | VO-029 | verified | app/history/history.test.ts, app/history/history.test |
 | BI-024 | US3-AS2 | VO-029 | verified | app/history/history.test.ts, app/history/history.test |
@@ -162,12 +162,12 @@ _Generated from the tables below on 2026-10-18T14:30:24Z._
 | BI-047 | US5-AS10 | VO-058 | verified | app/model/c4/title |
 | BI-048 | US5-AS11 | VO-060 | verified | app/model/c4/changeType, app/model/c4 |
 | BI-049 | US5-AS12 | VO-061 | verified | app/model/c4/relationshipEnds, app/model/c4 |
-| BI-050 | US6-AS1 | VO-062 | planned | - |
-| BI-051 | US6-AS2 | VO-065 | planned | - |
-| BI-052 | US6-AS3 | VO-066 | planned | - |
-| BI-053 | US6-AS4 | VO-067 | planned | - |
-| BI-054 | US6-AS5 | VO-068, VO-069 | planned | - |
-| BI-055 | US6-AS6 | VO-070 | planned | - |
+| BI-050 | US6-AS1 | VO-062 | verified | e2e/keyboard-only |
+| BI-051 | US6-AS2 | VO-065 | verified | e2e/leave-page |
+| BI-052 | US6-AS3 | VO-066 | verified | e2e/return-to-start, app/editor |
+| BI-053 | US6-AS4 | VO-067 | verified | e2e/zoom-pan |
+| BI-054 | US6-AS5 | VO-068, VO-069 | verified | app/generation/empty, e2e/empty-state |
+| BI-055 | US6-AS6 | VO-070 | verified | e2e/announcements |
 | BI-056 | US7-AS1 | VO-073 | verified | e2e/save-status |
 | BI-057 | US7-AS2 | VO-074 | verified | e2e/saved-list |
 | BI-058 | US7-AS3 | VO-075 | verified | e2e/reopen, e2e/new-diagram e2e/flowchart-layout-note e2e/labels-special e2e/canvas-source-agree e2e/controls e2e/reopen, e2e/(new-diagram flowchart-layout-note labels-special canvas-source-agree controls reopen) |
@@ -186,22 +186,22 @@ _Generated from the tables below on 2026-10-18T14:30:24Z._
 | BI-071 | - | VO-036 | verified | app/generation/sequence.fidelity |
 | BI-072 | - | VO-048 | verified | app/generation/c4.fidelity, app/generation |
 | BI-073 | - | VO-059 | verified | e2e/c4-title |
-| BI-074 | - | VO-063 | verified | app/history/merge, app/history |
-| BI-075 | - | VO-064 | planned | - |
-| BI-076 | - | VO-071 | planned | - |
-| BI-077 | - | VO-072 | planned | - |
+| BI-074 | - | VO-063 | verified | app/history/merge, app/history, e2e/node-arrow-move |
+| BI-075 | - | VO-064 | verified | app/editor/targets |
+| BI-076 | - | VO-071 | verified | e2e/wcag |
+| BI-077 | - | VO-072 | verified | e2e/accessible-names |
 | BI-078 | - | VO-076 | verified | app/persistence/codec.test.ts, app/persistence/codec.test |
 | BI-079 | - | VO-081 | verified | app/persistence/fileName.test.ts |
 | BI-080 | - | VO-087 | verified | e2e/lock-release |
 | BI-081 | - | VO-088 | verified | e2e/unreadable-record |
 | BI-082 | - | VO-089 | verified | app/persistence/migrations.test.ts |
 | BI-083 | - | VO-090 | verified | e2e/untrusted-text |
-| BI-084 | - | VO-091 | planned | - |
-| BI-085 | - | VO-092 | planned | - |
+| BI-084 | - | VO-091 | verified | e2e/static-offline |
+| BI-085 | - | VO-092 | verified | e2e/not-offered |
 | BI-086 | - | VO-093 | verified | e2e/controls, e2e/(new-diagram flowchart-layout-note labels-special rejections canvas-source-agree controls), e2e/new-diagram e2e/flowchart-layout-note e2e/labels-special e2e/canvas-source-agree e2e/controls e2e/reopen, e2e/(new-diagram flowchart-layout-note labels-special canvas-source-agree controls reopen) |
 | BI-087 | - | VO-094 | verified | app/rendering/layout/sequenceLayout, app/rendering/layout/c4Layout, app/rendering/layout |
-| BI-088 | - | VO-095 | planned | - |
-| BI-089 | - | VO-096 | planned | - |
+| BI-088 | - | VO-095 | verified | e2e/performance |
+| BI-089 | - | VO-096 | verified | app/model/familyChanges |
 | BI-090 | - | VO-097 | verified | app/generation/c4.notices, app/generation |
 | BI-091 | - | VO-098 | verified | e2e/c4-notices |
 | BI-092 | - | VO-099 | verified | app/persistence/openFile.size.test.ts |
@@ -216,11 +216,11 @@ Not verified by tests
 - MV-004 manual: open
 - MV-005 manual: open
 
-Counts: verified 86, deferred 0, manual checks 5 open
+Counts: verified 101, deferred 0, manual checks 5 open
 
-**Not verified**: FR-013 (VO-068 planned), FR-003 (VO-092 planned), US2-AS1 (VO-101 planned), FR-019 (VO-062 planned, VO-064 planned), FR-020 (VO-062 planned, VO-070 planned, VO-071 planned, VO-072 planned, VO-101 planned), US6-AS1 (VO-062 planned), SC-008 (VO-062 planned), EC-20 (VO-064 planned), FR-018 (VO-065 planned, VO-066 planned), US6-AS2 (VO-065 planned), US6-AS3 (VO-066 planned), FR-017 (VO-067 planned), US6-AS4 (VO-067 planned), US6-AS5 (VO-068 planned, VO-069 planned), EC-05 (VO-068 planned, VO-069 planned), US6-AS6 (VO-070 planned), SC-009 (VO-071 planned), FR-052 (VO-091 planned), FR-021 (VO-091 planned), SC-010 (VO-091 planned), FR-004 (VO-092 planned), FR-015 (VO-092 planned), FR-023 (VO-092 planned), SC-012 (VO-095 planned), SC-016 (VO-096 planned), FR-022 (exempt: see plan), BI-095 (planned), BI-050 (planned), BI-051 (planned), BI-052 (planned), BI-053 (planned), BI-054 (planned), BI-055 (planned), BI-075 (planned), BI-076 (planned), BI-077 (planned), BI-084 (planned), BI-085 (planned), BI-088 (planned), BI-089 (planned).
+**Not verified**: FR-022 (exempt: see plan).
 
-**Open decisions**: none. **Exceptions**: EX-01 no-meaningful-red on T045 for VO-016; EX-02 no-meaningful-red on T046 for VO-016; EX-03 no-meaningful-red on T059 for VO-023; EX-04 no-meaningful-red on T060 for VO-023; EX-05 no-meaningful-red on T076 for VO-031; EX-06 no-meaningful-red on T077 for VO-031; EX-07 no-meaningful-red on T078 for VO-033; EX-08 no-meaningful-red on T079 for VO-033; EX-09 no-meaningful-red on T084 for VO-034; EX-10 no-meaningful-red on T085 for VO-034; EX-11 no-meaningful-red on T115 for VO-085; EX-12 no-meaningful-red on T116 for VO-085; EX-13 no-meaningful-red on T123 for VO-090; EX-14 no-meaningful-red on T124 for VO-090; EX-15 no-meaningful-red on T127 for VO-087; EX-16 no-meaningful-red on T128 for VO-087; EX-17 no-meaningful-red on T133 for VO-038; EX-18 no-meaningful-red on T134 for VO-038; EX-19 no-meaningful-red on T135 for VO-039; EX-20 no-meaningful-red on T136 for VO-039; EX-21 no-meaningful-red on T147 for VO-017; EX-22 no-meaningful-red on T148 for VO-017; EX-23 no-meaningful-red on T147 for VO-019; EX-24 no-meaningful-red on T148 for VO-019; EX-25 no-meaningful-red on T147 for VO-024; EX-26 no-meaningful-red on T148 for VO-024; EX-27 no-meaningful-red on T147 for VO-029; EX-28 no-meaningful-red on T148 for VO-029; EX-29 no-meaningful-red on T147 for VO-100; EX-30 no-meaningful-red on T148 for VO-100; EX-31 no-meaningful-red on T149 for VO-076; EX-32 no-meaningful-red on T149 for VO-083; EX-33 no-meaningful-red on T150 for VO-076; EX-34 no-meaningful-red on T150 for VO-083; EX-35 no-meaningful-red on T159 for VO-075; EX-36 no-meaningful-red on T160 for VO-075; EX-37 no-meaningful-red on T177 for VO-055; EX-38 no-meaningful-red on T178 for VO-055; EX-39 no-meaningful-red on T179 for VO-056; EX-40 no-meaningful-red on T180 for VO-056; EX-41 no-meaningful-red on T185 for VO-017; EX-42 no-meaningful-red on T186 for VO-017; EX-43 no-meaningful-red on T185 for VO-019; EX-44 no-meaningful-red on T186 for VO-019; EX-45 no-meaningful-red on T185 for VO-024; EX-46 no-meaningful-red on T186 for VO-024; EX-47 no-meaningful-red on T185 for VO-029; EX-48 no-meaningful-red on T186 for VO-029; EX-49 no-meaningful-red on T185 for VO-100; EX-50 no-meaningful-red on T186 for VO-100; EX-51 no-meaningful-red on T187 for VO-076; EX-52 no-meaningful-red on T188 for VO-076; EX-53 no-meaningful-red on T187 for VO-083; EX-54 no-meaningful-red on T188 for VO-083; EX-55 no-meaningful-red on T203 for VO-002; EX-56 no-meaningful-red on T203 for VO-011; EX-57 no-meaningful-red on T203 for VO-018; EX-58 no-meaningful-red on T203 for VO-034; EX-59 no-meaningful-red on T203 for VO-093; EX-60 no-meaningful-red on T203 for VO-075; EX-61 no-meaningful-red on T204 for VO-002; EX-62 no-meaningful-red on T204 for VO-011; EX-63 no-meaningful-red on T204 for VO-018; EX-64 no-meaningful-red on T204 for VO-034; EX-65 no-meaningful-red on T204 for VO-093; EX-66 no-meaningful-red on T204 for VO-075. **Expectation changes**: XC-01 on T017 for SC-002; XC-02 on T029 for FR-025; XC-03 on T030 for FR-025; XC-04 on T032 for FR-016; XC-05 on T036 for FR-014; XC-06 on T062 for FR-009; XC-07 on T072 for EC-09; XC-08 on T073 for EC-09; XC-09 on T075 for FR-011; XC-10 on T083 for EC-08; XC-11 on T087 for FR-016; XC-12 on T100 for FR-048; XC-13 on T104 for FR-043; XC-14 on T106 for EC-15; XC-15 on T108 for FR-044; XC-16 on T110 for FR-043; XC-17 on T114 for EC-13; XC-18 on T118 for FR-047; XC-19 on T126 for FR-050; XC-20 on T140 for FR-029; XC-21 on T148 for FR-018; XC-22 on T147 for FR-006, FR-026, FR-009, FR-008, DC-06; XC-23 on T148 for FR-006, FR-026, FR-009, FR-008, DC-06; XC-24 on T147 for FR-006, FR-026, FR-009, FR-008, DC-06, US2-AS2, US2-AS3, US2-AS8, US3-AS1, SC-003, SC-006, SC-004, EC-03, EC-04; XC-25 on T148 for FR-006, FR-026, FR-009, FR-008, DC-06, US2-AS2, US2-AS3, US2-AS8, US3-AS1, SC-003, SC-006, SC-004, EC-03, EC-04; XC-26 on T149 for FR-052; XC-27 on T149 for FR-050, DC-04, DC-06; XC-28 on T150 for FR-052; XC-29 on T150 for FR-050, DC-04, DC-06; XC-30 on T152 for FR-003; XC-31 on T157 for FR-001, FR-003, FR-006, FR-009, FR-005, FR-041, FR-008, SC-003, EC-03, EC-09; XC-32 on T158 for FR-001, FR-003, FR-006, FR-009, FR-005, FR-041, FR-008, SC-003, EC-03, EC-09; XC-33 on T160 for FR-042, FR-043; XC-34 on T159 for FR-042, FR-043; XC-35 on T161 for FR-031, FR-032, FR-035; XC-36 on T162 for FR-031, FR-032, FR-035; XC-37 on T165 for FR-054; XC-38 on T171 for FR-033; XC-39 on T172 for FR-033; XC-40 on T183 for FR-040, FR-041; XC-41 on T184 for FR-040, FR-041; XC-42 on T185 for FR-006, FR-026, FR-009, FR-008, DC-06, US2-AS2, US2-AS3, US2-AS8, US3-AS1, SC-003, SC-006, SC-004, EC-03, EC-04; XC-43 on T186 for FR-006, FR-026, FR-009, FR-008, DC-06, US2-AS2, US2-AS3, US2-AS8, US3-AS1, SC-003, SC-006, SC-004, EC-03, EC-04; XC-44 on T185 for FR-009, SC-006, DC-06; XC-45 on T186 for FR-009, SC-006, DC-06; XC-46 on T185 for FR-006, US2-AS2, SC-003, EC-03; XC-47 on T186 for FR-006, US2-AS2, SC-003, EC-03; XC-48 on T185 for FR-008, US3-AS1, SC-004; XC-49 on T186 for FR-008, US3-AS1, SC-004; XC-50 on T185 for FR-006, FR-026, US2-AS3, EC-04; XC-51 on T186 for FR-006, FR-026, US2-AS3, EC-04; XC-52 on T185 for FR-009, US2-AS8, SC-006; XC-53 on T186 for FR-009, US2-AS8, SC-006; XC-54 on T187 for FR-052, FR-050, DC-04, DC-06; XC-55 on T188 for FR-052, FR-050, DC-04, DC-06; XC-56 on T187 for FR-052, FR-050, DC-04, DC-06; XC-57 on T188 for FR-052, FR-050, DC-04, DC-06; XC-58 on T191 for FR-036, FR-037; XC-59 on T192 for FR-036, FR-037; XC-60 on T194 for FR-040, FR-041; XC-61 on T195 for FR-033; XC-62 on T196 for FR-033; XC-63 on T199 for FR-054; XC-64 on T200 for FR-054; XC-65 on T205 for EC-19; XC-66 on T206 for EC-19.
+**Open decisions**: none. **Exceptions**: EX-01 no-meaningful-red on T045 for VO-016; EX-02 no-meaningful-red on T046 for VO-016; EX-03 no-meaningful-red on T059 for VO-023; EX-04 no-meaningful-red on T060 for VO-023; EX-05 no-meaningful-red on T076 for VO-031; EX-06 no-meaningful-red on T077 for VO-031; EX-07 no-meaningful-red on T078 for VO-033; EX-08 no-meaningful-red on T079 for VO-033; EX-09 no-meaningful-red on T084 for VO-034; EX-10 no-meaningful-red on T085 for VO-034; EX-11 no-meaningful-red on T115 for VO-085; EX-12 no-meaningful-red on T116 for VO-085; EX-13 no-meaningful-red on T123 for VO-090; EX-14 no-meaningful-red on T124 for VO-090; EX-15 no-meaningful-red on T127 for VO-087; EX-16 no-meaningful-red on T128 for VO-087; EX-17 no-meaningful-red on T133 for VO-038; EX-18 no-meaningful-red on T134 for VO-038; EX-19 no-meaningful-red on T135 for VO-039; EX-20 no-meaningful-red on T136 for VO-039; EX-21 no-meaningful-red on T147 for VO-017; EX-22 no-meaningful-red on T148 for VO-017; EX-23 no-meaningful-red on T147 for VO-019; EX-24 no-meaningful-red on T148 for VO-019; EX-25 no-meaningful-red on T147 for VO-024; EX-26 no-meaningful-red on T148 for VO-024; EX-27 no-meaningful-red on T147 for VO-029; EX-28 no-meaningful-red on T148 for VO-029; EX-29 no-meaningful-red on T147 for VO-100; EX-30 no-meaningful-red on T148 for VO-100; EX-31 no-meaningful-red on T149 for VO-076; EX-32 no-meaningful-red on T149 for VO-083; EX-33 no-meaningful-red on T150 for VO-076; EX-34 no-meaningful-red on T150 for VO-083; EX-35 no-meaningful-red on T159 for VO-075; EX-36 no-meaningful-red on T160 for VO-075; EX-37 no-meaningful-red on T177 for VO-055; EX-38 no-meaningful-red on T178 for VO-055; EX-39 no-meaningful-red on T179 for VO-056; EX-40 no-meaningful-red on T180 for VO-056; EX-41 no-meaningful-red on T185 for VO-017; EX-42 no-meaningful-red on T186 for VO-017; EX-43 no-meaningful-red on T185 for VO-019; EX-44 no-meaningful-red on T186 for VO-019; EX-45 no-meaningful-red on T185 for VO-024; EX-46 no-meaningful-red on T186 for VO-024; EX-47 no-meaningful-red on T185 for VO-029; EX-48 no-meaningful-red on T186 for VO-029; EX-49 no-meaningful-red on T185 for VO-100; EX-50 no-meaningful-red on T186 for VO-100; EX-51 no-meaningful-red on T187 for VO-076; EX-52 no-meaningful-red on T188 for VO-076; EX-53 no-meaningful-red on T187 for VO-083; EX-54 no-meaningful-red on T188 for VO-083; EX-55 no-meaningful-red on T203 for VO-002; EX-56 no-meaningful-red on T203 for VO-011; EX-57 no-meaningful-red on T203 for VO-018; EX-58 no-meaningful-red on T203 for VO-034; EX-59 no-meaningful-red on T203 for VO-093; EX-60 no-meaningful-red on T203 for VO-075; EX-61 no-meaningful-red on T204 for VO-002; EX-62 no-meaningful-red on T204 for VO-011; EX-63 no-meaningful-red on T204 for VO-018; EX-64 no-meaningful-red on T204 for VO-034; EX-65 no-meaningful-red on T204 for VO-093; EX-66 no-meaningful-red on T204 for VO-075; EX-67 no-meaningful-red on T209 for VO-068; EX-68 no-meaningful-red on T210 for VO-068; EX-69 no-meaningful-red on T230 for VO-096; EX-70 no-meaningful-red on T231 for VO-096; EX-71 no-meaningful-red on T232 for VO-092; EX-72 no-meaningful-red on T233 for VO-092; EX-73 no-meaningful-red on T234 for VO-095; EX-74 no-meaningful-red on T235 for VO-095. **Expectation changes**: XC-01 on T017 for SC-002; XC-02 on T029 for FR-025; XC-03 on T030 for FR-025; XC-04 on T032 for FR-016; XC-05 on T036 for FR-014; XC-06 on T062 for FR-009; XC-07 on T072 for EC-09; XC-08 on T073 for EC-09; XC-09 on T075 for FR-011; XC-10 on T083 for EC-08; XC-11 on T087 for FR-016; XC-12 on T100 for FR-048; XC-13 on T104 for FR-043; XC-14 on T106 for EC-15; XC-15 on T108 for FR-044; XC-16 on T110 for FR-043; XC-17 on T114 for EC-13; XC-18 on T118 for FR-047; XC-19 on T126 for FR-050; XC-20 on T140 for FR-029; XC-21 on T148 for FR-018; XC-22 on T147 for FR-006, FR-026, FR-009, FR-008, DC-06; XC-23 on T148 for FR-006, FR-026, FR-009, FR-008, DC-06; XC-24 on T147 for FR-006, FR-026, FR-009, FR-008, DC-06, US2-AS2, US2-AS3, US2-AS8, US3-AS1, SC-003, SC-006, SC-004, EC-03, EC-04; XC-25 on T148 for FR-006, FR-026, FR-009, FR-008, DC-06, US2-AS2, US2-AS3, US2-AS8, US3-AS1, SC-003, SC-006, SC-004, EC-03, EC-04; XC-26 on T149 for FR-052; XC-27 on T149 for FR-050, DC-04, DC-06; XC-28 on T150 for FR-052; XC-29 on T150 for FR-050, DC-04, DC-06; XC-30 on T152 for FR-003; XC-31 on T157 for FR-001, FR-003, FR-006, FR-009, FR-005, FR-041, FR-008, SC-003, EC-03, EC-09; XC-32 on T158 for FR-001, FR-003, FR-006, FR-009, FR-005, FR-041, FR-008, SC-003, EC-03, EC-09; XC-33 on T160 for FR-042, FR-043; XC-34 on T159 for FR-042, FR-043; XC-35 on T161 for FR-031, FR-032, FR-035; XC-36 on T162 for FR-031, FR-032, FR-035; XC-37 on T165 for FR-054; XC-38 on T171 for FR-033; XC-39 on T172 for FR-033; XC-40 on T183 for FR-040, FR-041; XC-41 on T184 for FR-040, FR-041; XC-42 on T185 for FR-006, FR-026, FR-009, FR-008, DC-06, US2-AS2, US2-AS3, US2-AS8, US3-AS1, SC-003, SC-006, SC-004, EC-03, EC-04; XC-43 on T186 for FR-006, FR-026, FR-009, FR-008, DC-06, US2-AS2, US2-AS3, US2-AS8, US3-AS1, SC-003, SC-006, SC-004, EC-03, EC-04; XC-44 on T185 for FR-009, SC-006, DC-06; XC-45 on T186 for FR-009, SC-006, DC-06; XC-46 on T185 for FR-006, US2-AS2, SC-003, EC-03; XC-47 on T186 for FR-006, US2-AS2, SC-003, EC-03; XC-48 on T185 for FR-008, US3-AS1, SC-004; XC-49 on T186 for FR-008, US3-AS1, SC-004; XC-50 on T185 for FR-006, FR-026, US2-AS3, EC-04; XC-51 on T186 for FR-006, FR-026, US2-AS3, EC-04; XC-52 on T185 for FR-009, US2-AS8, SC-006; XC-53 on T186 for FR-009, US2-AS8, SC-006; XC-54 on T187 for FR-052, FR-050, DC-04, DC-06; XC-55 on T188 for FR-052, FR-050, DC-04, DC-06; XC-56 on T187 for FR-052, FR-050, DC-04, DC-06; XC-57 on T188 for FR-052, FR-050, DC-04, DC-06; XC-58 on T191 for FR-036, FR-037; XC-59 on T192 for FR-036, FR-037; XC-60 on T194 for FR-040, FR-041; XC-61 on T195 for FR-033; XC-62 on T196 for FR-033; XC-63 on T199 for FR-054; XC-64 on T200 for FR-054; XC-65 on T205 for EC-19; XC-66 on T206 for EC-19; XC-67 on T208 for FR-019; XC-68 on T212 for FR-019; XC-69 on T214 for FR-019; XC-70 on T215 for FR-019; XC-71 on T223 for FR-020; XC-72 on T225 for FR-020; XC-73 on T227 for FR-020; XC-74 on T229 for AC4; XC-75 on T048 for FR-006; XC-76 on T052 for FR-006; XC-77 on T062 for FR-009; XC-78 on T075 for FR-008; XC-79 on T091 for FR-049; XC-80 on T092 for FR-049; XC-81 on T096 for FR-052; XC-82 on T102 for FR-009; XC-83 on T147 for FR-006; XC-84 on T147 for FR-006; XC-85 on T147 for FR-009; XC-86 on T147 for FR-008; XC-87 on T147 for FR-009; XC-88 on T148 for FR-006; XC-89 on T148 for FR-006; XC-90 on T148 for FR-009; XC-91 on T148 for FR-008; XC-92 on T148 for FR-009; XC-93 on T149 for FR-052; XC-94 on T149 for FR-049; XC-95 on T150 for FR-052; XC-96 on T150 for FR-049; XC-97 on T214 for FR-019; XC-98 on T064 for FR-009; XC-99 on T157 for FR-009; XC-100 on T158 for FR-009.
 
 **Item changes**: none.
 
@@ -628,6 +628,62 @@ Counts: verified 86, deferred 0, manual checks 5 open
 | 389 | 2026-10-18T14:30:20Z | T206 | VO-063 | green | unit | app/history | pass | yes | - | app/history/merge.test.ts | 4d958e | - | e58c08 |
 | 390 | 2026-10-18T14:30:23Z | T206 | VO-063 | refactor | unit-all | - | pass | yes | - | app/history/merge.test.ts | 4d958e | - | 66f211 |
 | 391 | 2026-10-18T14:30:24Z | T206 | VO-063 | green | unit | app/history/merge | pass | yes | - | app/history/merge.test.ts | 4d958e | - | 65cfea |
+| 392 | 2026-10-18T21:42:29Z | T206 | VO-063 | green | e2e | e2e/node-arrow-move | pass | yes | - | app/history/merge.test.ts | 4d958e | arrow-key move wiring, e2e smoke | 4fe9b1 |
+| 393 | 2026-10-18T21:42:33Z | T206 | VO-063 | green | unit | app/history/merge | pass | yes | - | app/history/merge.test.ts | 4d958e | - | 3d10e1 |
+| 394 | 2026-10-18T21:42:59Z | T207 | VO-064 | red | unit | app/editor/targets | fail | yes | assertion | app/editor/targets.test.ts | 9dee62 | expected: targets | 3ba0db |
+| 395 | 2026-10-18T21:43:51Z | T208 | VO-064 | green | unit-all | - | fail | no | defect | app/editor/targets.test.ts | c59456 | test bug: the tree is walked depth first, so the node comes before the element nested in it | 93a71e |
+| 396 | 2026-10-18T21:44:06Z | T208 | VO-064 | green | unit-all | - | pass | yes | - | app/editor/targets.test.ts | 8fdca8 | - | 8682f6 |
+| 397 | 2026-10-18T21:44:07Z | T208 | VO-064 | green | unit | app/editor/targets | pass | yes | - | app/editor/targets.test.ts | 8fdca8 | - | 18e605 |
+| 398 | 2026-10-18T21:44:41Z | T209 | VO-068 | green | unit | app/generation/empty | pass | yes | - | app/generation/empty.test.ts | 13729b | - | 021ade |
+| 399 | 2026-10-18T21:44:42Z | T210 | VO-068 | green | unit | app/generation/empty | pass | yes | - | app/generation/empty.test.ts | 13729b | - | 2c5c6d |
+| 400 | 2026-10-18T21:46:13Z | T211 | VO-069 | red | e2e | e2e/empty-state | fail | yes | assertion | e2e/empty-state.spec.ts | 016732 | expected: Drag an element from the toolbox | 977099 |
+| 401 | 2026-10-18T21:47:20Z | T212 | VO-069 | green | e2e | e2e/empty-state | fail | no | defect | e2e/empty-state.spec.ts | 016732 | test bug: Copy was pressed before the source check finished, and the C4 panel text also holds the empty notice | 776c6e |
+| 402 | 2026-10-18T21:48:04Z | T212 | VO-069 | green | e2e | e2e/empty-state | pass | yes | - | e2e/empty-state.spec.ts | 99b33d | - | b9e185 |
+| 403 | 2026-10-18T21:49:46Z | T213 | VO-062 | red | e2e | e2e/keyboard-only | fail | yes | assertion | e2e/keyboard-only.spec.ts | 48c0e7 | expected: Error | 29750c |
+| 404 | 2026-10-18T21:52:07Z | T214 | VO-062 | green | e2e | e2e/keyboard-only | pass | yes | - | e2e/keyboard-only.spec.ts | d5dc86 | - | f3485d |
+| 405 | 2026-10-18T21:52:37Z | T215 | VO-062 | green | e2e | e2e/keyboard-only | pass | yes | - | e2e/keyboard-only.spec.ts | 4cb267 | - | 9fda5d |
+| 406 | 2026-10-18T21:54:12Z | T216 | VO-067 | red | e2e | e2e/zoom-pan | fail | yes | assertion | e2e/zoom-pan.spec.ts | 316c6e | expected: Zoom in | 7456a2 |
+| 407 | 2026-10-18T21:55:25Z | T217 | VO-067 | green | e2e | e2e/zoom-pan | fail | no | defect | e2e/zoom-pan.spec.ts | 316c6e | defect in my change: the sequence svg kept min-width 100%, so a small diagram's size did not change when zoomed | 9f4104 |
+| 408 | 2026-10-18T21:55:54Z | T217 | VO-067 | green | e2e | e2e/zoom-pan | pass | yes | - | e2e/zoom-pan.spec.ts | 316c6e | - | 0c8de6 |
+| 409 | 2026-10-18T21:59:55Z | T217 | VO-067 | refactor | e2e-all | - | fail | no | defect | e2e/zoom-pan.spec.ts | 316c6e | regression run after zoom and empty hint changes to the three canvases; defect in my change: focus selected the node on pointer press, then the click landed on the pane and cleared it; selection on focus now only follows keyboard focus | 36bc44 |
+| 410 | 2026-10-18T22:11:31Z | T217 | VO-067 | refactor | e2e-all | - | pass | yes | - | e2e/zoom-pan.spec.ts | 316c6e | regression run after zoom, empty hint and keyboard focus changes | 2926db |
+| 411 | 2026-10-18T22:11:40Z | T217 | VO-067 | green | e2e | e2e/zoom-pan | pass | yes | - | e2e/zoom-pan.spec.ts | 316c6e | - | ac2535 |
+| 412 | 2026-10-18T22:12:43Z | T218 | VO-065 | red | e2e | e2e/leave-page | fail | yes | assertion | e2e/leave-page.spec.ts | aca920 | expected: toBe | cce113 |
+| 413 | 2026-10-18T22:13:17Z | T219 | VO-065 | green | e2e | e2e/leave-page | pass | yes | - | e2e/leave-page.spec.ts | aca920 | - | dccb8f |
+| 414 | 2026-10-18T22:13:45Z | T219 | VO-065 | green | e2e | e2e/leave-page | pass | yes | - | e2e/leave-page.spec.ts | aca920 | - | d529e6 |
+| 415 | 2026-10-18T22:14:37Z | T220 | VO-066 | red | e2e | e2e/return-to-start | fail | yes | assertion | e2e/return-to-start.spec.ts | 5e4413 | expected: Start screen | b7d015 |
+| 416 | 2026-10-18T22:14:59Z | T221 | VO-066 | green | unit | app/editor | pass | yes | - | e2e/return-to-start.spec.ts | 5e4413 | - | 29b4e1 |
+| 417 | 2026-10-18T22:15:22Z | T221 | VO-066 | green | e2e | e2e/return-to-start | fail | no | defect | e2e/return-to-start.spec.ts | 5e4413 | defect in my change: the first-save navigation to the diagram's own address ran after Start screen and replaced it | 322edc |
+| 418 | 2026-10-18T22:16:15Z | T221 | VO-066 | green | e2e | e2e/return-to-start | pass | yes | - | e2e/return-to-start.spec.ts | 5e4413 | - | 381d2a |
+| 419 | 2026-10-18T22:16:49Z | T222 | VO-070 | red | e2e | e2e/announcements | fail | yes | assertion | e2e/announcements.spec.ts | 87037d | expected: Error | e5f5a9 |
+| 420 | 2026-10-18T22:17:32Z | T223 | VO-070 | green | e2e | e2e/announcements | pass | yes | - | e2e/announcements.spec.ts | e21c65 | - | 7151b7 |
+| 421 | 2026-10-18T22:18:58Z | T224 | VO-072 | red | e2e | e2e/accessible-names | fail | yes | assertion | e2e/accessible-names.spec.ts | 2893bd | expected: not.toBe | c3026f |
+| 422 | 2026-10-18T22:19:28Z | T225 | VO-072 | green | e2e | e2e/accessible-names | fail | no | defect | e2e/accessible-names.spec.ts | 2893bd | test bug: in Firefox Tab does not wrap round to the top of the page, so the test now starts from the first toolbox button | 23bb78 |
+| 423 | 2026-10-18T22:20:09Z | T225 | VO-072 | green | e2e | e2e/accessible-names | pass | yes | - | e2e/accessible-names.spec.ts | 53b4e8 | - | 665690 |
+| 424 | 2026-10-18T22:21:48Z | T226 | VO-071 | red | e2e | e2e/wcag | fail | yes | assertion | e2e/wcag.spec.ts | 15df7e | expected: color-contrast | 373016 |
+| 425 | 2026-10-18T22:27:02Z | T227 | VO-071 | refactor | e2e-all | - | pass | yes | - | e2e/wcag.spec.ts | 31d41b | regression run after theme, list markup, attribution and focus style changes | cbaad9 |
+| 426 | 2026-10-18T22:27:21Z | T227 | VO-071 | green | e2e | e2e/wcag | pass | yes | - | e2e/wcag.spec.ts | 31d41b | - | f9628c |
+| 427 | 2026-10-18T22:29:07Z | T228 | VO-101 | red | e2e | e2e/selection-feedback | fail | yes | assertion | e2e/selection-feedback.spec.ts | cb6c74 | expected: marked | 2fb931 |
+| 428 | 2026-10-18T22:34:44Z | T229 | VO-101 | refactor | e2e-all | - | pass | yes | - | e2e/selection-feedback.spec.ts | 69c97d | regression run after selection cue, Enter/Space and Escape changes | b2d103 |
+| 429 | 2026-10-18T22:34:47Z | T229 | VO-101 | green | unit-all | - | pass | yes | - | e2e/selection-feedback.spec.ts | 69c97d | - | c3886f |
+| 430 | 2026-10-18T22:34:57Z | T229 | VO-101 | green | e2e | e2e/selection-feedback | pass | yes | - | e2e/selection-feedback.spec.ts | 69c97d | - | a6bd1d |
+| 431 | 2026-10-18T22:35:28Z | - | - | checkpoint | unit-all | - | pass | yes | - | - | - | - | e47718 |
+| 432 | 2026-10-18T22:38:53Z | - | - | checkpoint | e2e-all | - | pass | yes | - | - | - | - | 31cfde |
+| 433 | 2026-10-18T22:40:57Z | T230 | VO-096 | green | unit | app/model/familyChanges | pass | yes | - | app/model/familyChanges.test.ts | 6eb7b5 | - | 923b5b |
+| 434 | 2026-10-18T22:40:57Z | T231 | VO-096 | green | unit | app/model/familyChanges | pass | yes | - | app/model/familyChanges.test.ts | 6eb7b5 | - | 4407f8 |
+| 435 | 2026-10-18T22:46:37Z | T232 | VO-092 | green | e2e | e2e/not-offered | pass | yes | - | e2e/not-offered.spec.ts | 046c2c | - | 3e8b46 |
+| 436 | 2026-10-18T22:46:48Z | T233 | VO-092 | green | e2e | e2e/not-offered | pass | yes | - | e2e/not-offered.spec.ts | 046c2c | - | 96524d |
+| 437 | 2026-10-18T22:48:07Z | T234 | VO-095 | green | e2e | e2e/performance | pass | yes | - | e2e/performance.spec.ts | f51bfd | - | b75c26 |
+| 438 | 2026-10-18T22:48:17Z | T235 | VO-095 | green | e2e | e2e/performance | pass | yes | - | e2e/performance.spec.ts | f51bfd | - | 09d15f |
+| 439 | 2026-10-18T22:50:33Z | T236 | VO-091 | red | e2e | e2e/static-offline | fail | yes | assertion | e2e/static-offline.spec.ts | 342f64 | expected: build/server | e55ed3 |
+| 440 | 2026-10-18T22:51:51Z | T236 | VO-091 | red | e2e | e2e/static-offline | fail | yes | assertion | e2e/static-offline.spec.ts | 431bb9 | expected: build/server/index.js | df8442 |
+| 441 | 2026-10-18T22:52:18Z | T237 | VO-091 | green | e2e | e2e/static-offline | pass | yes | - | e2e/static-offline.spec.ts | 431bb9 | - | 72a666 |
+| 442 | 2026-10-18T22:53:38Z | - | - | checkpoint | unit-all | - | pass | yes | - | - | - | after moving the sequence and C4 display names into the text catalogue (T238) | 632ada |
+| 443 | 2026-10-18T22:55:07Z | T233 | VO-092 | green | e2e | e2e/not-offered | pass | yes | - | e2e/not-offered.spec.ts | cbed0a | - | ff7d92 |
+| 444 | 2026-10-18T22:57:06Z | - | - | checkpoint | unit-all | - | pass | yes | - | - | - | - | e637ad |
+| 445 | 2026-10-18T23:00:41Z | - | - | checkpoint | e2e-all | - | pass | yes | - | - | - | - | 465c86 |
+| 446 | 2026-10-18T23:02:29Z | T068 | VO-027 | green | unit | app/model/flowchart/changeConnection | pass | yes | - | app/model/flowchart/changeConnection.test.ts | 33ce88 | - | 2b2d63 |
+| 447 | 2026-10-18T23:02:38Z | T064 | VO-025 | green | e2e | e2e/rejections | pass | yes | - | e2e/canvas-source-agree.spec.ts, e2e/controls.spec.ts, e2e/flowchart-layout-note.spec.ts, e2e/labels-special.spec.ts, e2e/new-diagram.spec.ts, e2e/rejections.spec.ts | ec49bb | - | 59edf9 |
 
 ## Exceptions
 
@@ -699,6 +755,14 @@ Counts: verified 86, deferred 0, manual checks 5 open
 | EX-64 | 2026-10-18T14:24:50Z | T204 | VO-034 | no-meaningful-red | The C4 canvas, toolbox, Properties panel, kind picker and source panel were built in T191 to T202 behind their own failing end-to-end tests, so the C4 cases added here to the shared specs pass on first run. Record #382 is a run error (the select was read as one filter and no tests were found) that the check script accepted as a failing run and cannot reclassify; #383 is the same specs run correctly. | The C4 cases cover all five kinds: they fail if a kind opens with another header or a type control, if the layout note appears for C4, if special text is not shown exactly as typed, if the canvas and source disagree after any edit, undo or redo, if a control without its selection changes anything, or if the order, boundaries, relationships and title are not restored after the browser is reopened. | no | - |
 | EX-65 | 2026-10-18T14:24:50Z | T204 | VO-093 | no-meaningful-red | The C4 canvas, toolbox, Properties panel, kind picker and source panel were built in T191 to T202 behind their own failing end-to-end tests, so the C4 cases added here to the shared specs pass on first run. Record #382 is a run error (the select was read as one filter and no tests were found) that the check script accepted as a failing run and cannot reclassify; #383 is the same specs run correctly. | The C4 cases cover all five kinds: they fail if a kind opens with another header or a type control, if the layout note appears for C4, if special text is not shown exactly as typed, if the canvas and source disagree after any edit, undo or redo, if a control without its selection changes anything, or if the order, boundaries, relationships and title are not restored after the browser is reopened. | no | - |
 | EX-66 | 2026-10-18T14:24:50Z | T204 | VO-075 | no-meaningful-red | The C4 canvas, toolbox, Properties panel, kind picker and source panel were built in T191 to T202 behind their own failing end-to-end tests, so the C4 cases added here to the shared specs pass on first run. Record #382 is a run error (the select was read as one filter and no tests were found) that the check script accepted as a failing run and cannot reclassify; #383 is the same specs run correctly. | The C4 cases cover all five kinds: they fail if a kind opens with another header or a type control, if the layout note appears for C4, if special text is not shown exactly as typed, if the canvas and source disagree after any edit, undo or redo, if a control without its selection changes anything, or if the order, boundaries, relationships and title are not restored after the browser is reopened. | no | - |
+| EX-67 | 2026-10-18T21:44:39Z | T209 | VO-068 | no-meaningful-red | The empty-diagram headers and the c4-empty notice were generated since the generation layer was built (T0xx, EC-05); this test only pins that behaviour, so it passes on first run | The test reads each empty diagram back through Mermaid's own parser and asserts the exact source and notice; it was shown to fail while its indentation expectation was wrong | no | - |
+| EX-68 | 2026-10-18T21:44:39Z | T210 | VO-068 | no-meaningful-red | The empty-diagram headers and the c4-empty notice were generated since the generation layer was built (T0xx, EC-05); this test only pins that behaviour, so it passes on first run | The test reads each empty diagram back through Mermaid's own parser and asserts the exact source and notice; it was shown to fail while its indentation expectation was wrong | no | - |
+| EX-69 | 2026-10-18T22:40:56Z | T230 | VO-096 | no-meaningful-red | The model operations changeType and moveEnd already change only the item or link they name (built and tested in earlier phases); this test pins SC-016 across the three types and passes on first run | The test compares every other link before and after in diagrams of 6 items and 12 links, in each type and C4 kind; a change to any other link would fail it | no | - |
+| EX-70 | 2026-10-18T22:40:56Z | T231 | VO-096 | no-meaningful-red | The model operations changeType and moveEnd already change only the item or link they name (built and tested in earlier phases); this test pins SC-016 across the three types and passes on first run | The test compares every other link before and after in diagrams of 6 items and 12 links, in each type and C4 kind; a change to any other link would fail it | no | - |
+| EX-71 | 2026-10-18T22:46:26Z | T232 | VO-092 | no-meaningful-red | The editor never offered the excluded features: the toolbox, toolbar and panels were built without them and React Flow's multi-select, selection box, copy and paste and snap grid were switched off (selectionKeyCode, multiSelectionKeyCode set to null, no snapToGrid); the test pins this and passes on first run | The test lists the name of every control on the start screen and on each editor, checks the source panel holds no field or editable text, and exercises multi-select, copy and paste and a 5 pixel drag in a browser; it fails if any is added | no | - |
+| EX-72 | 2026-10-18T22:46:26Z | T233 | VO-092 | no-meaningful-red | The editor never offered the excluded features: the toolbox, toolbar and panels were built without them and React Flow's multi-select, selection box, copy and paste and snap grid were switched off (selectionKeyCode, multiSelectionKeyCode set to null, no snapToGrid); the test pins this and passes on first run | The test lists the name of every control on the start screen and on each editor, checks the source panel holds no field or editable text, and exercises multi-select, copy and paste and a 5 pixel drag in a browser; it fails if any is added | no | - |
+| EX-73 | 2026-10-18T22:47:56Z | T234 | VO-095 | no-meaningful-red | The derived nodes and edges are memoised and the source is generated once per present diagram (built in earlier phases), so a diagram of 100 elements and 150 relationships already meets the 1 second limit on this machine; the test passes on first run and there is nothing to remove | Each expectation that the canvas and the source show the edit, Undo and Redo is given a 1 second timeout, so the test fails if any step is slower; it runs against fixtures of 100 elements and 150 relationships in each type, in Chromium and Firefox | no | - |
+| EX-74 | 2026-10-18T22:47:56Z | T235 | VO-095 | no-meaningful-red | The derived nodes and edges are memoised and the source is generated once per present diagram (built in earlier phases), so a diagram of 100 elements and 150 relationships already meets the 1 second limit on this machine; the test passes on first run and there is nothing to remove | Each expectation that the canvas and the source show the edit, Undo and Redo is given a 1 second timeout, so the test fails if any step is slower; it runs against fixtures of 100 elements and 150 relationships in each type, in Chromium and Firefox | no | - |
 
 ## Expectation changes
 
@@ -770,6 +834,40 @@ Counts: verified 86, deferred 0, manual checks 5 open
 | XC-64 | 2026-10-18T14:14:50Z | T200 | e2e/c4-title.spec.ts | FR-054 | Correction after the first Green run: the source panel of an empty C4 diagram also shows the empty-diagram notice, so the cleared title is checked by the absence of a title line instead of an empty source; no behaviour expectation changed. | no | - | 5f8f98 |
 | XC-65 | 2026-10-18T14:30:19Z | T205 | app/history/merge.test.ts | EC-19 | Correction after the first Green run: equally near free positions resolve north first (EC-19 ring order), so the expected y is -64; no behaviour expectation changed. | no | - | 4d958e |
 | XC-66 | 2026-10-18T14:30:19Z | T206 | app/history/merge.test.ts | EC-19 | Correction after the first Green run: equally near free positions resolve north first (EC-19 ring order), so the expected y is -64; no behaviour expectation changed. | no | - | 4d958e |
+| XC-67 | 2026-10-18T21:44:03Z | T208 | app/editor/targets.test.ts | FR-019 | Correction: the expected order of the C4 targets followed the walk order wrongly; the requirement (distinct entries by type and position number) is unchanged | no | - | 8fdca8 |
+| XC-68 | 2026-10-18T21:47:53Z | T212 | e2e/empty-state.spec.ts | FR-019 | Correction: the test waits for the source check before copying and allows the c4-empty notice after the header; the empty-state requirement (EC-05) is unchanged | no | - | 99b33d |
+| XC-69 | 2026-10-18T21:51:55Z | T214 | e2e/keyboard-only.spec.ts | FR-019 | Correction: participant and element names carry their position among items of that type (T208), so the test picks them by that name; the keyboard-only requirement is unchanged | no | - | d5dc86 |
+| XC-70 | 2026-10-18T21:52:24Z | T215 | e2e/keyboard-only.spec.ts | FR-019 | Addition: the test now also drives Connect… for Sequence and C4, which T215 covers; the keyboard-only requirement is unchanged | no | - | 4cb267 |
+| XC-71 | 2026-10-18T22:17:22Z | T223 | e2e/announcements.spec.ts | FR-020 | Correction: focus is compared by element identity instead of by its text; the requirement (announce without moving focus) is unchanged | no | - | e21c65 |
+| XC-72 | 2026-10-18T22:19:58Z | T225 | e2e/accessible-names.spec.ts | FR-020 | Correction: the test reaches each item by pressing Tab from the first toolbox button, because Firefox does not wrap focus to the top; the requirement is unchanged | no | - | 53b4e8 |
+| XC-73 | 2026-10-18T22:23:41Z | T227 | e2e/wcag.spec.ts | FR-020 | Correction: the scan waits for transitions to finish so colours are measured at rest, and the preview and second-tab steps use the right locators; the WCAG 2.2 AA requirement is unchanged | no | - | 31d41b |
+| XC-74 | 2026-10-18T22:31:19Z | T229 | e2e/selection-feedback.spec.ts | AC4 | Correction: the blank-canvas click is made at a point inside the visible page (the earlier point was off screen); the selection-feedback requirement is unchanged | no | - | 69c97d |
+| XC-75 | 2026-10-18T23:02:03Z | T048 | app/validation/label.test.ts | FR-006 | Extension: later tasks (the Sequence and C4 phases) extended this shared test file with their own cases and re-ran the obligation; the assertions this task introduced are unchanged and still pass | no | - | 8df29d |
+| XC-76 | 2026-10-18T23:02:15Z | T052 | app/generation/escape.fidelity.test.ts | FR-006 | Extension: later tasks (the Sequence and C4 phases) extended this shared test file with their own cases and re-ran the obligation; the assertions this task introduced are unchanged and still pass | no | - | 447aa7 |
+| XC-77 | 2026-10-18T23:02:16Z | T062 | app/history/rejections.test.ts | FR-009 | Extension: later tasks (the Sequence and C4 phases) extended this shared test file with their own cases and re-ran the obligation; the assertions this task introduced are unchanged and still pass | no | - | 6f1097 |
+| XC-78 | 2026-10-18T23:02:16Z | T075 | app/history/history.test.ts | FR-008 | Extension: later tasks (the Sequence and C4 phases) extended this shared test file with their own cases and re-ran the obligation; the assertions this task introduced are unchanged and still pass | no | - | 728c1f |
+| XC-79 | 2026-10-18T23:02:16Z | T091 | app/persistence/openFile.test.ts | FR-049 | Extension: later tasks (the Sequence and C4 phases) extended this shared test file with their own cases and re-ran the obligation; the assertions this task introduced are unchanged and still pass | no | - | eb22dc |
+| XC-80 | 2026-10-18T23:02:16Z | T092 | app/persistence/openFile.test.ts | FR-049 | Extension: later tasks (the Sequence and C4 phases) extended this shared test file with their own cases and re-ran the obligation; the assertions this task introduced are unchanged and still pass | no | - | eb22dc |
+| XC-81 | 2026-10-18T23:02:16Z | T096 | app/persistence/codec.test.ts | FR-052 | Extension: later tasks (the Sequence and C4 phases) extended this shared test file with their own cases and re-ran the obligation; the assertions this task introduced are unchanged and still pass | no | - | 6fb6d0 |
+| XC-82 | 2026-10-18T23:02:16Z | T102 | app/validation/checkDiagram.property.test.ts | FR-009 | Extension: later tasks (the Sequence and C4 phases) extended this shared test file with their own cases and re-ran the obligation; the assertions this task introduced are unchanged and still pass | no | - | d0f0e8 |
+| XC-83 | 2026-10-18T23:02:16Z | T147 | app/generation/escape.fidelity.test.ts | FR-006 | Extension: later tasks (the Sequence and C4 phases) extended this shared test file with their own cases and re-ran the obligation; the assertions this task introduced are unchanged and still pass | no | - | 447aa7 |
+| XC-84 | 2026-10-18T23:02:17Z | T147 | app/validation/label.test.ts | FR-006 | Extension: later tasks (the Sequence and C4 phases) extended this shared test file with their own cases and re-ran the obligation; the assertions this task introduced are unchanged and still pass | no | - | 8df29d |
+| XC-85 | 2026-10-18T23:02:17Z | T147 | app/history/rejections.test.ts | FR-009 | Extension: later tasks (the Sequence and C4 phases) extended this shared test file with their own cases and re-ran the obligation; the assertions this task introduced are unchanged and still pass | no | - | 6f1097 |
+| XC-86 | 2026-10-18T23:02:17Z | T147 | app/history/history.test.ts | FR-008 | Extension: later tasks (the Sequence and C4 phases) extended this shared test file with their own cases and re-ran the obligation; the assertions this task introduced are unchanged and still pass | no | - | 728c1f |
+| XC-87 | 2026-10-18T23:02:17Z | T147 | app/validation/checkDiagram.property.test.ts | FR-009 | Extension: later tasks (the Sequence and C4 phases) extended this shared test file with their own cases and re-ran the obligation; the assertions this task introduced are unchanged and still pass | no | - | d0f0e8 |
+| XC-88 | 2026-10-18T23:02:17Z | T148 | app/generation/escape.fidelity.test.ts | FR-006 | Extension: later tasks (the Sequence and C4 phases) extended this shared test file with their own cases and re-ran the obligation; the assertions this task introduced are unchanged and still pass | no | - | 447aa7 |
+| XC-89 | 2026-10-18T23:02:17Z | T148 | app/validation/label.test.ts | FR-006 | Extension: later tasks (the Sequence and C4 phases) extended this shared test file with their own cases and re-ran the obligation; the assertions this task introduced are unchanged and still pass | no | - | 8df29d |
+| XC-90 | 2026-10-18T23:02:17Z | T148 | app/history/rejections.test.ts | FR-009 | Extension: later tasks (the Sequence and C4 phases) extended this shared test file with their own cases and re-ran the obligation; the assertions this task introduced are unchanged and still pass | no | - | 6f1097 |
+| XC-91 | 2026-10-18T23:02:18Z | T148 | app/history/history.test.ts | FR-008 | Extension: later tasks (the Sequence and C4 phases) extended this shared test file with their own cases and re-ran the obligation; the assertions this task introduced are unchanged and still pass | no | - | 728c1f |
+| XC-92 | 2026-10-18T23:02:18Z | T148 | app/validation/checkDiagram.property.test.ts | FR-009 | Extension: later tasks (the Sequence and C4 phases) extended this shared test file with their own cases and re-ran the obligation; the assertions this task introduced are unchanged and still pass | no | - | d0f0e8 |
+| XC-93 | 2026-10-18T23:02:18Z | T149 | app/persistence/codec.test.ts | FR-052 | Extension: later tasks (the Sequence and C4 phases) extended this shared test file with their own cases and re-ran the obligation; the assertions this task introduced are unchanged and still pass | no | - | 6fb6d0 |
+| XC-94 | 2026-10-18T23:02:18Z | T149 | app/persistence/openFile.test.ts | FR-049 | Extension: later tasks (the Sequence and C4 phases) extended this shared test file with their own cases and re-ran the obligation; the assertions this task introduced are unchanged and still pass | no | - | eb22dc |
+| XC-95 | 2026-10-18T23:02:18Z | T150 | app/persistence/codec.test.ts | FR-052 | Extension: later tasks (the Sequence and C4 phases) extended this shared test file with their own cases and re-ran the obligation; the assertions this task introduced are unchanged and still pass | no | - | 6fb6d0 |
+| XC-96 | 2026-10-18T23:02:18Z | T150 | app/persistence/openFile.test.ts | FR-049 | Extension: later tasks (the Sequence and C4 phases) extended this shared test file with their own cases and re-ran the obligation; the assertions this task introduced are unchanged and still pass | no | - | eb22dc |
+| XC-97 | 2026-10-18T23:02:19Z | T214 | e2e/keyboard-only.spec.ts | FR-019 | Extension: the keyboard-only test also drives Connect… for Sequence and C4 (T215); the keyboard requirement is unchanged | no | - | 4cb267 |
+| XC-98 | 2026-10-18T23:02:39Z | T064 | e2e/canvas-source-agree.spec.ts, e2e/controls.spec.ts, e2e/flowchart-layout-note.spec.ts, e2e/labels-special.spec.ts, e2e/new-diagram.spec.ts, e2e/rejections.spec.ts | FR-009 | Extension: later tasks (the Sequence and C4 phases) extended these shared end-to-end specs; the blank-label rejection cases this task introduced in e2e/rejections.spec.ts are unchanged and pass | no | - | ec49bb |
+| XC-99 | 2026-10-18T23:02:44Z | T157 | e2e/canvas-source-agree.spec.ts, e2e/controls.spec.ts, e2e/flowchart-layout-note.spec.ts, e2e/labels-special.spec.ts, e2e/new-diagram.spec.ts, e2e/rejections.spec.ts | FR-009 | Extension: later tasks extended these shared end-to-end specs after this task's run; the cases this task introduced are unchanged and pass | no | - | ec49bb |
+| XC-100 | 2026-10-18T23:02:44Z | T158 | e2e/canvas-source-agree.spec.ts, e2e/controls.spec.ts, e2e/flowchart-layout-note.spec.ts, e2e/labels-special.spec.ts, e2e/new-diagram.spec.ts, e2e/rejections.spec.ts | FR-009 | Extension: later tasks extended these shared end-to-end specs after this task's run; the cases this task introduced are unchanged and pass | no | - | ec49bb |
 
 ## Decisions
 
