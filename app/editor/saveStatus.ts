@@ -12,6 +12,8 @@ interface SaverDependencies {
 export interface Saver {
   /** Queues the diagram as the newest revision; the status stays `saving` until the newest one has been written. */
   enqueue(diagram: Diagram): void;
+  /** Resolves once no write is in flight or waiting. */
+  settled(): Promise<void>;
 }
 
 /**
@@ -22,9 +24,14 @@ export function createSaver({ write, onStatus }: SaverDependencies): Saver {
   let latest = 0;
   let waiting: { readonly diagram: Diagram; readonly revision: number } | undefined;
   let writing = false;
+  let idle: Promise<void> = Promise.resolve();
+  let release: () => void = () => undefined;
 
   const drain = async () => {
     writing = true;
+    idle = new Promise<void>((resolve) => {
+      release = resolve;
+    });
     while (waiting) {
       const { diagram, revision } = waiting;
       waiting = undefined;
@@ -36,6 +43,7 @@ export function createSaver({ write, onStatus }: SaverDependencies): Saver {
       }
     }
     writing = false;
+    release();
   };
 
   return {
@@ -45,5 +53,6 @@ export function createSaver({ write, onStatus }: SaverDependencies): Saver {
       onStatus("saving");
       if (!writing) void drain();
     },
+    settled: () => idle,
   };
 }

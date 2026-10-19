@@ -42,7 +42,7 @@ export function addContainer(diagram: C4Diagram, container: BoundaryType | "depl
 
 /** Appends a relationship labelled "Uses" with no technology. */
 export function addRelationship(diagram: C4Diagram, from: number, to: number, direction: Direction): C4Diagram {
-  const relationship: Relationship = { id: diagram.nextId, from, to, direction, label: "Uses", technology: "" };
+  const relationship: Relationship = { id: diagram.nextId, from, to, direction, label: en.c4.defaultRelationshipLabel, technology: "" };
   return {
     ...diagram,
     nextId: diagram.nextId + 1,

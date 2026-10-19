@@ -1,3 +1,5 @@
+import { en } from "../../text/en";
+import { fill } from "../../text/fill";
 import type { BoundaryType, C4Kind, Direction, ElementType } from "../types";
 
 // What each C4 kind offers (spec.md, FR-031, and data-model.md). Types in a family are limited to those listed.
@@ -41,37 +43,37 @@ export function hasTechnology(elementType: ElementType): boolean {
 export const ELEMENT_TYPE_NAMES: ReadonlyMap<ElementType, string> = new Map(
   (
     [
-      ["person", "Person"],
-      ["system", "System"],
-      ["system-db", "System database"],
-      ["system-queue", "System queue"],
-      ["container", "Container"],
-      ["container-db", "Container database"],
-      ["container-queue", "Container queue"],
-      ["component", "Component"],
-      ["component-db", "Component database"],
-      ["component-queue", "Component queue"],
+      ["person", en.c4.elementTypes.person],
+      ["system", en.c4.elementTypes.system],
+      ["system-db", en.c4.elementTypes.systemDb],
+      ["system-queue", en.c4.elementTypes.systemQueue],
+      ["container", en.c4.elementTypes.container],
+      ["container-db", en.c4.elementTypes.containerDb],
+      ["container-queue", en.c4.elementTypes.containerQueue],
+      ["component", en.c4.elementTypes.component],
+      ["component-db", en.c4.elementTypes.componentDb],
+      ["component-queue", en.c4.elementTypes.componentQueue],
     ] as const
   ).flatMap(([type, name]) => [
     [type, name] as const,
-    [`${type}-ext` as ElementType, `External ${name.charAt(0).toLowerCase()}${name.slice(1)}`] as const,
+    [`${type}-ext` as ElementType, fill(en.c4.external, { name: `${name.charAt(0).toLowerCase()}${name.slice(1)}` })] as const,
   ]),
 );
 
 /** The label a new boundary or Deployment node starts with. */
 export const BOUNDARY_NAMES: ReadonlyMap<BoundaryType, string> = new Map([
-  ["enterprise", "Enterprise boundary"],
-  ["system", "System boundary"],
-  ["container", "Container boundary"],
-  ["generic", "Boundary"],
+  ["enterprise", en.c4.boundaries.enterprise],
+  ["system", en.c4.boundaries.system],
+  ["container", en.c4.boundaries.container],
+  ["generic", en.c4.boundaries.generic],
 ]);
 
-export const DEPLOYMENT_NODE_NAME = "Deployment node";
+export const DEPLOYMENT_NODE_NAME = en.c4.deploymentNode;
 
 /** The names of the two kinds of relationship, as shown in the toolbox and on the canvas. */
 export const DIRECTION_NAMES: ReadonlyMap<Direction, string> = new Map([
-  ["one-way", "One-way relationship"],
-  ["two-way", "Two-way relationship"],
+  ["one-way", en.c4.directions.oneWay],
+  ["two-way", en.c4.directions.twoWay],
 ]);
 
 export const DIRECTIONS: readonly Direction[] = ["one-way", "two-way"];

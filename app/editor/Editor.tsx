@@ -1,15 +1,17 @@
 import { Box, Button, TextField, Typography } from "@mui/material";
+import { useNavigate } from "react-router";
 import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react";
-import { CONNECTION_TYPES } from "../model/flowchart/catalogue";
+import { CONNECTION_TYPES, FLOWCHART_SHAPES } from "../model/flowchart/catalogue";
 import { offerFile, saveDiagram } from "./library";
 import { recallSession, rememberSession } from "./sessions";
 import { createSaver, type SaveStatus } from "./saveStatus";
 import { useEditorKeyboard } from "./keyboard";
+import { unsafeToLeave, useLeaveWarning } from "./leavePage";
 import { canRedo, canUndo, createHistory } from "../history/history";
 import { rejectionMessage } from "../validation/messages";
 import type { Diagram } from "../model/types";
 import { Preview } from "../rendering/flowchart/Preview";
-import { FlowchartCanvas } from "../rendering/flowchart/FlowchartCanvas";
+import { FlowchartCanvas, type FlowchartHandle } from "../rendering/flowchart/FlowchartCanvas";
 import { FLOWCHART_TOOLBOX } from "../rendering/flowchart/toolboxGroups";
 import { PropertiesPanel } from "../rendering/shared/PropertiesPanel";
 import { TargetDialog } from "../rendering/shared/TargetDialog";
@@ -24,6 +26,7 @@ import type { Operation } from "../model/operations";
 import type { Direction, MessageStyle } from "../model/types";
 import { defaultEnd, describeSelection, extraFieldsOf, wording, messageInsertIndex, moveToOptions, participantInsertIndex, steppedIndex, steppedRelationshipIndex } from "./selection";
 import { Feedback } from "../rendering/shared/Feedback";
+import type { ViewHandle } from "../rendering/shared/viewport";
 import { Toolbar } from "../rendering/shared/Toolbar";
 import { Toolbox } from "../rendering/shared/Toolbox";
 import { SourcePanel } from "../rendering/shared/SourcePanel";
@@ -69,6 +72,7 @@ export function Editor({ initial, stored = false, onFirstSaved, locked = false }
   const diagram = state.history.present;
   const flowchart = diagram.type === "flowchart" ? diagram : undefined;
   const { kind: selectionKind, label: selectedLabel, typeOptions, targets } = describeSelection(diagram, state.selection);
+  const navigate = useNavigate();
   const nameField = useRef<HTMLInputElement>(null);
   const renaming = state.nameDraft !== null;
   useEffect(() => {
@@ -107,18 +111,25 @@ export function Editor({ initial, stored = false, onFirstSaved, locked = false }
   const commitOperation = (operation: Parameters<typeof reducer>[1] & { type: "commit" }) => {
     dispatch(operation);
   };
-  useEditorKeyboard(dispatch);
+  const canvasHandle = useRef<FlowchartHandle>(null);
+  const viewHandle = useRef<ViewHandle>(null);
+  /** The canvas of the open diagram, which owns its own zoom. */
+  const view = () => (diagram.type === "flowchart" ? canvasHandle : viewHandle).current;
+  useEditorKeyboard(dispatch, state.selection);
   const [saveStatus, setSaveStatus] = useState<SaveStatus>(() => recallSession(initial.id)?.saveStatus ?? (stored ? "saved" : "new"));
   const saver = useMemo(() => createSaver({ write: saveDiagram, onStatus: setSaveStatus }), []);
   const persisted = useRef<Diagram>(recallSession(initial.id)?.state.history.present ?? initial);
   useEffect(() => {
     rememberSession(initial.id, { state, saveStatus });
   }, [initial.id, state, saveStatus]);
+  useLeaveWarning(unsafeToLeave(state, saveStatus));
+  const leaving = useRef(false);
   const announced = useRef(saveStatus === "saved");
   useEffect(() => {
     if (saveStatus !== "saved" || announced.current) return;
     announced.current = true;
-    onFirstSaved?.(initial.id);
+    // A person who has chosen the Start screen is not moved on to the saved diagram's own address.
+    if (!leaving.current) onFirstSaved?.(initial.id);
   }, [saveStatus, initial.id, onFirstSaved]);
   useEffect(() => {
     // The first write is the first committed change; Undo and Redo are writes too (FR-042).
@@ -137,6 +148,17 @@ export function Editor({ initial, stored = false, onFirstSaved, locked = false }
         <Typography component="span" role="status" aria-label={en.saveStatus.region} sx={{ ml: 2 }} color="text.secondary">
           {SAVE_TEXT.get(saveStatus)}
         </Typography>
+        <Button
+          size="small"
+          sx={{ ml: 2 }}
+          onClick={() => {
+            // A write still under way finishes first, so the saved list has the diagram as it is now.
+            leaving.current = true;
+            void saver.settled().then(() => navigate("/"));
+          }}
+        >
+          {en.toolbar.startScreen}
+        </Button>
         {state.nameDraft === null ? (
           <>
             <Typography component="span" sx={{ ml: 2, fontWeight: "bold" }}>
@@ -188,6 +210,15 @@ export function Editor({ initial, stored = false, onFirstSaved, locked = false }
             dispatch({ type: "feedback", feedback });
           });
         }}
+        onZoomIn={() => {
+          view()?.zoomIn();
+        }}
+        onZoomOut={() => {
+          view()?.zoomOut();
+        }}
+        onFit={() => {
+          view()?.fit();
+        }}
         onSaveFile={() => {
           offerFile(diagram);
           dispatch({ type: "feedback", feedback: { tone: "success", message: en.file.offered } });
@@ -222,6 +253,11 @@ export function Editor({ initial, stored = false, onFirstSaved, locked = false }
             groups={FLOWCHART_TOOLBOX}
             armedId={state.armed ? `${state.armed.line}-${state.armed.ending}` : null}
             onActivate={(id) => {
+              const shape = FLOWCHART_SHAPES.find((candidate) => candidate.shape === id);
+              if (shape !== undefined) {
+                dispatch({ type: "commit", operation: { op: "addNode", shape: shape.shape, position: canvasHandle.current?.visibleCentre() ?? { x: 0, y: 0 } } });
+                return;
+              }
               const entry = CONNECTION_TYPES.find((type) => `${type.line}-${type.ending}` === id);
               if (entry === undefined) return;
               const alreadyArmed = state.armed?.line === entry.line && state.armed.ending === entry.ending;
@@ -231,6 +267,7 @@ export function Editor({ initial, stored = false, onFirstSaved, locked = false }
         <Box component="section" aria-label={en.editor.canvas} sx={{ flex: 1, position: "relative" }}>
           {diagram.type === "sequence" && (
             <SequenceCanvas
+              handleRef={viewHandle}
               diagram={diagram}
               selection={state.selection}
               onSelect={(itemId) => {
@@ -249,6 +286,7 @@ export function Editor({ initial, stored = false, onFirstSaved, locked = false }
           )}
           {c4 && (
             <C4Canvas
+              handleRef={viewHandle}
               diagram={c4}
               selection={state.selection}
               onSelect={(itemId) => {
@@ -270,12 +308,19 @@ export function Editor({ initial, stored = false, onFirstSaved, locked = false }
           )}
           {diagram.type === "flowchart" && (
             <FlowchartCanvas
+              handleRef={canvasHandle}
               diagram={diagram}
               onAddNode={(shape, position) => {
                 dispatch({ type: "commit", operation: { op: "addNode", shape, position } });
               }}
               onMoveNode={(id, position) => {
                 dispatch({ type: "commit", operation: { op: "moveNode", id, position } });
+              }}
+              onNudgeNode={(id, position) => {
+                dispatch({ type: "commit", operation: { op: "moveNode", id, position }, mergeKey: `move:${String(id)}` });
+              }}
+              onFocusLeave={() => {
+                dispatch({ type: "seal" });
               }}
               selection={state.selection}
               cancelDragSignal={state.gesture}

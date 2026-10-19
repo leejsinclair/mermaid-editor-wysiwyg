@@ -1,11 +1,11 @@
-import { CONNECTION_TYPES, FLOWCHART_SHAPES, shapeName } from "../model/flowchart/catalogue";
+import { CONNECTION_TYPES, FLOWCHART_SHAPES } from "../model/flowchart/catalogue";
 import { BOUNDARY_NAMES, DEPLOYMENT_NODE_NAME, DIRECTIONS, hasTechnology, DIRECTION_NAMES, ELEMENT_TYPES_BY_KIND, ELEMENT_TYPE_NAMES, familyOf } from "../model/c4/catalogue";
 import { findItem, isContainer, parentOf, walkItems } from "../model/c4/tree";
 import { MESSAGE_STYLE_NAMES, PARTICIPANT_ROLES, ROLE_NAMES } from "../model/sequence/catalogue";
 import type { C4Diagram, Diagram, FlowchartDiagram, SequenceDiagram } from "../model/types";
 import type { ExtraField, SelectionKind, TypeOption } from "../rendering/shared/PropertiesPanel";
 import type { MoveToOption } from "../rendering/shared/MoveToDialog";
-import type { Target } from "../rendering/shared/TargetDialog";
+import { targetList, type Target } from "../model/targets";
 import { en } from "../text/en";
 import { fill } from "../text/fill";
 
@@ -33,10 +33,7 @@ function describeFlowchart(diagram: FlowchartDiagram, selection: number | null):
     kind,
     label: (node ?? connection)?.label,
     typeOptions,
-    targets: diagram.content.nodes.map((candidate) => ({
-      id: candidate.id,
-      name: fill(en.properties.target, { label: candidate.label, type: shapeName(candidate.shape) ?? candidate.shape, n: String(candidate.id) }),
-    })),
+    targets: targetList(diagram),
   };
 }
 
@@ -53,10 +50,7 @@ function describeSequence(diagram: SequenceDiagram, selection: number | null): S
     kind,
     label: participant?.label ?? message?.text,
     typeOptions,
-    targets: diagram.content.participants.map((candidate) => ({
-      id: candidate.id,
-      name: fill(en.properties.target, { label: candidate.label, type: ROLE_NAMES.get(candidate.role) ?? candidate.role, n: String(candidate.id) }),
-    })),
+    targets: targetList(diagram),
   };
 }
 
@@ -81,12 +75,7 @@ function describeC4(diagram: C4Diagram, selection: number | null): SelectionView
     kind,
     label: (item ?? relationship)?.label,
     typeOptions,
-    targets: walkItems(tree)
-      .filter((candidate) => candidate.item !== "boundary")
-      .map((candidate) => ({
-        id: candidate.id,
-        name: fill(en.properties.target, { label: candidate.label, type: candidate.item === "element" ? (ELEMENT_TYPE_NAMES.get(candidate.elementType) ?? candidate.elementType) : "Deployment node", n: String(candidate.id) }),
-      })),
+    targets: targetList(diagram),
   };
 }
 

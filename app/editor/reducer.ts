@@ -1,4 +1,4 @@
-import { commit, redo, undo, type History } from "../history/history";
+import { commit, redo, seal, undo, type History } from "../history/history";
 import { liftNotice } from "../model/c4/apply";
 import type { LabelField, Operation } from "../model/operations";
 import type { Ending, LineStyle } from "../model/types";
@@ -24,7 +24,8 @@ export interface EditorState {
 }
 
 export type EditorAction =
-  | { readonly type: "commit"; readonly operation: Operation }
+  | { readonly type: "commit"; readonly operation: Operation; readonly mergeKey?: string }
+  | { readonly type: "seal" }
   | { readonly type: "select"; readonly itemId: number | null }
   | { readonly type: "draft"; readonly itemId: number; readonly text: string; readonly field?: LabelField }
   | { readonly type: "confirmLabel" }
@@ -70,8 +71,8 @@ function successNotice(state: EditorState, operation: Operation, committed: bool
   return message === undefined ? null : { tone: "success", message };
 }
 
-function commitOperation(state: EditorState, operation: Operation): EditorState {
-  const { history, outcome } = commit(state.history, operation);
+function commitOperation(state: EditorState, operation: Operation, mergeKey?: string): EditorState {
+  const { history, outcome } = commit(state.history, operation, mergeKey);
   const deleted = outcome.committed && operation.op === "deleteItem";
   return { ...state, history, selection: deleted ? null : state.selection, draft: null, feedback: rejectionFeedback(outcome) ?? successNotice(state, operation, outcome.committed) };
 }
@@ -86,7 +87,10 @@ export function reducer(state: EditorState, action: EditorAction): EditorState {
     case "confirmName":
       return confirmDraft(state, "name");
     case "select":
-      return { ...state, selection: action.itemId, draft: null };
+      // Selecting something else ends a run of merged moves (FR-019).
+      return { ...state, history: action.itemId === state.selection ? state.history : seal(state.history), selection: action.itemId, draft: null };
+    case "seal":
+      return { ...state, history: seal(state.history) };
     case "draft":
       return { ...state, draft: { itemId: action.itemId, text: action.text, ...(action.field && { field: action.field }) } };
     case "release":
@@ -101,6 +105,6 @@ export function reducer(state: EditorState, action: EditorAction): EditorState {
     case "feedback":
       return { ...state, feedback: action.feedback };
     case "commit":
-      return commitOperation(state, action.operation);
+      return commitOperation(state, action.operation, action.mergeKey);
   }
 }
