@@ -27,7 +27,7 @@ test("diagrams reopen exactly as last saved after the browser is closed and open
     // First session: build and save two diagrams.
     let context = await open();
     let page = await context.newPage();
-    await page.goto("/new/flowchart");
+    await page.goto("#/new/flowchart");
     const canvas = page.getByRole("region", { name: "Diagram canvas" });
     await addShape(page, canvas, "Rectangle", { x: 200, y: 100 });
     await addShape(page, canvas, "Circle", { x: 520, y: 360 });
@@ -36,14 +36,15 @@ test("diagrams reopen exactly as last saved after the browser is closed and open
     await page.getByRole("region", { name: "Properties" }).getByRole("textbox", { name: "Label" }).fill("Renamed circle");
     await page.keyboard.press("Enter");
     await expect(page.getByRole("status", { name: "Save status" })).toHaveText("Saved");
-    await expect(page).toHaveURL(/\/d\/[\w-]+$/);
+    await expect(page).toHaveURL(/#\/d\/[\w-]+$/);
     const firstUrl = page.url();
     const firstLayout = await layout(page, 2);
 
-    await page.goto("/new/flowchart");
+    await page.goto("#/new/flowchart");
+    await page.reload();
     await addShape(page, page.getByRole("region", { name: "Diagram canvas" }), "Diamond", { x: 100, y: 50 });
     await expect(page.getByRole("status", { name: "Save status" })).toHaveText("Saved");
-    await expect(page).toHaveURL(/\/d\/[\w-]+$/);
+    await expect(page).toHaveURL(/#\/d\/[\w-]+$/);
     const secondUrl = page.url();
     const secondLayout = await layout(page, 1);
     await context.close();
@@ -51,16 +52,19 @@ test("diagrams reopen exactly as last saved after the browser is closed and open
     // Second session: a new browser process on the same profile.
     context = await open();
     page = await context.newPage();
-    await page.goto("/");
+    await page.goto("#/");
+    await page.reload();
     await expect(page.getByRole("region", { name: "Saved diagrams" }).getByRole("listitem")).toHaveCount(2);
 
     await page.goto(firstUrl);
+    await page.reload();
     await expect(page.getByRole("status", { name: "Save status" })).toHaveText("Saved");
     await expect(page.getByRole("button", { name: "Undo", exact: true })).toBeDisabled();
     await expect(page.getByRole("region", { name: "Diagram canvas" }).locator(".react-flow__edge")).toHaveCount(1);
     expect(await layout(page, 2)).toEqual(firstLayout);
 
     await page.goto(secondUrl);
+    await page.reload();
     await expect(page.getByRole("button", { name: "Undo", exact: true })).toBeDisabled();
     expect(await layout(page, 1)).toEqual(secondLayout);
 
@@ -82,7 +86,7 @@ test("a sequence diagram reopens with its participants and messages in the order
   try {
     let context = await open();
     let page = await context.newPage();
-    await page.goto("/new/sequence");
+    await page.goto("#/new/sequence");
     await addParticipants(page, ["Participant", "A"], ["Actor", "B"], ["Participant", "C"]);
     await addMessage(page, "Solid arrow", "A", "B");
     await relabel(page, sequenceCanvas(page).getByTestId("message").nth(0), "one");
@@ -95,7 +99,7 @@ test("a sequence diagram reopens with its participants and messages in the order
     await page.keyboard.press("Enter");
     await page.getByRole("button", { name: "Move up", exact: true }).click();
     await expect(page.getByRole("status", { name: "Save status" })).toHaveText("Saved");
-    await expect(page).toHaveURL(/\/d\/[\w-]+$/);
+    await expect(page).toHaveURL(/#\/d\/[\w-]+$/);
     const address = page.url();
     const names = await participantNames(page);
     const texts = await messageTexts(page);
@@ -106,6 +110,7 @@ test("a sequence diagram reopens with its participants and messages in the order
     context = await open();
     page = await context.newPage();
     await page.goto(address);
+    await page.reload();
     await expect(sequenceCanvas(page).getByTestId("participant")).toHaveCount(3);
     expect(await participantNames(page)).toEqual(names);
     expect(await messageTexts(page)).toEqual(texts);
@@ -123,7 +128,7 @@ test("a C4 diagram reopens with its order, boundaries, relationships and title a
   try {
     let context = await open();
     let page = await context.newPage();
-    await page.goto("/new/c4/container");
+    await page.goto("#/new/c4/container");
     await addItem(page, "Person", "Customer");
     await addItem(page, "System boundary", "Zone");
     await addItem(page, "Container", "Api");
@@ -137,7 +142,7 @@ test("a C4 diagram reopens with its order, boundaries, relationships and title a
     await page.getByRole("region", { name: "Properties" }).getByRole("textbox", { name: "Title", exact: true }).fill("Shop overview");
     await page.keyboard.press("Enter");
     await expect(page.getByRole("status", { name: "Save status" })).toHaveText("Saved");
-    await expect(page).toHaveURL(/\/d\/[\w-]+$/);
+    await expect(page).toHaveURL(/#\/d\/[\w-]+$/);
     const address = page.url();
     const names = await itemNames(page);
     const links = await relationshipNames(page);
@@ -149,6 +154,7 @@ test("a C4 diagram reopens with its order, boundaries, relationships and title a
     context = await open();
     page = await context.newPage();
     await page.goto(address);
+    await page.reload();
     await expect(c4Canvas(page).getByTestId("c4-relationship")).toHaveCount(2);
     expect(await itemNames(page)).toEqual(names);
     expect(await relationshipNames(page)).toEqual(links);

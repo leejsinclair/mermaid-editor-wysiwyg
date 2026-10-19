@@ -5,7 +5,7 @@ import { expect, test } from "@playwright/test";
 test("a flowchart says that node positions stay in the editor and Mermaid arranges the copy its own way", async ({
   page,
 }) => {
-  await page.goto("/new/flowchart");
+  await page.goto("#/new/flowchart");
 
   await expect(
     page
@@ -15,7 +15,7 @@ test("a flowchart says that node positions stay in the editor and Mermaid arrang
 });
 
 test("a sequence diagram shows no such statement, because its layout is fixed by order", async ({ page }) => {
-  await page.goto("/new/sequence");
+  await page.goto("#/new/sequence");
 
   await expect(page.getByRole("toolbar")).toBeVisible();
   await expect(page.getByText(/positions are kept|arranges the copied diagram/i)).toHaveCount(0);
@@ -23,7 +23,7 @@ test("a sequence diagram shows no such statement, because its layout is fixed by
 
 for (const kind of ["context", "container", "component", "dynamic", "deployment"]) {
   test(`a C4 ${kind} diagram shows no such statement, because Mermaid lays it out from the order`, async ({ page }) => {
-    await page.goto(`/new/c4/${kind}`);
+    await page.goto(`#/new/c4/${kind}`);
 
     await expect(page.getByRole("toolbar")).toBeVisible();
     await expect(page.getByText(/positions are kept|arranges the copied diagram/i)).toHaveCount(0);

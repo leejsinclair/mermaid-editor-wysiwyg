@@ -5,14 +5,16 @@ import { addShape } from "./support/flowchart";
 // diagram identical to the saved one and leaves the original unchanged.
 
 test("opening a saved file adds a new diagram and leaves the original unchanged", async ({ page }) => {
-  await page.goto("/new/flowchart");
+  await page.goto("#/new/flowchart");
   await addShape(page, page.getByRole("region", { name: "Diagram canvas" }), "Rectangle", { x: 200, y: 100 });
   await expect(page.getByRole("status", { name: "Save status" })).toHaveText("Saved");
+  await expect(page).toHaveURL(/#\/d\/[\w-]+$/);
   const download = page.waitForEvent("download");
   await page.getByRole("button", { name: "Save file" }).click();
   const file = await (await download).path();
 
-  await page.goto("/");
+  await page.goto("#/");
+  await page.reload();
   const items = page.getByRole("region", { name: "Saved diagrams" }).getByRole("listitem");
   await expect(items).toHaveCount(1);
   const originalHref = await items.first().getByRole("link").getAttribute("href");
@@ -22,10 +24,11 @@ test("opening a saved file adds a new diagram and leaves the original unchanged"
   await page.getByRole("button", { name: "Open file…" }).click();
   await (await chooser).setFiles(file);
 
-  await expect(page).toHaveURL(/\/d\/[\w-]+$/);
+  await expect(page).toHaveURL(/#\/d\/[\w-]+$/);
   expect(page.url()).not.toContain(originalHref ?? "none");
   await expect(page.getByRole("region", { name: "Diagram canvas" }).locator(".react-flow__node")).toHaveCount(1);
-  await page.goto("/");
+  await page.goto("#/");
+  await page.reload();
   await expect(items).toHaveCount(2);
   const original = items.filter({ has: page.locator(`a[href="${originalHref ?? ""}"]`) });
   await expect(original.locator("time")).toHaveAttribute("datetime", originalTime ?? "");

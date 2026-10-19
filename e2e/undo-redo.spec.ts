@@ -6,7 +6,7 @@ import { addShape } from "./support/flowchart";
 const nodes = (page: Page) => page.getByRole("region", { name: "Diagram canvas" }).locator(".react-flow__node");
 
 async function twoNodes(page: Page) {
-  await page.goto("/new/flowchart");
+  await page.goto("#/new/flowchart");
   const canvas = page.getByRole("region", { name: "Diagram canvas" });
   await addShape(page, canvas, "Rectangle", { x: 200, y: 100 });
   await addShape(page, canvas, "Circle", { x: 520, y: 360 });
@@ -15,7 +15,7 @@ async function twoNodes(page: Page) {
 }
 
 test("Undo and Redo are disabled when unavailable and enabled when not", async ({ page }) => {
-  await page.goto("/new/flowchart");
+  await page.goto("#/new/flowchart");
   const undo = page.getByRole("button", { name: "Undo", exact: true });
   const redo = page.getByRole("button", { name: "Redo", exact: true });
   await expect(undo).toBeDisabled();

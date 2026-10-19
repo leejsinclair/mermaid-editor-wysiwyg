@@ -5,7 +5,7 @@ import { addMessage, addParticipants, canvas as sequenceCanvas, messageTexts, re
 // A blank node label, and blank message text in a sequence diagram.
 
 test("confirming a blank node label is refused with an announced explanation and changes nothing", async ({ page }) => {
-  await page.goto("/new/flowchart");
+  await page.goto("#/new/flowchart");
   const canvas = page.getByRole("region", { name: "Diagram canvas" });
   await page.getByRole("button", { name: "Rectangle", exact: true }).dragTo(canvas, { targetPosition: { x: 300, y: 200 } });
   await expect(page.getByRole("button", { name: /Mermaid source/ })).toContainText("Valid");
@@ -26,7 +26,7 @@ test("confirming a blank node label is refused with an announced explanation and
 });
 
 test("confirming blank message text is refused with an announced explanation and keeps the previous text", async ({ page }) => {
-  await page.goto("/new/sequence");
+  await page.goto("#/new/sequence");
   await addParticipants(page, ["Participant", "A"], ["Participant", "B"]);
   await addMessage(page, "Solid arrow", "A", "B");
   await relabel(page, sequenceCanvas(page).getByTestId("message").first(), "Hello");
@@ -43,7 +43,7 @@ test("confirming blank message text is refused with an announced explanation and
 });
 
 test("a message cannot be added with blank text, because it starts with its type's name", async ({ page }) => {
-  await page.goto("/new/sequence");
+  await page.goto("#/new/sequence");
   await addParticipants(page, ["Participant", "A"]);
   await addMessage(page, "Dashed cross", "A", "A");
 

@@ -44,7 +44,7 @@ async function exercise(page: Page, scale: Scale, panBy: () => Promise<unknown>,
 }
 
 test("a flowchart is zoomed, panned and fitted with the diagram and source unchanged", async ({ page }) => {
-  await page.goto("/new/flowchart");
+  await page.goto("#/new/flowchart");
   await toolbox(page).getByRole("button", { name: "Rectangle", exact: true }).click();
   const nodes = canvas(page).locator(".react-flow__node");
   await expect(nodes).toHaveCount(1);
@@ -60,7 +60,7 @@ test("a flowchart is zoomed, panned and fitted with the diagram and source uncha
 });
 
 test("a sequence diagram is zoomed, panned and fitted with the diagram and source unchanged", async ({ page }) => {
-  await page.goto("/new/sequence");
+  await page.goto("#/new/sequence");
   for (const role of ["Participant", "Actor"]) await toolbox(page).getByRole("button", { name: role, exact: true }).click();
   const participants = canvas(page).getByTestId("participant");
   await expect(participants).toHaveCount(2);
@@ -72,7 +72,7 @@ test("a sequence diagram is zoomed, panned and fitted with the diagram and sourc
 });
 
 test("a C4 diagram is zoomed, panned and fitted with the diagram and source unchanged", async ({ page }) => {
-  await page.goto("/new/c4/context");
+  await page.goto("#/new/c4/context");
   for (const type of ["Person", "System"]) await toolbox(page).getByRole("button", { name: type, exact: true }).click();
   const elements = canvas(page).getByTestId("c4-element");
   await expect(elements).toHaveCount(2);

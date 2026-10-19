@@ -26,15 +26,15 @@ async function expectNothingExcludedOffered(page: Page): Promise<void> {
 }
 
 test("the start screen offers none of the excluded features", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("#/");
 
   await expectNothingExcludedOffered(page);
 });
 
 for (const { name, path } of [
-  { name: "flowchart", path: "/new/flowchart" },
-  { name: "sequence", path: "/new/sequence" },
-  { name: "C4", path: "/new/c4/context" },
+  { name: "flowchart", path: "#/new/flowchart" },
+  { name: "sequence", path: "#/new/sequence" },
+  { name: "C4", path: "#/new/c4/context" },
 ]) {
   test(`the ${name} editor shows its source read-only in an expandable panel and offers none of the excluded features`, async ({ page }) => {
     await page.goto(path);
@@ -55,7 +55,8 @@ for (const { name, path } of [
 }
 
 async function twoNodes(page: Page) {
-  await page.goto("/new/flowchart");
+  await page.goto("#/new/flowchart");
+  await page.reload();
   await page.getByRole("region", { name: "Toolbox" }).getByRole("button", { name: "Rectangle", exact: true }).click();
   await page.getByRole("region", { name: "Toolbox" }).getByRole("button", { name: "Circle", exact: true }).click();
   const nodes = canvas(page).locator(".react-flow__node");

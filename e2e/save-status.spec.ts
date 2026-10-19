@@ -6,7 +6,7 @@ import { addShape } from "./support/flowchart";
 // succeeded, and within a second of the change.
 
 test("Saved is shown within a second of a change, an Undo and a Redo", async ({ page }) => {
-  await page.goto("/new/flowchart");
+  await page.goto("#/new/flowchart");
   const canvas = page.getByRole("region", { name: "Diagram canvas" });
   const status = page.getByRole("status", { name: "Save status" });
   await expect(status).toHaveText("Not saved yet");
@@ -23,7 +23,7 @@ test("Saved is shown within a second of a change, an Undo and a Redo", async ({ 
 
 test("Saved appears only after the write has completed; until then the status says Saving", async ({ page }) => {
   await delayStorageCompletion(page);
-  await page.goto("/new/flowchart");
+  await page.goto("#/new/flowchart");
   const canvas = page.getByRole("region", { name: "Diagram canvas" });
   const status = page.getByRole("status", { name: "Save status" });
   await setStorageDelay(page, 1500);

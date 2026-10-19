@@ -54,16 +54,16 @@ async function copiesSaveAndOpen(page: Page, drawn: Locator, count: number): Pro
   const file = await (await download).path();
   expect(JSON.parse(await readFile(file, "utf8"))).toMatchObject({ format: "mermaid-editor-wysiwyg" });
 
-  await page.goto("/");
+  await page.goto("#/");
   const chooser = page.waitForEvent("filechooser");
   await press(page, page.getByRole("button", { name: "Open file…" }));
   await (await chooser).setFiles(file);
-  await expect(page).toHaveURL(/\/d\/[\w-]+$/);
+  await expect(page).toHaveURL(/#\/d\/[\w-]+$/);
   await expect(drawn).toHaveCount(count);
 }
 
 test("a flowchart is built and edited with the keyboard alone", async ({ page }) => {
-  await page.goto("/new/flowchart");
+  await page.goto("#/new/flowchart");
   const nodes = canvas(page).locator(".react-flow__node");
   const edges = canvas(page).locator(".react-flow__edge");
 
@@ -104,7 +104,7 @@ test("a flowchart is built and edited with the keyboard alone", async ({ page })
 });
 
 test("a sequence diagram is built and edited with the keyboard alone", async ({ page }) => {
-  await page.goto("/new/sequence");
+  await page.goto("#/new/sequence");
   const participants = canvas(page).getByTestId("participant");
   const rows = canvas(page).getByTestId("message");
 
@@ -153,7 +153,7 @@ test("a sequence diagram is built and edited with the keyboard alone", async ({ 
 });
 
 test("a C4 diagram is built and edited with the keyboard alone", async ({ page }) => {
-  await page.goto("/new/c4/context");
+  await page.goto("#/new/c4/context");
   const items = canvas(page).locator('[data-testid="c4-element"], [data-testid="c4-boundary"]');
   const elements = canvas(page).getByTestId("c4-element");
   const relationships = canvas(page).getByTestId("c4-relationship");

@@ -38,7 +38,7 @@ test("deleting one relationship removes only that relationship", async ({ page }
 });
 
 test("deleting a boundary lifts what it held, in order, removes nothing else, and names the boundary", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("#/");
   await seedRecords(page, [
     c4Record(
       "zone",
@@ -54,7 +54,8 @@ test("deleting a boundary lifts what it held, in order, removes nothing else, an
       [{ id: 5, from: 1, to: 3 }],
     ),
   ]);
-  await page.goto("/d/zone");
+  await page.goto("#/d/zone");
+  await page.reload();
   await select(page, itemLabelled(page, "Zone"));
 
   await controls(page).getByRole("button", { name: "Delete" }).click();

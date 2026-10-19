@@ -31,7 +31,7 @@ test("Copy Source is refused while the source is checked, then copies exactly th
     await route.continue();
   });
 
-  await page.goto("/new/flowchart");
+  await page.goto("#/new/flowchart");
   const canvas = page.getByRole("region", { name: "Diagram canvas" });
   await page.getByRole("button", { name: "Rectangle", exact: true }).dragTo(canvas, { targetPosition: { x: 300, y: 200 } });
   await putOnClipboard(page, "sentinel");

@@ -28,10 +28,11 @@ async function storedCount(page: Page): Promise<number> {
 }
 
 test("a new diagram left without a change is not stored and is not on the start screen", async ({ page }) => {
-  await page.goto("/new/flowchart");
+  await page.goto("#/new/flowchart");
   await expect(page.getByRole("status", { name: "Save status" })).toHaveText("Not saved yet");
 
-  await page.goto("/");
+  await page.goto("#/");
+  await page.reload();
 
   expect(await storedCount(page)).toBe(0);
   await expect(page.getByRole("heading", { name: "Mermaid diagram editor" })).toBeVisible();
@@ -39,12 +40,12 @@ test("a new diagram left without a change is not stored and is not on the start 
 });
 
 test("the first committed change writes the first record and moves the address to /d/<id> without losing the session", async ({ page }) => {
-  await page.goto("/new/flowchart");
+  await page.goto("#/new/flowchart");
   const canvas = page.getByRole("region", { name: "Diagram canvas" });
-  await expect(page).toHaveURL(/\/new\/flowchart$/);
+  await expect(page).toHaveURL(/#\/new\/flowchart$/);
 
   await addShape(page, canvas, "Rectangle", { x: 200, y: 100 });
-  await expect(page).toHaveURL(/\/d\/[\w-]+$/);
+  await expect(page).toHaveURL(/#\/d\/[\w-]+$/);
   await expect(page.getByRole("status", { name: "Save status" })).toHaveText("Saved");
   expect(await storedCount(page)).toBe(1);
 
@@ -58,9 +59,10 @@ test("the first committed change writes the first record and moves the address t
 });
 
 test("an address that names no diagram type or C4 kind goes back to the start screen", async ({ page }) => {
-  await page.goto("/new/gantt");
-  await expect(page).toHaveURL(/\/$/);
+  await page.goto("#/new/gantt");
+  await expect(page).toHaveURL(/#\/$/);
 
-  await page.goto("/new/c4/system-landscape");
-  await expect(page).toHaveURL(/\/$/);
+  await page.goto("#/new/c4/system-landscape");
+  await page.reload();
+  await expect(page).toHaveURL(/#\/$/);
 });

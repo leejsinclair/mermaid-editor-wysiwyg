@@ -6,10 +6,10 @@ import { addShape } from "./support/flowchart";
 // two tabs never both save.
 
 test("a second tab can take over editing, and the first can take it back", async ({ page, context }) => {
-  await page.goto("/new/flowchart");
+  await page.goto("#/new/flowchart");
   const canvasA = page.getByRole("region", { name: "Diagram canvas" });
   await addShape(page, canvasA, "Rectangle", { x: 200, y: 100 });
-  await expect(page).toHaveURL(/\/d\/[\w-]+$/);
+  await expect(page).toHaveURL(/#\/d\/[\w-]+$/);
   await expect(page.getByRole("status", { name: "Save status" })).toHaveText("Saved");
   const address = page.url();
 
@@ -53,15 +53,15 @@ test("a second tab can take over editing, and the first can take it back", async
 });
 
 test("a second tab can decline and leave the diagram with the first", async ({ page, context }) => {
-  await page.goto("/new/flowchart");
+  await page.goto("#/new/flowchart");
   await addShape(page, page.getByRole("region", { name: "Diagram canvas" }), "Rectangle", { x: 200, y: 100 });
   await expect(page.getByRole("status", { name: "Save status" })).toHaveText("Saved");
-  await expect(page).toHaveURL(/\/d\/[\w-]+$/);
+  await expect(page).toHaveURL(/#\/d\/[\w-]+$/);
 
   const second = await context.newPage();
   await second.goto(page.url());
   await second.getByRole("dialog", { name: "Open in another tab" }).getByRole("button", { name: "Cancel" }).click();
 
-  await expect(second).toHaveURL(/\/$/);
+  await expect(second).toHaveURL(/#\/$/);
   await expect(page.getByRole("dialog")).toHaveCount(0);
 });

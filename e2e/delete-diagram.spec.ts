@@ -11,7 +11,7 @@ const records = () => [
 ];
 
 test("confirming Delete removes only that diagram, permanently", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("#/");
   await seedRecords(page, records());
   await page.reload();
   const items = page.getByRole("region", { name: "Saved diagrams" }).getByRole("listitem");
@@ -31,7 +31,7 @@ test("confirming Delete removes only that diagram, permanently", async ({ page }
 });
 
 test("cancelling keeps the diagram", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("#/");
   await seedRecords(page, records());
   await page.reload();
   const items = page.getByRole("region", { name: "Saved diagrams" }).getByRole("listitem");
@@ -44,13 +44,13 @@ test("cancelling keeps the diagram", async ({ page }) => {
 });
 
 test("a diagram open in another tab cannot be deleted; the list says it is open there", async ({ page, context }) => {
-  await page.goto("/new/flowchart");
+  await page.goto("#/new/flowchart");
   await addShape(page, page.getByRole("region", { name: "Diagram canvas" }), "Rectangle", { x: 200, y: 100 });
-  await expect(page).toHaveURL(/\/d\/[\w-]+$/);
+  await expect(page).toHaveURL(/#\/d\/[\w-]+$/);
   await expect(page.getByRole("status", { name: "Save status" })).toHaveText("Saved");
 
   const other = await context.newPage();
-  await other.goto("/");
+  await other.goto("#/");
 
   const row = other.getByRole("region", { name: "Saved diagrams" }).getByRole("listitem").filter({ hasText: "Untitled flowchart" });
   await expect(row).toContainText("Open in another tab");

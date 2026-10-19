@@ -36,7 +36,7 @@ async function agree(page: Page) {
 }
 
 test("canvas and source agree after every edit, undo and redo", async ({ page }) => {
-  await page.goto("/new/flowchart");
+  await page.goto("#/new/flowchart");
   const canvas = page.getByRole("region", { name: "Diagram canvas" });
   const properties = page.getByRole("region", { name: "Properties" });
   const undo = page.getByRole("button", { name: "Undo", exact: true });
@@ -111,7 +111,7 @@ async function sequenceFromCanvas(page: Page) {
 }
 
 test("in a sequence diagram, canvas and source agree after every edit, undo and redo", async ({ page }) => {
-  await page.goto("/new/sequence");
+  await page.goto("#/new/sequence");
   const agreeSequence = async () => {
     const source = await readSource(page);
     await expect.poll(async () => sequenceFromCanvas(page)).toEqual(sequenceFromSource(source));

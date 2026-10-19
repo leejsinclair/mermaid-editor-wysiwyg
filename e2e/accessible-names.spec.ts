@@ -45,7 +45,7 @@ async function expectNamedWithVisibleFocus(page: Page, item: Locator, name: RegE
 }
 
 test("flowchart nodes and connections are named by type, label and ends, with a visible focus indicator", async ({ page }) => {
-  await page.goto("/new/flowchart");
+  await page.goto("#/new/flowchart");
   await activate(page, toolbox(page).getByRole("button", { name: "Rectangle", exact: true }));
   await activate(page, toolbox(page).getByRole("button", { name: "Diamond", exact: true }));
   const nodes = canvas(page).locator(".react-flow__node");
@@ -62,7 +62,7 @@ test("flowchart nodes and connections are named by type, label and ends, with a 
 });
 
 test("sequence participants and messages are named by type, label and ends, with a visible focus indicator", async ({ page }) => {
-  await page.goto("/new/sequence");
+  await page.goto("#/new/sequence");
   await activate(page, toolbox(page).getByRole("button", { name: "Participant", exact: true }));
   await activate(page, toolbox(page).getByRole("button", { name: "Actor", exact: true }));
   const participants = canvas(page).getByTestId("participant");
@@ -83,7 +83,7 @@ test("sequence participants and messages are named by type, label and ends, with
 });
 
 test("C4 elements and relationships are named by type, label and ends, with a visible focus indicator", async ({ page }) => {
-  await page.goto("/new/c4/context");
+  await page.goto("#/new/c4/context");
   await activate(page, toolbox(page).getByRole("button", { name: "Person", exact: true }));
   await activate(page, toolbox(page).getByRole("button", { name: "System", exact: true }));
   const elements = canvas(page).getByTestId("c4-element");

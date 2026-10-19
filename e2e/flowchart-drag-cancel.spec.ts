@@ -4,7 +4,7 @@ import { expect, test } from "@playwright/test";
 // Undo availability is asserted here once Undo exists (T081).
 
 test("a toolbox drag that ends outside the canvas adds no node", async ({ page }) => {
-  await page.goto("/new/flowchart");
+  await page.goto("#/new/flowchart");
   const canvas = page.getByRole("region", { name: "Diagram canvas" });
 
   await page.getByRole("button", { name: "Rectangle", exact: true }).dragTo(page.getByRole("banner"));
@@ -17,7 +17,7 @@ test("a toolbox drag that ends outside the canvas adds no node", async ({ page }
 test("a node dragged out of the canvas follows the pointer, then stays where it was when released outside", async ({
   page,
 }) => {
-  await page.goto("/new/flowchart");
+  await page.goto("#/new/flowchart");
   const canvas = page.getByRole("region", { name: "Diagram canvas" });
   await page.getByRole("button", { name: "Rectangle", exact: true }).dragTo(canvas, { targetPosition: { x: 300, y: 200 } });
   const node = canvas.getByLabel("Rectangle node: Rectangle", { exact: true });

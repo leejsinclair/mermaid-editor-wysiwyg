@@ -22,7 +22,7 @@ const broken = [
 ] as const;
 
 async function withOneNode(page: Page) {
-  await page.goto("/new/flowchart");
+  await page.goto("#/new/flowchart");
   const canvas = page.getByRole("region", { name: "Diagram canvas" });
   await page.getByRole("button", { name: "Rectangle", exact: true }).dragTo(canvas, { targetPosition: { x: 300, y: 200 } });
   await expect(page.getByRole("button", { name: /Mermaid source/ })).toContainText("Valid");

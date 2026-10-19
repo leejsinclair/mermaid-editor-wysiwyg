@@ -23,7 +23,7 @@ async function addOneNode(page: Page): Promise<void> {
 }
 
 test("a diagram with nothing changed and a diagram that is saved do not ask", async ({ page }) => {
-  await page.goto("/new/flowchart");
+  await page.goto("#/new/flowchart");
   expect(await asksBeforeLeaving(page)).toBe(false);
 
   await addOneNode(page);
@@ -34,7 +34,7 @@ test("a diagram with nothing changed and a diagram that is saved do not ask", as
 
 test("when saving has failed it asks", async ({ page }) => {
   await fillStorage(page);
-  await page.goto("/new/flowchart");
+  await page.goto("#/new/flowchart");
 
   await addOneNode(page);
 
@@ -44,7 +44,7 @@ test("when saving has failed it asks", async ({ page }) => {
 
 test("when storage is unavailable it asks", async ({ page }) => {
   await breakStorageOpen(page);
-  await page.goto("/new/flowchart");
+  await page.goto("#/new/flowchart");
 
   await addOneNode(page);
 
@@ -54,7 +54,7 @@ test("when storage is unavailable it asks", async ({ page }) => {
 
 test("while a save is still in flight it asks, and once saved it stops asking", async ({ page }) => {
   await delayStorageCompletion(page);
-  await page.goto("/new/flowchart");
+  await page.goto("#/new/flowchart");
   await page.evaluate(() => {
     (window as unknown as { __idbDelay: number }).__idbDelay = 1500;
   });
@@ -68,7 +68,7 @@ test("while a save is still in flight it asks, and once saved it stops asking", 
 });
 
 test("while a label edit is open it asks, and once the edit is cancelled it stops asking", async ({ page }) => {
-  await page.goto("/new/flowchart");
+  await page.goto("#/new/flowchart");
   await addOneNode(page);
   await expect(saveStatus(page)).toHaveText("Saved");
   await canvas(page).locator(".react-flow__node").first().click();
@@ -85,7 +85,7 @@ test("closing the tab shows the browser's own confirmation while saving has fail
   // Playwright reports the browser's own leave-page prompt as a dialog in Chromium only; the other tests cover Firefox.
   test.skip(browserName !== "chromium", "Only Chromium lets a test see the browser's leave-page prompt");
   await fillStorage(page);
-  await page.goto("/new/flowchart");
+  await page.goto("#/new/flowchart");
   await addOneNode(page);
   await expect(saveStatus(page)).toHaveText("Not saved. Save a file to keep a copy.");
   const prompt = new Promise<string>((resolve) => {

@@ -7,9 +7,9 @@ import { addShape } from "./support/flowchart";
 /** A saved diagram open for editing in a first tab; returns that tab and the diagram's address. */
 async function editingTab(context: BrowserContext): Promise<{ readonly editing: Page; readonly address: string }> {
   const editing = await context.newPage();
-  await editing.goto("/new/flowchart");
+  await editing.goto("#/new/flowchart");
   await addShape(editing, editing.getByRole("region", { name: "Diagram canvas" }), "Rectangle", { x: 200, y: 100 });
-  await expect(editing).toHaveURL(/\/d\/[\w-]+$/);
+  await expect(editing).toHaveURL(/#\/d\/[\w-]+$/);
   await expect(editing.getByRole("status", { name: "Save status" })).toHaveText("Saved");
   return { editing, address: editing.url() };
 }

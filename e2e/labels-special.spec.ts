@@ -14,7 +14,7 @@ const TEXTS = [
 ];
 
 async function connectedPair(page: Page) {
-  await page.goto("/new/flowchart");
+  await page.goto("#/new/flowchart");
   const canvas = page.getByRole("region", { name: "Diagram canvas" });
   await page.getByRole("button", { name: "Rectangle", exact: true }).dragTo(canvas, { targetPosition: { x: 200, y: 100 } });
   await page.getByRole("button", { name: "Circle", exact: true }).dragTo(canvas, { targetPosition: { x: 520, y: 360 } });
@@ -64,7 +64,7 @@ test("Escape cancels an edit and keeps the previous label", async ({ page }) => 
 });
 
 test("participant labels and message text typed in the editor appear on the canvas exactly as typed", async ({ page }) => {
-  await page.goto("/new/sequence");
+  await page.goto("#/new/sequence");
   await addParticipants(page, ["Participant", "A"], ["Actor", "B"]);
   await addMessage(page, "Solid arrow", "A", "B");
 

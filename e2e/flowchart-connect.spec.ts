@@ -13,7 +13,7 @@ async function dragBetween(page: Page, from: Locator, to: Locator) {
 }
 
 test("drawing a chosen connection type between two nodes adds exactly that connection", async ({ page }) => {
-  await page.goto("/new/flowchart");
+  await page.goto("#/new/flowchart");
   const canvas = page.getByRole("region", { name: "Diagram canvas" });
   await page.getByRole("button", { name: "Rectangle", exact: true }).dragTo(canvas, { targetPosition: { x: 200, y: 120 } });
   await page.getByRole("button", { name: "Circle", exact: true }).dragTo(canvas, { targetPosition: { x: 520, y: 360 } });

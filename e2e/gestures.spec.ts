@@ -6,7 +6,7 @@ import { addShape } from "./support/flowchart";
 // change.
 
 async function twoNodes(page: Page) {
-  await page.goto("/new/flowchart");
+  await page.goto("#/new/flowchart");
   const canvas = page.getByRole("region", { name: "Diagram canvas" });
   await addShape(page, canvas, "Rectangle", { x: 200, y: 100 });
   await addShape(page, canvas, "Circle", { x: 520, y: 360 });

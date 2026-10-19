@@ -9,9 +9,9 @@ const canvas = (page: Page) => page.getByRole("region", { name: "Diagram canvas"
 const properties = (page: Page) => page.getByRole("region", { name: "Properties" });
 
 const NEW_DIAGRAMS = [
-  { name: "flowchart", path: "/new/flowchart", header: /^flowchart TD$/ },
-  { name: "sequence", path: "/new/sequence", header: /^sequenceDiagram$/ },
-  { name: "C4 context", path: "/new/c4/context", header: /^C4Context$/ },
+  { name: "flowchart", path: "#/new/flowchart", header: /^flowchart TD$/ },
+  { name: "sequence", path: "#/new/sequence", header: /^sequenceDiagram$/ },
+  { name: "C4 context", path: "#/new/c4/context", header: /^C4Context$/ },
 ] as const;
 
 async function expectEmptyState(page: Page, header: RegExp) {
@@ -38,7 +38,7 @@ for (const { name, path, header } of NEW_DIAGRAMS) {
 }
 
 test("a flowchart with its only node deleted shows the hint again", async ({ page }) => {
-  await page.goto("/new/flowchart");
+  await page.goto("#/new/flowchart");
   await expect(canvas(page)).toContainText(HINT);
   await page.getByRole("button", { name: "Rectangle", exact: true }).dragTo(canvas(page), { targetPosition: { x: 300, y: 200 } });
   await expect(canvas(page)).not.toContainText(HINT);
@@ -50,7 +50,7 @@ test("a flowchart with its only node deleted shows the hint again", async ({ pag
 });
 
 test("a sequence diagram with its only participant deleted shows the hint again", async ({ page }) => {
-  await page.goto("/new/sequence");
+  await page.goto("#/new/sequence");
   await page.getByRole("region", { name: "Toolbox" }).getByRole("button", { name: "Participant", exact: true }).click();
   await expect(canvas(page)).not.toContainText(HINT);
   await canvas(page).getByTestId("participant").first().click();
@@ -61,7 +61,7 @@ test("a sequence diagram with its only participant deleted shows the hint again"
 });
 
 test("a C4 diagram with its only element deleted shows the hint again and the empty notice", async ({ page }) => {
-  await page.goto("/new/c4/context");
+  await page.goto("#/new/c4/context");
   await page.getByRole("region", { name: "Toolbox" }).getByRole("button", { name: "System", exact: true }).click();
   await expect(canvas(page)).not.toContainText(HINT);
   await canvas(page).getByTestId("c4-element").first().click();

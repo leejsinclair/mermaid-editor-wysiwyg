@@ -18,7 +18,7 @@ const toolbox = (page: Page) => page.getByRole("region", { name: "Toolbox" });
 const properties = (page: Page) => page.getByRole("region", { name: "Properties" });
 
 test("the start screen, empty and with saved diagrams, has no violations", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("#/");
   await expectNoViolations(page);
 
   await seedRecords(page, [savedRecord("a", "Orders", "flowchart", "2026-03-01T09:00:00.000Z"), savedRecord("b", "Context", "c4", "2026-05-02T18:30:00.000Z", "context")]);
@@ -28,7 +28,7 @@ test("the start screen, empty and with saved diagrams, has no violations", async
 });
 
 test("the C4 kind dialog and the delete confirmation have no violations", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("#/");
   await page.getByRole("region", { name: "New diagram" }).getByRole("button", { name: "C4" }).click();
   await expect(page.getByRole("dialog", { name: "Choose a C4 kind" })).toBeVisible();
   await expectNoViolations(page);
@@ -42,7 +42,7 @@ test("the C4 kind dialog and the delete confirmation have no violations", async 
 });
 
 test("a flowchart with content, its source panel, its preview and its connect dialog have no violations", async ({ page }) => {
-  await page.goto("/new/flowchart");
+  await page.goto("#/new/flowchart");
   const canvas = page.getByRole("region", { name: "Diagram canvas" });
   await addShape(page, canvas, "Rectangle", { x: 200, y: 100 });
   await addShape(page, canvas, "Diamond", { x: 500, y: 250 });
@@ -62,7 +62,7 @@ test("a flowchart with content, its source panel, its preview and its connect di
 });
 
 test("a sequence diagram with content and its message dialog have no violations", async ({ page }) => {
-  await page.goto("/new/sequence");
+  await page.goto("#/new/sequence");
   await toolbox(page).getByRole("button", { name: "Participant", exact: true }).click();
   await toolbox(page).getByRole("button", { name: "Actor", exact: true }).click();
   await toolbox(page).getByRole("button", { name: "Solid arrow", exact: true }).click();
@@ -76,7 +76,7 @@ test("a sequence diagram with content and its message dialog have no violations"
 });
 
 test("a C4 diagram with content, its relationship dialog and its move dialog have no violations", async ({ page }) => {
-  await page.goto("/new/c4/context");
+  await page.goto("#/new/c4/context");
   for (const type of ["Person", "System", "System boundary"]) await toolbox(page).getByRole("button", { name: type, exact: true }).click();
   await toolbox(page).getByRole("button", { name: "One-way relationship", exact: true }).click();
   await expect(page.getByRole("dialog", { name: "Add relationship" })).toBeVisible();
@@ -93,9 +93,9 @@ test("a C4 diagram with content, its relationship dialog and its move dialog hav
 });
 
 test("the dialogs that appear when a second tab edits the same diagram have no violations", async ({ page, context }) => {
-  await page.goto("/new/flowchart");
+  await page.goto("#/new/flowchart");
   await addShape(page, page.getByRole("region", { name: "Diagram canvas" }), "Rectangle", { x: 200, y: 100 });
-  await expect(page).toHaveURL(/\/d\/[\w-]+$/);
+  await expect(page).toHaveURL(/#\/d\/[\w-]+$/);
   await expect(page.getByRole("status", { name: "Save status" })).toHaveText("Saved");
   const address = page.url();
 

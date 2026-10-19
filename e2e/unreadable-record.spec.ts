@@ -18,7 +18,7 @@ const damaged = {
 };
 
 test("a damaged record is listed as unreadable with Delete… only, and the others still open", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("#/");
   await seedRecords(page, [
     savedRecord("good1", "Good flow", "flowchart", "2026-05-01T00:00:00.000Z"),
     damaged,
@@ -29,7 +29,7 @@ test("a damaged record is listed as unreadable with Delete… only, and the othe
   const items = page.getByRole("region", { name: "Saved diagrams" }).getByRole("listitem");
   await expect(items).toHaveCount(3);
   await expect(items.nth(0)).toContainText("Good flow");
-  await expect(items.nth(0).getByRole("link")).toHaveAttribute("href", "/d/good1");
+  await expect(items.nth(0).getByRole("link")).toHaveAttribute("href", "#/d/good1");
 
   const unreadable = items.filter({ hasText: "Cannot be read" });
   await expect(unreadable).toHaveCount(2);
@@ -45,11 +45,12 @@ test("a damaged record is listed as unreadable with Delete… only, and the othe
 });
 
 test("an unreadable record cannot be opened by its address", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("#/");
   await seedRecords(page, [damaged]);
 
-  await page.goto("/d/bad1");
+  await page.goto("#/d/bad1");
+  await page.reload();
 
-  await expect(page).toHaveURL(/\/$/);
+  await expect(page).toHaveURL(/#\/$/);
   await expect(page.getByRole("region", { name: "Diagram canvas" })).toHaveCount(0);
 });

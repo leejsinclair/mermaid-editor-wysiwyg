@@ -8,11 +8,11 @@ const LIMIT_MS = 1000;
 const canvas = (page: Page) => page.getByRole("region", { name: "Diagram canvas" });
 
 async function openFixture(page: Page, name: string): Promise<void> {
-  await page.goto("/");
+  await page.goto("#/");
   const chooser = page.waitForEvent("filechooser");
   await page.getByRole("button", { name: "Open file…" }).click();
   await (await chooser).setFiles(`e2e/fixtures/performance-${name}.mermaid-editor.json`);
-  await expect(page).toHaveURL(/\/d\/[\w-]+$/);
+  await expect(page).toHaveURL(/#\/d\/[\w-]+$/);
 }
 
 /** Runs `change` and returns the milliseconds until `shown` holds: the canvas and the source both reflect it. */

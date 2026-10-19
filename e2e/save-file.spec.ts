@@ -19,7 +19,7 @@ async function renameTo(page: Page, name: string): Promise<void> {
 }
 
 test("Save file downloads the diagram in the editor's format, named after it", async ({ page }) => {
-  await page.goto("/new/flowchart");
+  await page.goto("#/new/flowchart");
   await addShape(page, page.getByRole("region", { name: "Diagram canvas" }), "Rectangle", { x: 200, y: 100 });
   await renameTo(page, "Order flow");
 
@@ -40,7 +40,7 @@ test("Save file downloads the diagram in the editor's format, named after it", a
 });
 
 test("unsafe characters in the name are replaced in the file name", async ({ page }) => {
-  await page.goto("/new/flowchart");
+  await page.goto("#/new/flowchart");
   await renameTo(page, 'a/b\\c:d*e?"f<g>h|i');
 
   const download = page.waitForEvent("download");

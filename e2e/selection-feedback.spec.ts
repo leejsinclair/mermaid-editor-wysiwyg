@@ -59,7 +59,7 @@ async function exercise(page: Page, items: readonly [Locator, Locator]): Promise
 }
 
 test("a flowchart node and a connection show which is selected", async ({ page }) => {
-  await page.goto("/new/flowchart");
+  await page.goto("#/new/flowchart");
   await toolbox(page).getByRole("button", { name: "Rectangle", exact: true }).click();
   await toolbox(page).getByRole("button", { name: "Circle", exact: true }).click();
   const nodes = canvas(page).locator(".react-flow__node");
@@ -78,7 +78,7 @@ test("a flowchart node and a connection show which is selected", async ({ page }
 });
 
 test("a sequence participant and a message show which is selected", async ({ page }) => {
-  await page.goto("/new/sequence");
+  await page.goto("#/new/sequence");
   await toolbox(page).getByRole("button", { name: "Participant", exact: true }).click();
   await toolbox(page).getByRole("button", { name: "Actor", exact: true }).click();
   await toolbox(page).getByRole("button", { name: "Solid arrow", exact: true }).click();
@@ -98,7 +98,7 @@ test("a sequence participant and a message show which is selected", async ({ pag
 });
 
 test("a C4 element, a boundary and a relationship show which is selected", async ({ page }) => {
-  await page.goto("/new/c4/context");
+  await page.goto("#/new/c4/context");
   await toolbox(page).getByRole("button", { name: "Person", exact: true }).click();
   await toolbox(page).getByRole("button", { name: "System", exact: true }).click();
   await toolbox(page).getByRole("button", { name: "System boundary", exact: true }).click();

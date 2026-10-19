@@ -28,15 +28,16 @@ let origin = "";
 test.beforeAll(async ({ browserName }) => {
   if (browserName !== "chromium") return;
   test.setTimeout(240_000);
-  execFileSync(process.execPath, [join(process.cwd(), "node_modules", "@react-router", "dev", "bin.cjs"), "build"], { stdio: "ignore" });
+  execFileSync(process.execPath, [join(process.cwd(), "node_modules", "vite", "bin", "vite.js"), "build"], { stdio: "ignore" });
   server = createServer((request, response) => {
     const path = normalize(decodeURIComponent((request.url ?? "/").split("?")[0] ?? "/")).replace(/^(\.\.[/\\])+/, "");
     let file = join(BUILD, path);
-    // A path with no file behind it is a route of the single-page app: it gets the one HTML page.
+    // Like the real host, only real files are served: a path with no file behind it is a 404, and views are named after "#".
     try {
-      if (!statSync(file).isFile()) file = join(BUILD, "index.html");
+      if (statSync(file).isDirectory()) file = join(file, "index.html");
+      if (!statSync(file).isFile()) file = "";
     } catch {
-      file = extname(path) === "" ? join(BUILD, "index.html") : "";
+      file = "";
     }
     if (file === "") {
       response.writeHead(404).end();
@@ -121,7 +122,7 @@ for (const name of TYPES) {
     const chooser = page.waitForEvent("filechooser");
     await page.getByRole("button", { name: "Open file…" }).click();
     await (await chooser).setFiles(file);
-    await expect(page).toHaveURL(/\/d\/[\w-]+$/);
+    await expect(page).toHaveURL(/#\/d\/[\w-]+$/);
     await expect(page.getByRole("region", { name: "Diagram canvas" })).toContainText("Edited");
     await page.getByRole("button", { name: "Start screen" }).click();
     const items = page.getByRole("region", { name: "Saved diagrams" }).getByRole("listitem");

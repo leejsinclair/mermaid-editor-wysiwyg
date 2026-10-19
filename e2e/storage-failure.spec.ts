@@ -11,7 +11,7 @@ const UNAVAILABLE = "Browser storage is unavailable. Save a file to keep a copy.
 test("with storage full, editing continues, the status says not saved and Saved is never shown", async ({ page }) => {
   await recordSaveStatuses(page);
   await fillStorage(page);
-  await page.goto("/new/flowchart");
+  await page.goto("#/new/flowchart");
   const canvas = page.getByRole("region", { name: "Diagram canvas" });
 
   await addShape(page, canvas, "Rectangle", { x: 200, y: 100 });
@@ -25,7 +25,7 @@ test("with storage full, editing continues, the status says not saved and Saved 
 test("with storage unavailable, editing continues and the status says storage is unavailable", async ({ page }) => {
   await recordSaveStatuses(page);
   await breakStorageOpen(page);
-  await page.goto("/new/flowchart");
+  await page.goto("#/new/flowchart");
   const canvas = page.getByRole("region", { name: "Diagram canvas" });
 
   await addShape(page, canvas, "Rectangle", { x: 200, y: 100 });
@@ -36,14 +36,16 @@ test("with storage unavailable, editing continues and the status says storage is
 });
 
 test("diagrams saved earlier open unchanged after a failed save", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("#/");
   await seedRecords(page, [savedRecord("early", "Saved earlier", "flowchart", "2026-01-01T00:00:00.000Z")]);
   await fillStorage(page);
-  await page.goto("/new/flowchart");
+  await page.goto("#/new/flowchart");
+  await page.reload();
   await addShape(page, page.getByRole("region", { name: "Diagram canvas" }), "Rectangle", { x: 200, y: 100 });
   await expect(page.getByRole("status", { name: "Save status" })).toHaveText(NOT_SAVED);
 
-  await page.goto("/d/early");
+  await page.goto("#/d/early");
+  await page.reload();
 
   await expect(page.getByRole("status", { name: "Save status" })).toHaveText("Saved");
   await expect(page.getByText("Saved earlier")).toBeVisible();

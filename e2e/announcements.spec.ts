@@ -16,16 +16,17 @@ async function expectAnnouncedWithoutMovingFocus(page: Page, region: Locator, te
 }
 
 test("every announcing region is a polite live region that is present from the start", async ({ page }) => {
-  await page.goto("/new/flowchart");
+  await page.goto("#/new/flowchart");
 
   await expect(messages(page)).toHaveAttribute("aria-live", "polite");
   await expect(page.getByRole("status", { name: "Save status" })).toBeVisible();
-  await page.goto("/");
+  await page.goto("#/");
+  await page.reload();
   await expect(messages(page)).toHaveAttribute("aria-live", "polite");
 });
 
 test("a rejection, the copy results and the file result are announced without moving focus", async ({ page }) => {
-  await page.goto("/new/flowchart");
+  await page.goto("#/new/flowchart");
   const canvas = page.getByRole("region", { name: "Diagram canvas" });
   await addShape(page, canvas, "Rectangle", { x: 200, y: 100 });
   await expect(page.getByRole("button", { name: /Mermaid source/ })).toContainText("Valid");
@@ -52,7 +53,7 @@ test("a failed copy and a refused file are announced as failures without moving 
   await page.addInitScript(() => {
     Object.defineProperty(navigator, "clipboard", { configurable: true, value: undefined });
   });
-  await page.goto("/new/flowchart");
+  await page.goto("#/new/flowchart");
   await addShape(page, page.getByRole("region", { name: "Diagram canvas" }), "Rectangle", { x: 200, y: 100 });
   await expect(page.getByRole("button", { name: /Mermaid source/ })).toContainText("Valid");
   const copy = page.getByRole("button", { name: "Copy Source" });
@@ -61,7 +62,8 @@ test("a failed copy and a refused file are announced as failures without moving 
   await expectAnnouncedWithoutMovingFocus(page, messages(page), "The source could not be copied", () => copy.press("Enter"));
   await expect(messages(page).getByRole("presentation")).toBeVisible();
 
-  await page.goto("/");
+  await page.goto("#/");
+  await page.reload();
   const chooser = page.waitForEvent("filechooser");
   const open = page.getByRole("button", { name: "Open file…" });
   await open.focus();
@@ -72,7 +74,7 @@ test("a failed copy and a refused file are announced as failures without moving 
 });
 
 test("save status changes are announced in the Save status region, failures included", async ({ page }) => {
-  await page.goto("/new/flowchart");
+  await page.goto("#/new/flowchart");
   const status = page.getByRole("status", { name: "Save status" });
   await expect(status).toHaveText("Not saved yet");
 
@@ -81,7 +83,7 @@ test("save status changes are announced in the Save status region, failures incl
 
   const failing = await page.context().newPage();
   await fillStorage(failing);
-  await failing.goto("/new/flowchart");
+  await failing.goto("#/new/flowchart");
   await addShape(failing, failing.getByRole("region", { name: "Diagram canvas" }), "Rectangle", { x: 200, y: 100 });
   await expect(failing.getByRole("status", { name: "Save status" })).toHaveText("Not saved. Save a file to keep a copy.");
 });

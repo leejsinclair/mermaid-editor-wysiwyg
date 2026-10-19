@@ -3,7 +3,7 @@ import { expect, test } from "@playwright/test";
 // VO-003: the flowchart toolbox offers exactly nine node shapes and nine connection types, each with its own name.
 
 test("offers exactly the nine node shapes and nine connection types, and nothing else", async ({ page }) => {
-  await page.goto("/new/flowchart");
+  await page.goto("#/new/flowchart");
 
   const toolbox = page.getByRole("region", { name: "Toolbox" });
   await expect(toolbox.getByRole("group", { name: "Node shapes" }).getByRole("button")).toHaveText([
@@ -32,7 +32,7 @@ test("offers exactly the nine node shapes and nine connection types, and nothing
 });
 
 test("offers no direction control", async ({ page }) => {
-  await page.goto("/new/flowchart");
+  await page.goto("#/new/flowchart");
 
   await expect(page.getByRole("region", { name: "Toolbox" })).toBeVisible();
   await expect(page.getByRole("button", { name: /direction|top.?down|left.?right/i })).toHaveCount(0);

@@ -15,7 +15,7 @@ interface Scene {
 
 /** A Rectangle joined to a Circle by a solid arrow, and a separate Diamond. */
 async function scene(page: Page): Promise<Scene> {
-  await page.goto("/new/flowchart");
+  await page.goto("#/new/flowchart");
   const canvas = page.getByRole("region", { name: "Diagram canvas" });
   await addShape(page, canvas, "Rectangle", { x: 200, y: 100 });
   await addShape(page, canvas, "Circle", { x: 520, y: 360 });
@@ -156,7 +156,7 @@ test("dragging a connection end to another node moves that end", async ({ page }
 /** Participants A (participant), B (actor) and C, and a message "go" from A to B; nothing else. */
 async function sequenceScene(page: Page) {
   const support = await import("./support/sequence");
-  await page.goto("/new/sequence");
+  await page.goto("#/new/sequence");
   await support.addParticipants(page, ["Participant", "A"], ["Actor", "B"], ["Participant", "C"]);
   await support.addMessage(page, "Solid arrow", "A", "B");
   await support.relabel(page, support.canvas(page).getByTestId("message").first(), "go");

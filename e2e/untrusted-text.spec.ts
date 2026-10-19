@@ -9,11 +9,11 @@ const DIRECTIVE = '%%{init: {"securityLevel":"loose"}}%%';
 const CONNECTION = '<b onmouseover="window.__pwned=1">bold</b>';
 
 test("untrusted text is shown literally everywhere and nothing runs", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("#/");
   const chooser = page.waitForEvent("filechooser");
   await page.getByRole("button", { name: "Open file…" }).click();
   await (await chooser).setFiles("e2e/fixtures/untrusted.mermaid-editor.json");
-  await expect(page).toHaveURL(/\/d\/[\w-]+$/);
+  await expect(page).toHaveURL(/#\/d\/[\w-]+$/);
 
   const canvas = page.getByRole("region", { name: "Diagram canvas" });
   await expect(canvas.getByTestId("node-label").nth(0)).toHaveText(NODE);
@@ -33,7 +33,8 @@ test("untrusted text is shown literally everywhere and nothing runs", async ({ p
   await expect(drawing).toContainText("securityLevel");
   await expect(drawing.locator("script, img[onerror], [onmouseover]")).toHaveCount(0);
 
-  await page.goto("/");
+  await page.goto("#/");
+  await page.reload();
   await expect(page.getByRole("region", { name: "Saved diagrams" }).getByRole("link")).toHaveText(NAME);
   expect(await page.evaluate(() => (window as unknown as { __pwned?: number }).__pwned)).toBeUndefined();
 });

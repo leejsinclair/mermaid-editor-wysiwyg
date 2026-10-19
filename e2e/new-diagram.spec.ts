@@ -5,7 +5,7 @@ import { expect, test } from "@playwright/test";
 
 test.describe("a new flowchart", () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto("/");
+    await page.goto("#/");
     await page.getByRole("region", { name: "New diagram" }).getByRole("button", { name: "Flowchart" }).click();
   });
 
@@ -30,7 +30,7 @@ test.describe("a new flowchart", () => {
 
 test.describe("a new sequence diagram", () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto("/");
+    await page.goto("#/");
     await page.getByRole("region", { name: "New diagram" }).getByRole("button", { name: "Sequence" }).click();
   });
 
@@ -61,7 +61,7 @@ const C4_KINDS = [
 for (const [kind, header] of C4_KINDS) {
   test.describe(`a new C4 ${kind} diagram`, () => {
     test.beforeEach(async ({ page }) => {
-      await page.goto("/");
+      await page.goto("#/");
       await page.getByRole("region", { name: "New diagram" }).getByRole("button", { name: "C4" }).click();
       await page.getByRole("dialog", { name: "Choose a C4 kind" }).getByRole("button", { name: kind, exact: true }).click();
     });

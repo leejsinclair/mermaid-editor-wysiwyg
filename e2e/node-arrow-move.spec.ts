@@ -3,7 +3,7 @@ import { expect, test } from "@playwright/test";
 // VO-063 (FR-019): arrow keys move a selected flowchart node by a fixed step; uninterrupted moves are one undo step.
 
 test("arrow keys move the selected node and consecutive moves undo as one step", async ({ page }) => {
-  await page.goto("/new/flowchart");
+  await page.goto("#/new/flowchart");
   const canvas = page.getByRole("region", { name: "Diagram canvas" });
   await page.getByRole("button", { name: "Rectangle", exact: true }).dragTo(canvas, { targetPosition: { x: 300, y: 200 } });
   const node = canvas.locator(".react-flow__node").first();

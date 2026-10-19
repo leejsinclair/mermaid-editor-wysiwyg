@@ -5,7 +5,7 @@ import { savedRecord, seedRecords } from "./support/storage";
 // and when they were last changed; it offers new diagrams, and says diagrams are kept only in this browser.
 
 test("saved diagrams are listed most recently changed first with name, type, kind and time", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("#/");
   await seedRecords(page, [
     savedRecord("a", "Oldest flow", "flowchart", "2026-03-01T09:00:00.000Z"),
     savedRecord("b", "Newest context", "c4", "2026-05-02T18:30:00.000Z", "context"),
@@ -30,13 +30,17 @@ test("saved diagrams are listed most recently changed first with name, type, kin
 });
 
 test("a diagram changed in the editor moves to the top of the list", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("#/");
   await seedRecords(page, [savedRecord("old", "Seeded earlier", "flowchart", "2020-01-01T00:00:00.000Z")]);
-  await page.goto("/new/flowchart");
+  await page.goto("#/new/flowchart");
+  await page.reload();
   await page.getByRole("button", { name: "Rectangle", exact: true }).dragTo(page.getByRole("region", { name: "Diagram canvas" }), { targetPosition: { x: 200, y: 100 } });
   await expect(page.getByRole("status", { name: "Save status" })).toHaveText("Saved");
+  // The first save moves the address to the saved diagram's; leaving before that would be overtaken by it.
+  await expect(page).toHaveURL(/#\/d\/[\w-]+$/);
 
-  await page.goto("/");
+  await page.goto("#/");
+  await page.reload();
 
   const items = page.getByRole("region", { name: "Saved diagrams" }).getByRole("listitem");
   await expect(items).toHaveCount(2);
@@ -45,17 +49,17 @@ test("a diagram changed in the editor moves to the top of the list", async ({ pa
 });
 
 test("each saved diagram links to its own address", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("#/");
   await seedRecords(page, [savedRecord("x1", "Open me", "flowchart", "2026-01-01T00:00:00.000Z")]);
   await page.reload();
 
   const link = page.getByRole("region", { name: "Saved diagrams" }).getByRole("link", { name: /Open me/ });
 
-  await expect(link).toHaveAttribute("href", "/d/x1");
+  await expect(link).toHaveAttribute("href", "#/d/x1");
 });
 
 test("new diagrams are offered, and the screen says diagrams are kept only in this browser", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("#/");
 
   await expect(page.getByRole("region", { name: "New diagram" }).getByRole("button")).toHaveText(["Flowchart", "Sequence", "C4"]);
   await expect(page.getByText("Diagrams are kept only in this browser. Save files as a backup.")).toBeVisible();

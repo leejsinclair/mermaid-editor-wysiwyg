@@ -14,7 +14,7 @@ const refusals = [
 
 for (const { file, text } of refusals) {
   test(`a ${file} file is refused with its explanation and nothing is opened`, async ({ page }) => {
-    await page.goto("/");
+    await page.goto("#/");
     await seedRecords(page, [savedRecord("keep", "Keep me", "flowchart", "2026-01-01T00:00:00.000Z")]);
     await page.reload();
     const items = page.getByRole("region", { name: "Saved diagrams" }).getByRole("listitem");
@@ -25,7 +25,7 @@ for (const { file, text } of refusals) {
     await (await chooser).setFiles(`e2e/fixtures/${file}.mermaid-editor.json`);
 
     await expect(page.getByRole("status", { name: "Messages" })).toContainText(text);
-    await expect(page).toHaveURL(/\/$/);
+    await expect(page).toHaveURL(/#\/$/);
     await page.reload();
     await expect(items).toHaveCount(1);
     await expect(items.first()).toContainText("Keep me");

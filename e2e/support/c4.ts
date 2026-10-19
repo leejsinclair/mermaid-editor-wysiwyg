@@ -68,7 +68,7 @@ export async function select(page: Page, item: Locator): Promise<void> {
 
 /** Starts a diagram of a kind from the address, which is how a new diagram of that kind opens. */
 export async function openNew(page: Page, kind: Kind): Promise<void> {
-  await page.goto(`/new/c4/${kind}`);
+  await page.goto(`#/new/c4/${kind}`);
   await expect(canvas(page)).toBeVisible();
 }
 

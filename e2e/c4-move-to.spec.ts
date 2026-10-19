@@ -7,7 +7,7 @@ import { c4Record, canvas, dragBetween, itemLabelled, select, sourceLines } from
 
 /** Customer at the top level; boundary Alpha holds Shop and Extra; boundary Beta holds Pat; Customer uses Shop. */
 async function open(page: Page): Promise<void> {
-  await page.goto("/");
+  await page.goto("#/");
   await seedRecords(page, [
     c4Record(
       "groups",
@@ -24,7 +24,8 @@ async function open(page: Page): Promise<void> {
       [{ id: 6, from: 1, to: 3 }],
     ),
   ]);
-  await page.goto("/d/groups");
+  await page.goto("#/d/groups");
+  await page.reload();
   await expect(canvas(page)).toBeVisible();
 }
 

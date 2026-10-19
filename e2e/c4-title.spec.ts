@@ -8,11 +8,12 @@ const properties = (page: Page) => page.getByRole("region", { name: "Properties"
 const titleField = (page: Page) => properties(page).getByRole("textbox", { name: "Title", exact: true });
 
 test("a flowchart and a sequence diagram offer no title", async ({ page }) => {
-  await page.goto("/new/flowchart");
+  await page.goto("#/new/flowchart");
   await expect(properties(page)).toBeVisible();
   await expect(titleField(page)).toHaveCount(0);
 
-  await page.goto("/new/sequence");
+  await page.goto("#/new/sequence");
+  await page.reload();
   await expect(properties(page)).toBeVisible();
   await expect(titleField(page)).toHaveCount(0);
 });

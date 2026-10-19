@@ -7,7 +7,7 @@ import { addShape } from "./support/flowchart";
 const TOGGLE = "Preview as Mermaid draws it";
 
 async function withRectangle(page: Page) {
-  await page.goto("/new/flowchart");
+  await page.goto("#/new/flowchart");
   const canvas = page.getByRole("region", { name: "Diagram canvas" });
   await addShape(page, canvas, "Rectangle", { x: 200, y: 100 });
   await expect(page.getByRole("button", { name: /Mermaid source/ })).toContainText("Valid");

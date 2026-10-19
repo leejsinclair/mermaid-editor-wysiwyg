@@ -9,7 +9,7 @@ import { addMessage, addParticipants, canvas, dragBetween, messageTexts, partici
 const header = (page: Page, name: string) => participantLabelled(page, name).getByTestId("participant-header");
 
 test("participants are reordered by dragging and from the keyboard, and one Undo restores each order", async ({ page }) => {
-  await page.goto("/new/sequence");
+  await page.goto("#/new/sequence");
   await addParticipants(page, ["Participant", "A"], ["Actor", "B"], ["Participant", "C"]);
   expect(await participantNames(page)).toEqual(["Participant: A", "Actor: B", "Participant: C"]);
 
@@ -33,7 +33,7 @@ test("participants are reordered by dragging and from the keyboard, and one Undo
 });
 
 test("messages are reordered by dragging and from the keyboard, and a new message goes after the selected one", async ({ page }) => {
-  await page.goto("/new/sequence");
+  await page.goto("#/new/sequence");
   await addParticipants(page, ["Participant", "A"], ["Participant", "B"]);
   await addMessage(page, "Solid arrow", "A", "B");
   await relabel(page, canvas(page).getByTestId("message").first(), "one");
@@ -68,7 +68,7 @@ test("messages are reordered by dragging and from the keyboard, and a new messag
 });
 
 test("with one participant selected, a message type defaults both ends to it", async ({ page }) => {
-  await page.goto("/new/sequence");
+  await page.goto("#/new/sequence");
   await addParticipants(page, ["Participant", "A"], ["Participant", "B"]);
   await participantLabelled(page, "B").focus();
   await page.keyboard.press("Enter");
@@ -84,7 +84,7 @@ test("with one participant selected, a message type defaults both ends to it", a
 });
 
 test("a message is created by dragging from one lifeline to another, and its end is moved by dragging it", async ({ page }) => {
-  await page.goto("/new/sequence");
+  await page.goto("#/new/sequence");
   await addParticipants(page, ["Participant", "A"], ["Participant", "B"], ["Participant", "C"]);
   const line = (name: string) => participantLabelled(page, name).getByTestId("lifeline");
   const at = async (name: string, y: number) => {
