@@ -4,6 +4,9 @@ import type { Connection } from "../../model/types";
 export type ConnectionFlowEdge = Edge<{ connection: Connection }, "connection">;
 
 const INK = "#222";
+/** The colour and extra width that mark the selected connection; the width is the cue that does not rely on colour. */
+const CHOSEN = "#1565c0";
+const CHOSEN_EXTRA_WIDTH = 2;
 
 /** A path out of the bottom of a node and back into its top, for a connection from a node to itself. */
 function loopPath(x: number, y: number, targetY: number): string {
@@ -12,7 +15,7 @@ function loopPath(x: number, y: number, targetY: number): string {
 
 /** Three line styles, three endings, and self-loops; the label is React text, never markup (DC-04). */
 export function ConnectionEdge(props: Readonly<EdgeProps<ConnectionFlowEdge>>) {
-  const { id, sourceX, sourceY, targetX, targetY, sourcePosition, targetPosition, data } = props;
+  const { id, sourceX, sourceY, targetX, targetY, sourcePosition, targetPosition, data, selected } = props;
   if (!data) return null;
   const { connection } = data;
   const isLoop = connection.from === connection.to;
@@ -33,8 +36,8 @@ export function ConnectionEdge(props: Readonly<EdgeProps<ConnectionFlowEdge>>) {
         {...(connection.ending !== "plain" && { markerEnd: `url(#${markerId})` })}
         {...(connection.ending === "both" && { markerStart: `url(#${markerId})` })}
         style={{
-          stroke: INK,
-          strokeWidth: connection.line === "thick" ? 4 : 2,
+          stroke: selected ? CHOSEN : INK,
+          strokeWidth: (connection.line === "thick" ? 4 : 2) + (selected ? CHOSEN_EXTRA_WIDTH : 0),
           ...(connection.line === "dotted" && { strokeDasharray: "2 6", strokeLinecap: "round" as const }),
         }}
       />

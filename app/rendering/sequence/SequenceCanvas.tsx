@@ -1,4 +1,6 @@
-import { useCallback, useMemo, useRef } from "react";
+import { useCallback, useMemo, useRef, type Ref } from "react";
+import { EmptyHint } from "../shared/EmptyHint";
+import { useSvgViewport, type ViewHandle } from "../shared/viewport";
 import { MESSAGE_STYLE_NAMES, ROLE_NAMES } from "../../model/sequence/catalogue";
 import type { SequenceDiagram } from "../../model/types";
 import { en } from "../../text/en";
@@ -14,6 +16,7 @@ const LOOP_HEIGHT = 28;
 const HANDLE_RADIUS = 7;
 
 interface SequenceCanvasProps {
+  readonly handleRef?: Ref<ViewHandle>;
   readonly diagram: SequenceDiagram;
   readonly selection: number | null;
   readonly onSelect: (itemId: number | null) => void;
@@ -151,7 +154,7 @@ function dropped(layout: SequenceLayout, diagram: SequenceDiagram, end: DragEnd<
 }
 
 /** Lifelines left to right and messages top to bottom, drawn from the pure layout (research R3, FR-029). */
-export function SequenceCanvas({ diagram, selection, onSelect, onReorder, onCreateMessage, onMoveEnd }: Readonly<SequenceCanvasProps>) {
+export function SequenceCanvas({ handleRef, diagram, selection, onSelect, onReorder, onCreateMessage, onMoveEnd }: Readonly<SequenceCanvasProps>) {
   const svg = useRef<SVGSVGElement>(null);
   const layout = useMemo(() => sequenceLayout(diagram.content), [diagram.content]);
   const names = useMemo(() => new Map(diagram.content.participants.map((participant) => [participant.id, participant.label])), [diagram.content.participants]);
@@ -159,22 +162,29 @@ export function SequenceCanvas({ diagram, selection, onSelect, onReorder, onCrea
   const onDrop = useCallback((end: DragEnd<DragKind>) => {
     dropped(layout, diagram, end, { onReorder, onCreateMessage, onMoveEnd });
   }, [layout, diagram, onReorder, onCreateMessage, onMoveEnd]);
-  const { begin, current } = useDrag<DragKind>(svg, onDrop);
+  const scroller = useRef<HTMLDivElement>(null);
+  const zoom = useSvgViewport(handleRef, layout, scroller);
+  const { begin, current } = useDrag<DragKind>(svg, onDrop, zoom);
   const creatingFrom = current?.what.kind === "create" ? current.what.fromId : undefined;
   const creating = layout.lifelines.find((lifeline) => lifeline.id === creatingFrom);
   const chosenRow = layout.rows.find((row) => row.id === selection);
 
   return (
-    <div style={{ width: "100%", height: "100%", overflow: "auto" }}>
+    <div
+      ref={scroller}
+      role="presentation"
+      style={{ width: "100%", height: "100%", overflow: "auto", position: "relative" }}
+      onClick={() => {
+        onSelect(null);
+      }}
+    >
+      {diagram.content.participants.length === 0 && <EmptyHint />}
       <svg
         ref={svg}
-        width={layout.width}
-        height={layout.height}
-        style={{ display: "block", minWidth: "100%", touchAction: "none", userSelect: "none" }}
-        onClick={() => {
-          onSelect(null);
-        }}
-        role="presentation"
+        width={layout.width * zoom}
+        height={layout.height * zoom}
+        viewBox={`0 0 ${String(layout.width)} ${String(layout.height)}`}
+        style={{ display: "block", touchAction: "none", userSelect: "none" }}
       >
         <MessageMarkers prefix="seq" />
         {layout.lifelines.map((lifeline) => (

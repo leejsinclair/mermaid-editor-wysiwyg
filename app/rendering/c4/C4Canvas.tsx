@@ -1,4 +1,6 @@
-import { useCallback, useMemo, useRef } from "react";
+import { useCallback, useMemo, useRef, type Ref } from "react";
+import { EmptyHint } from "../shared/EmptyHint";
+import { useSvgViewport, type ViewHandle } from "../shared/viewport";
 import { BOUNDARY_NAMES, DEPLOYMENT_NODE_NAME, DIRECTION_NAMES, ELEMENT_TYPE_NAMES } from "../../model/c4/catalogue";
 import { findItem } from "../../model/c4/tree";
 import type { C4Diagram, C4Item, Relationship } from "../../model/types";
@@ -14,6 +16,7 @@ type C4Drag = { readonly kind: "create"; readonly fromId: number } | { readonly 
 type Begin = (what: C4Drag) => (event: { clientX: number; clientY: number; button: number }) => void;
 
 interface C4CanvasProps {
+  readonly handleRef?: Ref<ViewHandle>;
   readonly diagram: C4Diagram;
   readonly selection: number | null;
   readonly onSelect: (itemId: number | null) => void;
@@ -232,7 +235,7 @@ function relationshipIndexAt(boxes: readonly C4Box[], relationships: readonly Re
 }
 
 /** Elements, boundaries and nodes in the order and nesting Mermaid arranges them, with relationships between (research R3, FR-038). */
-export function C4Canvas({ diagram, selection, onSelect, onCreateRelationship, onMoveEnd, onMoveToParent, onReorder }: Readonly<C4CanvasProps>) {
+export function C4Canvas({ handleRef, diagram, selection, onSelect, onCreateRelationship, onMoveEnd, onMoveToParent, onReorder }: Readonly<C4CanvasProps>) {
   const svg = useRef<SVGSVGElement>(null);
   const { content } = diagram;
   const layout = useMemo(() => c4Layout(content), [content]);
@@ -256,14 +259,24 @@ export function C4Canvas({ diagram, selection, onSelect, onCreateRelationship, o
     },
     [layout, content.relationships, onCreateRelationship, onMoveEnd, onMoveToParent, onReorder],
   );
-  const { begin, current } = useDrag<C4Drag>(svg, onDrop);
+  const scroller = useRef<HTMLDivElement>(null);
+  const zoom = useSvgViewport(handleRef, layout, scroller);
+  const { begin, current } = useDrag<C4Drag>(svg, onDrop, zoom);
   const creatingFrom = current?.what.kind === "create" ? boxes.get(current.what.fromId) : undefined;
   const chosen = content.relationships.find((relationship) => relationship.id === selection);
   const chosenFrom = chosen && boxes.get(chosen.from);
   const chosenTo = chosen && boxes.get(chosen.to);
 
   return (
-    <div style={{ width: "100%", height: "100%", overflow: "auto" }}>
+    <div
+      ref={scroller}
+      role="presentation"
+      style={{ width: "100%", height: "100%", overflow: "auto", position: "relative" }}
+      onClick={() => {
+        onSelect(null);
+      }}
+    >
+      {content.tree.length === 0 && <EmptyHint />}
       {diagram.title !== "" && (
         <div data-testid="c4-title" style={{ padding: "16px 32px 0", fontSize: 18, fontWeight: "bold", whiteSpace: "pre-wrap" }}>
           {diagram.title}
@@ -271,13 +284,10 @@ export function C4Canvas({ diagram, selection, onSelect, onCreateRelationship, o
       )}
       <svg
         ref={svg}
-        width={layout.width}
-        height={layout.height}
-        style={{ display: "block", minWidth: "100%", touchAction: "none", userSelect: "none" }}
-        onClick={() => {
-          onSelect(null);
-        }}
-        role="presentation"
+        width={layout.width * zoom}
+        height={layout.height * zoom}
+        viewBox={`0 0 ${String(layout.width)} ${String(layout.height)}`}
+        style={{ display: "block", touchAction: "none", userSelect: "none" }}
       >
         <defs>
           <marker id="c4-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">

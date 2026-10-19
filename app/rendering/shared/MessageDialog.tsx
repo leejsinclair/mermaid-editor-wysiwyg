@@ -1,7 +1,7 @@
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, FormControlLabel, FormLabel, Radio, RadioGroup } from "@mui/material";
 import { useState } from "react";
 import { en } from "../../text/en";
-import type { Target } from "./TargetDialog";
+import type { Target } from "../../model/targets";
 
 interface MessageDialogProps {
   /** The participants a message can go between. */

@@ -13,9 +13,12 @@ interface ToolbarProps {
   readonly onCopySource: () => void;
   readonly onCopyMarkdown: () => void;
   readonly onSaveFile: () => void;
+  readonly onZoomIn: () => void;
+  readonly onZoomOut: () => void;
+  readonly onFit: () => void;
 }
 
-export function Toolbar({ showLayoutNote, previewOpen, onTogglePreview, canUndo, canRedo, onUndo, onRedo, onCopySource, onCopyMarkdown, onSaveFile }: ToolbarProps) {
+export function Toolbar({ showLayoutNote, previewOpen, onTogglePreview, canUndo, canRedo, onUndo, onRedo, onCopySource, onCopyMarkdown, onSaveFile, onZoomIn, onZoomOut, onFit }: ToolbarProps) {
   return (
     <Box role="toolbar" aria-label={en.toolbar.region} sx={{ display: "flex", alignItems: "center", gap: 1, p: 1, borderBottom: 1, borderColor: "divider" }}>
       <Button variant="outlined" size="small" disabled={!canUndo} onClick={onUndo}>
@@ -32,6 +35,15 @@ export function Toolbar({ showLayoutNote, previewOpen, onTogglePreview, canUndo,
       </Button>
       <Button variant="outlined" size="small" onClick={onSaveFile}>
         {en.toolbar.saveFile}
+      </Button>
+      <Button variant="outlined" size="small" onClick={onZoomIn}>
+        {en.toolbar.zoomIn}
+      </Button>
+      <Button variant="outlined" size="small" onClick={onZoomOut}>
+        {en.toolbar.zoomOut}
+      </Button>
+      <Button variant="outlined" size="small" onClick={onFit}>
+        {en.toolbar.fit}
       </Button>
       {showLayoutNote && (
         <Button variant="outlined" size="small" aria-pressed={previewOpen} onClick={onTogglePreview}>

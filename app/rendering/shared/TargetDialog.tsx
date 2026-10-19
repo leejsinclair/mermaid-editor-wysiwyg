@@ -1,12 +1,8 @@
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControlLabel, List, ListItemButton, Radio, RadioGroup } from "@mui/material";
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControlLabel, List, ListItem, ListItemButton, Radio, RadioGroup } from "@mui/material";
 import { useState } from "react";
+import type { Target } from "../../model/targets";
 import { en } from "../../text/en";
 
-export interface Target {
-  readonly id: number;
-  /** Already formed as "<label> (<type> <n>)". */
-  readonly name: string;
-}
 
 interface TargetDialogProps {
   readonly title: string;
@@ -39,14 +35,15 @@ export function TargetDialog({ title, targets, chooseEnd, onChoose, onClose }: T
         )}
         <List>
           {targets.map((target) => (
-            <ListItemButton
-              key={target.id}
-              onClick={() => {
-                onChoose(target.id, end);
-              }}
-            >
-              {target.name}
-            </ListItemButton>
+            <ListItem key={target.id} disablePadding>
+              <ListItemButton
+                onClick={() => {
+                  onChoose(target.id, end);
+                }}
+              >
+                {target.name}
+              </ListItemButton>
+            </ListItem>
           ))}
         </List>
       </DialogContent>

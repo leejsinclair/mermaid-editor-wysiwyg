@@ -31,12 +31,12 @@ const OUTLINES = new Map<FlowchartShape, ReactNode>([
 ]);
 
 /** A node drawn at its nominal footprint; its label is React text, never markup (DC-04). */
-export function ShapeNode({ data }: Readonly<NodeProps<ShapeFlowNode>>) {
+export function ShapeNode({ data, selected }: Readonly<NodeProps<ShapeFlowNode>>) {
   return (
     <div style={{ position: "relative", width: W, height: H }}>
       <Handle type="target" position={Position.Top} />
       <Handle type="source" position={Position.Bottom} />
-      <svg width={W} height={H} aria-hidden="true" focusable="false" fill="white" stroke="currentColor" strokeWidth="2" style={{ position: "absolute", inset: 0 }}>
+      <svg width={W} height={H} aria-hidden="true" focusable="false" fill="white" stroke={selected ? "#1565c0" : "currentColor"} strokeWidth={selected ? 4 : 2} style={{ position: "absolute", inset: 0 }}>
         {OUTLINES.get(data.node.shape)}
       </svg>
       <div

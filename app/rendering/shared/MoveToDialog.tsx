@@ -1,4 +1,4 @@
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, List, ListItemButton } from "@mui/material";
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle, List, ListItem, ListItemButton } from "@mui/material";
 import { en } from "../../text/en";
 
 export interface MoveToOption {
@@ -21,14 +21,15 @@ export function MoveToDialog({ options, onChoose, onClose }: MoveToDialogProps) 
       <DialogContent>
         <List>
           {options.map((option) => (
-            <ListItemButton
-              key={option.id ?? "top"}
-              onClick={() => {
-                onChoose(option.id);
-              }}
-            >
-              {option.name}
-            </ListItemButton>
+            <ListItem key={option.id ?? "top"} disablePadding>
+              <ListItemButton
+                onClick={() => {
+                  onChoose(option.id);
+                }}
+              >
+                {option.name}
+              </ListItemButton>
+            </ListItem>
           ))}
         </List>
       </DialogContent>

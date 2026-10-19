@@ -20,9 +20,9 @@ export interface DragEnd<K> {
 
 /**
  * Tracks one pointer drag over the drawing. `begin` starts it from a pointer-down; moving past a few pixels makes it
- * a drag, and releasing then calls `onDrop` with where it ended. A release without movement is left to the click.
+ * a drag, and releasing then calls `onDrop` with where it ended, in the drawing's own coordinates whatever its `zoom`. A release without movement is left to the click.
  */
-export function useDrag<K>(svg: RefObject<SVGSVGElement | null>, onDrop: (end: DragEnd<K>) => void) {
+export function useDrag<K>(svg: RefObject<SVGSVGElement | null>, onDrop: (end: DragEnd<K>) => void, zoom = 1) {
   const [drag, setDrag] = useState<Drag<K> | undefined>();
   // The drag as of the last pointer event, so a release reads it without running side effects inside a state update.
   const latest = useRef<Drag<K> | undefined>(undefined);
@@ -37,7 +37,7 @@ export function useDrag<K>(svg: RefObject<SVGSVGElement | null>, onDrop: (end: D
     if (!active) return;
     const local = (event: PointerEvent) => {
       const box = svg.current?.getBoundingClientRect();
-      return { x: event.clientX - (box?.left ?? 0), y: event.clientY - (box?.top ?? 0) };
+      return { x: (event.clientX - (box?.left ?? 0)) / zoom, y: (event.clientY - (box?.top ?? 0)) / zoom };
     };
     const onMove = (event: PointerEvent) => {
       if (latest.current) update({ ...latest.current, ...local(event) });
@@ -59,7 +59,7 @@ export function useDrag<K>(svg: RefObject<SVGSVGElement | null>, onDrop: (end: D
       window.removeEventListener("pointerup", onUp);
       window.removeEventListener("keydown", onKey);
     };
-  }, [active, svg, onDrop, update]);
+  }, [active, svg, onDrop, update, zoom]);
 
   const begin = (what: K) => (event: { clientX: number; clientY: number; button: number }) => {
     if (event.button !== 0) return;
