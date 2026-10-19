@@ -54,24 +54,25 @@ for f in setup.md .specify/memory/constitution.md \
          "$feature_dir/tests/tdd-evidence.md" "$feature_dir/tdd-evidence.md"; do
   [ -f "$f" ] && context+=("$f")
 done
-context_json="$(printf '%s\n' "${context[@]}" | jq -R . | jq -s .)"
+# Not passed as "context": crews embeds those files in the claude -p argument for analysis
+# agents, and a single argument over 128 KB fails with spawn E2BIG. List the paths instead;
+# every agent can read them from disk.
+files_text="Read these files from disk first: $(printf '%s, ' "${context[@]}" | sed 's/, $//')."
 
 task_file="tasks/${kind}-${feature}.json"
 
 if [ "$kind" = review ]; then
-  jq -n --argjson context "$context_json" --arg dir "$feature_dir" '{
-    description: ("Pre-implementation review of the Spec Kit feature in " + $dir + ". Review spec.md, plan.md and tasks.md (whichever exist) against setup.md. Business-analyst: are requirements complete, testable and consistent with the acceptance criteria? Tech-lead: is the design sound, layered as the directives require, and does the Verification Plan cover the risks? Do not modify any file."),
+  jq -n --arg files "$files_text" --arg dir "$feature_dir" '{
+    description: ("Pre-implementation review of the Spec Kit feature in " + $dir + ". Review spec.md, plan.md and tasks.md (whichever exist) against setup.md. Business-analyst: are requirements complete, testable and consistent with the acceptance criteria? Tech-lead: is the design sound, layered as the directives require, and does the Verification Plan cover the risks? Do not modify any file. " + $files),
     agents: ["business-analyst", "tech-lead"],
     mode: "parallel",
-    context: $context,
     aggregator: true
   }' > "$task_file"
 else
-  jq -n --argjson context "$context_json" --arg dir "$feature_dir" --arg scope "$scope" '{
-    description: ("Implement the Spec Kit feature in " + $dir + ". Scope: " + $scope + ". Follow tasks.md order and the integrated TDD rules. QA writes and records the failing tests for the scope, the developer makes them pass and marks tasks done through the gate, the tech-lead and business-analyst review. Do nothing outside this scope."),
+  jq -n --arg files "$files_text" --arg dir "$feature_dir" --arg scope "$scope" '{
+    description: ("Implement the Spec Kit feature in " + $dir + ". Scope: " + $scope + ". Follow tasks.md order and the integrated TDD rules. QA writes and records the failing tests for the scope, the developer makes them pass and marks tasks done through the gate, the tech-lead and business-analyst review. Do nothing outside this scope. " + $files),
     agents: ["qa", "developer", "tech-lead", "business-analyst"],
     mode: "sequential",
-    context: $context,
     retry: { maxRounds: 3, reviewerAgent: "tech-lead" }
   }' > "$task_file"
 fi

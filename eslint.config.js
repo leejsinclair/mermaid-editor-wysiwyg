@@ -7,6 +7,91 @@ import jsxA11y from "eslint-plugin-jsx-a11y";
 import security from "eslint-plugin-security";
 import sonarjs from "eslint-plugin-sonarjs";
 
+
+// Layer order (constitution II): model -> validation -> generation -> rendering; history uses model and validation only.
+// A restriction block replaces the previous one for the same files, so each block carries the shared bans itself.
+const UI_AND_BROWSER_LIBS = [
+  "react",
+  "react-dom",
+  "react-dom/*",
+  "react-router",
+  "react-router/*",
+  "mermaid",
+  "@xyflow/*",
+  "@mui/*",
+  "@emotion/*",
+  "**/components/**",
+  "**/routes/**",
+];
+const BROWSER_GLOBALS = [
+  "window",
+  "document",
+  "navigator",
+  "localStorage",
+  "sessionStorage",
+  "indexedDB",
+  "fetch",
+  "BroadcastChannel",
+  "crypto",
+];
+const LAYERS = ["model", "validation", "generation", "rendering", "history", "persistence"];
+
+function bans(group, message) {
+  return { group, message };
+}
+
+function restrictImports(folder, allowed, { pure, editorOk = false, persistenceOk = false }) {
+  const forbiddenLayers = LAYERS.filter((layer) => layer !== folder && !allowed.includes(layer));
+  const patterns = [bans(["**/testing/**"], "app/testing is for tests only.")];
+  if (forbiddenLayers.length > 0) {
+    patterns.push(bans(forbiddenLayers.map((layer) => `**/${layer}/**`), `app/${folder} must not import this layer (layer order).`));
+  }
+  if (!editorOk) patterns.push(bans(["**/editor/**"], "Only app/routes and app/root.tsx import app/editor."));
+  if (!persistenceOk) patterns.push(bans(["**/persistence/**"], "Only app/editor imports app/persistence."));
+  if (pure) patterns.push(bans(UI_AND_BROWSER_LIBS, "The pure layers must not import UI or browser libraries."));
+  return ["error", { patterns }];
+}
+
+function layerRules() {
+  const rules = [];
+  const layers = {
+    model: { allowed: [], pure: true },
+    validation: { allowed: ["model"], pure: true },
+    generation: { allowed: ["model", "validation"], pure: true },
+    history: { allowed: ["model", "validation"], pure: true },
+    rendering: { allowed: ["model", "validation", "generation"], pure: false },
+    persistence: { allowed: ["model", "validation"], pure: false },
+  };
+  for (const [folder, { allowed, pure }] of Object.entries(layers)) {
+    rules.push({
+      files: [`app/${folder}/**/*.{ts,tsx}`],
+      ignores: ["**/*.test.{ts,tsx}"],
+      ...(pure && { languageOptions: { globals: globals.node } }),
+      rules: {
+        "no-restricted-imports": restrictImports(folder, allowed, { pure }),
+        ...(pure && {
+          "no-restricted-globals": [
+            "error",
+            ...BROWSER_GLOBALS.map((name) => ({ name, message: "The pure layers must not touch browser APIs." })),
+          ],
+        }),
+      },
+    });
+  }
+  // The composition root reaches persistence; routes and the root module reach the editor.
+  rules.push({
+    files: ["app/editor/**/*.{ts,tsx}"],
+    ignores: ["**/*.test.{ts,tsx}"],
+    rules: { "no-restricted-imports": restrictImports("editor", ["model", "validation", "generation", "rendering", "history", "persistence"], { pure: false, editorOk: true, persistenceOk: true }) },
+  });
+  rules.push({
+    files: ["app/routes/**/*.{ts,tsx}", "app/root.tsx"],
+    ignores: ["**/*.test.{ts,tsx}"],
+    rules: { "no-restricted-imports": restrictImports("routes", ["model", "validation", "generation", "rendering", "history", "persistence"], { pure: false, editorOk: true }) },
+  });
+  return rules;
+}
+
 export default tseslint.config(
   {
     ignores: [
@@ -35,7 +120,7 @@ export default tseslint.config(
     languageOptions: {
       globals: { ...globals.browser },
       parserOptions: {
-        projectService: { allowDefaultProject: ["*.config.ts", "*.config.js", "e2e/*.ts"] },
+        projectService: { allowDefaultProject: ["*.config.ts", "*.config.js"] },
         tsconfigRootDir: import.meta.dirname,
       },
     },
@@ -45,24 +130,7 @@ export default tseslint.config(
       "@typescript-eslint/consistent-type-imports": "error",
     },
   },
-  {
-    // The model, validation, generation and history layers stay free of the DOM (see .crews/directives.md).
-    files: ["app/model/**", "app/validation/**", "app/generation/**", "app/history/**"],
-    languageOptions: { globals: globals.node },
-    rules: {
-      "no-restricted-globals": [
-        "error",
-        ...["window", "document", "navigator", "localStorage", "sessionStorage"].map((name) => ({
-          name,
-          message: "The pure layers must not touch the DOM.",
-        })),
-      ],
-      "no-restricted-imports": [
-        "error",
-        { patterns: [{ group: ["react", "react-dom", "react-router", "**/components/**", "**/routes/**"], message: "The pure layers must not import UI code." }] },
-      ],
-    },
-  },
+  ...layerRules(),
   {
     files: ["**/*.{js,mjs,cjs}", "*.config.*"],
     ...tseslint.configs.disableTypeChecked,

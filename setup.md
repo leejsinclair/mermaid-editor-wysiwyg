@@ -26,6 +26,7 @@ Enable business analysts and developers to create accurate, readable diagrams mo
 * Undo and redo editing operations.
 * Copy generated Mermaid source to the clipboard.
 * Maintain consistency between the visual diagram and its generated source.
+* Keep diagrams in the user's own browser between sessions, and save diagrams to and open them from files in the editor's own format.
 
 ### Excluded
 
@@ -33,15 +34,16 @@ Enable business analysts and developers to create accurate, readable diagrams mo
 * Importing or editing existing Mermaid source.
 * SVG or PNG export.
 * Real-time collaboration.
-* Diagram version history or persistence across sessions.
+* Diagram version history (earlier versions of a diagram, or undo history kept after the diagram is closed).
+* Server-side or cloud storage, and synchronisation between browsers or devices.
 * Support for diagram types other than those explicitly supported by the editor.
 
 ## Business Rules
 
 1. The visual diagram is the source of truth. Mermaid source is generated from the visual diagram and is not directly editable.
 2. The editor must not require users to understand Mermaid syntax to create or modify diagrams.
-3. The initial supported diagram type is a Mermaid flowchart.
-4. The editor must support flowchart nodes, directed and undirected connections where supported, and labelled connections.
+3. The supported diagram types are Mermaid flowchart, sequence diagram and C4 diagram (all five C4 kinds: Context, Container, Component, Dynamic and Deployment). The type is chosen when the diagram is created and does not change afterwards.
+4. For flowcharts, the editor must support nodes, directed and undirected connections where supported, and labelled connections.
 5. Available elements, properties and operations must conform to the selected diagram type.
 6. The editor must prevent invalid operations from corrupting the diagram.
 7. Deleting a node must not silently introduce new relationships between remaining nodes.
@@ -61,9 +63,9 @@ Enable business analysts and developers to create accurate, readable diagrams mo
 
 **Then** the editor prompts the user to select a supported diagram type
 
-**And** the initial supported type is Flowchart
+**And** the supported types are Flowchart, Sequence and C4 (Context, Container, Component, Dynamic, Deployment)
 
-**And** selecting Flowchart opens a new, empty diagram
+**And** selecting a type opens a new, empty diagram of that type
 
 **And** the user can begin editing immediately
 
@@ -89,7 +91,7 @@ Enable business analysts and developers to create accurate, readable diagrams mo
 
 **When** the user drags a node shape from the toolbox onto the canvas
 
-**Then** a node is created at the drop location
+**Then** a node is created at the drop location, or at the nearest free position when that location is occupied
 
 **And** the node is displayed on the canvas
 
@@ -111,7 +113,7 @@ Enable business analysts and developers to create accurate, readable diagrams mo
 
 **When** the user moves the node on the canvas
 
-**Then** the node is displayed at its new position
+**Then** the node is displayed at its new position, or at the nearest free position when that position is occupied
 
 **And** its existing connections remain attached to the correct node
 
@@ -336,7 +338,7 @@ The source must remain read-only within the editor.
 ### Definition of Done
 
 * All acceptance criteria pass.
-* The initial release supports the defined flowchart functionality.
+* The initial release supports the defined flowchart, sequence diagram and C4 diagram functionality.
 * All committed editing operations participate in undo and redo.
 * Mermaid generation is covered by automated tests.
 * Label escaping and special-character handling are covered by automated tests.
@@ -345,13 +347,14 @@ The source must remain read-only within the editor.
 * Generated Mermaid output is validated against the supported grammar.
 * Copy Source works in supported browsers and reports success or failure correctly.
 * The visual diagram, rendered representation and generated Mermaid source remain consistent after editing, Undo and Redo.
+* A diagram kept in the browser or saved to a file reopens with identical content, and saving reports success only after it has succeeded.
 * The editor does not silently alter the logical meaning of a diagram.
 
 ### Implementation Guidance
 
 The requirements above describe the required user-facing behaviour. The implementation should preserve a clear separation between the visual diagram model, Mermaid source generation, validation, rendering and editing history.
 
-The implementation must not treat generated Mermaid text as the editable source of truth. Additional Mermaid diagram types should be introduced only when their supported elements, relationships, editing operations and validation rules have been explicitly defined and tested.
+The implementation must not treat generated Mermaid text as the editable source of truth. Sequence and C4 diagrams are part of the initial release and follow the same rule as any type: their supported elements, relationships, editing operations and validation rules are explicitly defined and tested. Acceptance criteria AC2 to AC17 are worded for flowcharts and apply to each supported type with that type's own elements and connections. Additional Mermaid diagram types beyond these should be introduced only when their supported elements, relationships, editing operations and validation rules have been explicitly defined and tested.
 
 ## Setup
 
