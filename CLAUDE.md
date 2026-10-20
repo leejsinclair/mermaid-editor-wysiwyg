@@ -26,7 +26,7 @@ The micro-kanban mod shows progress above the prompt during `/speckit-implement`
 
 - `npm run dev`, `npm run build`, `npm run preview` (serves the production build in `build/client`), `npm run typecheck`
 - In-app addresses are hash-style (`#/d/<id>`), so e2e tests open views as `page.goto("#/new/flowchart")` with no leading `/`
-- `npm test` (Vitest, pure layers), `npm run test:e2e` (Playwright, Chromium)
+- `npm test` (Vitest, pure layers), `npm run test:e2e` (Playwright, Chromium and Firefox)
 - `npm run lint` (ESLint with security and sonarjs, Stylelint, HTMLHint, markdownlint, Mermaid syntax)
 
 A `PostToolUse` hook (`scripts/hooks/lint-edited.sh`) lints each edited file and returns failures to the agent.
