@@ -113,6 +113,38 @@ for (const view of ["sequence", "c4"] as const) {
   }
 }
 
+test("double-clicking the outer line of a multiline flowchart label opens its editor", async ({ page }) => {
+  const line = await openLine(page, "flowchart", "First line\nSecond line");
+  const box = await line.label.boundingBox();
+  if (!box) throw new Error("The label must be visible");
+
+  await line.label.dblclick({ position: { x: box.width / 2, y: 1 } });
+
+  await expect(editorOf(page)).toBeVisible();
+  await expect(editorOf(page)).toHaveValue("First line\nSecond line");
+});
+
+test("double-clicking a flowchart connection handle does not open a node label editor", async ({ page }) => {
+  const line = await openLine(page, "flowchart");
+  const handle = line.page.locator(".react-flow__node").first().locator('[data-side="right"]');
+  const sourceBefore = await sourceOf(page);
+  await handle.dblclick();
+
+  await expect(editorOf(page)).toHaveCount(0);
+  await expect(line.line).toHaveCount(1);
+  expect(await sourceOf(page)).toBe(sourceBefore);
+});
+
+test("clicking an item before double-clicking a C4 relationship still opens the relationship editor", async ({ page }) => {
+  const line = await openLine(page, "c4");
+  await line.page.getByTestId("item-label").first().click();
+
+  await line.doubleClickLine();
+
+  await expect(editorOf(page)).toBeVisible();
+  await expect(editorOf(page)).toHaveValue(line.text);
+});
+
 for (const view of VIEWS) {
   test(`on a ${view} line, Enter on the selected line and F2 open the editor without leaving the canvas`, async ({ page }) => {
     const line = await openLine(page, view);

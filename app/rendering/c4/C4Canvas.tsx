@@ -216,7 +216,7 @@ function edgePoint(from: C4Box, to: C4Box): { x: number; y: number } {
   return { x: cx + dx * scale, y: cy + dy * scale };
 }
 
-function RelationshipView({ relationship, source, target, names, chosen, number, onSelect, onEdit, begin, edit, activate }: Readonly<{ relationship: Relationship; source: C4Box; target: C4Box; names: { from: string; to: string }; chosen: boolean; number: number | undefined; onSelect: () => void; onEdit: () => void; begin: Begin; edit: InlineEdit | undefined; activate: (event: MouseEvent<SVGGElement>) => boolean }>) {
+function RelationshipView({ relationship, source, target, names, chosen, number, onSelect, onEdit, begin, pressed, edit, activate }: Readonly<{ relationship: Relationship; source: C4Box; target: C4Box; names: { from: string; to: string }; chosen: boolean; number: number | undefined; onSelect: () => void; onEdit: () => void; begin: Begin; pressed: (event: { clientX: number; clientY: number }) => void; edit: InlineEdit | undefined; activate: (event: MouseEvent<SVGGElement>) => boolean }>) {
   const name = fill(en.c4.relationshipName, { kind: DIRECTION_NAMES.get(relationship.direction) ?? relationship.direction, ...names, label: relationship.label });
   const from = source;
   const to = target;
@@ -240,7 +240,10 @@ function RelationshipView({ relationship, source, target, names, chosen, number,
       // While its label is typed the item holds a text field, so it is a group rather than a button.
       role={edit ? "group" : "button"}
       style={{ cursor: "pointer", outline: "none" }}
-      onPointerDown={number === undefined ? undefined : begin({ kind: "reorder", id: relationship.id })}
+      onPointerDown={(event) => {
+        pressed(event);
+        if (number !== undefined) begin({ kind: "reorder", id: relationship.id })(event);
+      }}
     >
       <path d={path} stroke="transparent" strokeWidth={18} fill="none" />
       <path d={path} fill="none" stroke="currentColor" strokeWidth={chosen ? 3 : 1.5} markerEnd="url(#c4-arrow)" markerStart={twoWay ? "url(#c4-arrow)" : undefined} />
@@ -393,7 +396,7 @@ export function C4Canvas({ handleRef, diagram, inlineEdit, onStartEdit, selectio
     },
     [layout, content.relationships, endHandles, reach, onCreateRelationship, onMoveEnd, onMoveToParent, onReorder],
   );
-  const { begin: beginDrag, current } = useDrag<C4Drag>(svg, onDrop, zoom);
+  const { begin: beginDrag, current } = useDrag<C4Drag>(svg, scroller, onDrop, zoom);
   const doubles = useDoubleActivation(onStartEdit);
   const begin: Begin = (what) => (event) => {
     doubles.pressed(event);
@@ -458,6 +461,7 @@ export function C4Canvas({ handleRef, diagram, inlineEdit, onStartEdit, selectio
                 onStartEdit(relationship.id);
               }}
               begin={begin}
+              pressed={doubles.pressed}
               edit={inlineEdit?.itemId === relationship.id ? inlineEdit : undefined}
               activate={(event) => doubles.released(relationship.id, event)}
             />

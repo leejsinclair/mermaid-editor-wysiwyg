@@ -230,7 +230,7 @@ export function SequenceCanvas({ handleRef, diagram, inlineEdit, onStartEdit, se
   const onDrop = useCallback((end: DragEnd<DragKind>) => {
     dropped(layout, diagram, end, HANDLE_HIT / zoom, { onReorder, onCreateMessage, onMoveEnd });
   }, [layout, diagram, zoom, onReorder, onCreateMessage, onMoveEnd]);
-  const { begin: beginDrag, current } = useDrag<DragKind>(svg, onDrop, zoom);
+  const { begin: beginDrag, current } = useDrag<DragKind>(svg, scroller, onDrop, zoom);
   const doubles = useDoubleActivation(onStartEdit);
   const begin: Begin = (what) => (event) => {
     doubles.pressed(event);

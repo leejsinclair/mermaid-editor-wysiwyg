@@ -165,3 +165,15 @@ for (const view of VIEWS) {
     expect((await lines())[1]).toMatch(endsAtSecond);
   });
 }
+
+for (const end of ["source", "target"] as const) {
+  test(`dropping the flowchart ${end} endpoint on a node body reconnects that endpoint`, async ({ page }) => {
+    const { third, lines } = await fixture(page, "flowchart");
+    const handle = page.getByRole("region", { name: "Diagram canvas" }).locator(`.react-flow__edgeupdater-${end}`).first();
+
+    await drag(page, await centreOf(handle), await centreOf(third));
+
+    await expect.poll(async () => (await lines())[0]).toMatch(end === "source" ? /from Diamond to Circle$/ : /from Rectangle to Diamond$/);
+    expect(await lines()).toHaveLength(1);
+  });
+}

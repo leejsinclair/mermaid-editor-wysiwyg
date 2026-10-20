@@ -4,7 +4,7 @@
 
 ## Summary
 
-_Generated from the tables below on 2026-10-20T04:30:50Z._
+_Generated from the tables below on 2026-10-20T07:48:57Z._
 
 | Obligation | Requirements | Status | Tests | Latest result |
 |------------|--------------|--------|-------|---------------|
@@ -17,7 +17,7 @@ _Generated from the tables below on 2026-10-20T04:30:50Z._
 | VO-007 | FR-004, FR-021, US1-AS7, SC-007 | verified | e2e/inline-edit.spec.ts, e2e/inline-edit.spec.ts:228, e2e/inline-edit-lines.spec.ts | pass (#64) |
 | VO-008 | FR-003, US1-AS8, EC-09, EC-14 | verified | e2e/inline-edit.spec.ts:301, e2e/inline-edit.spec.ts, e2e/inline-edit-lines.spec.ts | pass (#65) |
 | VO-009 | FR-004, US1-AS9 | verified | app/editor/inlineEdit.test.ts | pass (#27) |
-| VO-010 | FR-001, US2-AS1 | verified | e2e/inline-edit-lines.spec.ts | pass (#63) |
+| VO-010 | FR-001, US2-AS1 | in progress | e2e/inline-edit-lines.spec.ts | pass (#133) |
 | VO-011 | FR-001, US2-AS2 | verified | e2e/inline-edit-lines.spec.ts | pass (#61) |
 | VO-012 | FR-004, US2-AS3 | verified | e2e/inline-edit-lines.spec.ts | pass (#61) |
 | VO-013 | FR-004, US2-AS4 | verified | e2e/inline-edit-lines.spec.ts | pass (#63) |
@@ -26,7 +26,7 @@ _Generated from the tables below on 2026-10-20T04:30:50Z._
 | VO-016 | FR-013, US3-AS2 | verified | e2e/hover.spec.ts | pass (#82) |
 | VO-017 | FR-014, US3-AS3, SC-001 | verified | e2e/move-vs-connect.spec.ts | pass (#77) |
 | VO-018 | FR-015, FR-017, US3-AS4, SC-001 | verified | e2e/move-vs-connect.spec.ts | pass (#78) |
-| VO-019 | FR-017, US3-AS5, SC-006 | verified | e2e/move-vs-connect.spec.ts | pass (#80) |
+| VO-019 | FR-017, US3-AS5, SC-006 | in progress | e2e/move-vs-connect.spec.ts | pass (#138) |
 | VO-020 | FR-016, US3-AS6, SC-004, EC-11 | verified | e2e/zones.spec.ts | pass (#84) |
 | VO-021 | FR-014, US3-AS7 | verified | e2e/move-vs-connect.spec.ts | pass (#76) |
 | VO-022 | FR-010, FR-018, US4-AS1, SC-002, EC-12 | verified | e2e/handle-size.spec.ts, e2e/handle-size.spec.ts:33 | pass (#96) |
@@ -41,13 +41,13 @@ _Generated from the tables below on 2026-10-20T04:30:50Z._
 | VO-031 | FR-021, US5-AS5 | verified | e2e/inline-focus.spec.ts | pass (#119) |
 | VO-032 | FR-008 | verified | app/rendering/flowchart/sides.test.ts, e2e/handles.spec.ts | pass (#73) |
 | VO-033 | FR-008, DC-01 | verified | e2e/handles.spec.ts | pass (#72) |
-| VO-034 | FR-012 | verified | app/rendering/sequence/gestures.test.ts | pass (#107) |
+| VO-034 | FR-012 | verified | app/rendering/sequence/gestures.test.ts | pass (#131) |
 | VO-035 | FR-012, FR-016 | verified | e2e/sequence-lifeline.spec.ts | pass (#108) |
 | VO-036 | FR-010 | verified | app/rendering/shared/interaction.test.ts -t handlesFit, app/rendering/shared/interaction.test.ts, e2e/handle-size.spec.ts | pass (#97) |
 | VO-037 | FR-006, EC-01 | verified | app/rendering/shared/interaction.test.ts -t isDoubleActivation, app/rendering/shared/interaction.test.ts, app/rendering/shared/interaction.test.ts app/rendering/flowchart/sides.test.ts app/rendering/sequence/gestures.test.ts app/editor/inlineEdit.test.ts | pass (#24) |
-| VO-038 | FR-006, EC-01 | verified | e2e/small-gestures.spec.ts | pass (#49) |
+| VO-038 | FR-006, EC-01 | in progress | e2e/small-gestures.spec.ts | pass (#134) |
 | VO-039 | FR-007, EC-07 | verified | e2e/inline-edit-text.spec.ts | pass (#52) |
-| VO-040 | FR-016 | verified | e2e/end-handles.spec.ts | pass (#86) |
+| VO-040 | FR-016 | in progress | e2e/end-handles.spec.ts | pass (#137) |
 | VO-041 | FR-018 | verified | e2e/lines-unchanged.spec.ts | pass (#88) |
 | VO-042 | FR-022, SC-008 | verified | e2e/canvas-wcag.spec.ts | pass (#123) |
 | VO-043 | FR-023, SC-009, EC-15 | verified | e2e/c4-toolbox.spec.ts:73, e2e/handles.spec.ts, e2e/c4-toolbox.spec.ts, e2e/properties-draft.spec.ts | pass (#125) |
@@ -73,7 +73,7 @@ _Generated from the tables below on 2026-10-20T04:30:50Z._
 | BI-007 | US1-AS7 | VO-007, MV-002 | verified | e2e/inline-edit.spec.ts, e2e/inline-edit.spec.ts:228, e2e/inline-edit-lines.spec.ts |
 | BI-008 | US1-AS8 | VO-008 | verified | e2e/inline-edit.spec.ts:301, e2e/inline-edit.spec.ts, e2e/inline-edit-lines.spec.ts |
 | BI-009 | US1-AS9 | VO-009 | verified | app/editor/inlineEdit.test.ts |
-| BI-010 | US2-AS1 | VO-010 | verified | e2e/inline-edit-lines.spec.ts |
+| BI-010 | US2-AS1 | VO-010 | in progress | e2e/inline-edit-lines.spec.ts |
 | BI-011 | US2-AS2 | VO-011 | verified | e2e/inline-edit-lines.spec.ts |
 | BI-012 | US2-AS3 | VO-012 | verified | e2e/inline-edit-lines.spec.ts |
 | BI-013 | US2-AS4 | VO-013 | verified | e2e/inline-edit-lines.spec.ts |
@@ -82,7 +82,7 @@ _Generated from the tables below on 2026-10-20T04:30:50Z._
 | BI-016 | US3-AS2 | VO-016 | verified | e2e/hover.spec.ts |
 | BI-017 | US3-AS3 | VO-017 | verified | e2e/move-vs-connect.spec.ts |
 | BI-018 | US3-AS4 | VO-018 | verified | e2e/move-vs-connect.spec.ts |
-| BI-019 | US3-AS5 | VO-019 | verified | e2e/move-vs-connect.spec.ts |
+| BI-019 | US3-AS5 | VO-019 | in progress | e2e/move-vs-connect.spec.ts |
 | BI-020 | US3-AS6 | VO-020 | verified | e2e/zones.spec.ts |
 | BI-021 | US3-AS7 | VO-021 | verified | e2e/move-vs-connect.spec.ts |
 | BI-022 | US4-AS1 | VO-022, VO-036 | verified | e2e/handle-size.spec.ts, e2e/handle-size.spec.ts:33, app/rendering/shared/interaction.test.ts -t handlesFit, app/rendering/shared/interaction.test.ts |
@@ -99,9 +99,9 @@ _Generated from the tables below on 2026-10-20T04:30:50Z._
 | BI-033 | - | VO-033 | verified | e2e/handles.spec.ts |
 | BI-034 | - | VO-034, VO-035 | verified | app/rendering/sequence/gestures.test.ts, e2e/sequence-lifeline.spec.ts |
 | BI-035 | - | VO-035 | verified | e2e/sequence-lifeline.spec.ts |
-| BI-036 | - | VO-037, VO-038 | verified | app/rendering/shared/interaction.test.ts -t isDoubleActivation, app/rendering/shared/interaction.test.ts, app/rendering/shared/interaction.test.ts app/rendering/flowchart/sides.test.ts app/rendering/sequence/gestures.test.ts app/editor/inlineEdit.test.ts, e2e/small-gestures.spec.ts |
+| BI-036 | - | VO-037, VO-038 | in progress | app/rendering/shared/interaction.test.ts -t isDoubleActivation, app/rendering/shared/interaction.test.ts, app/rendering/shared/interaction.test.ts app/rendering/flowchart/sides.test.ts app/rendering/sequence/gestures.test.ts app/editor/inlineEdit.test.ts, e2e/small-gestures.spec.ts |
 | BI-037 | - | VO-039 | verified | e2e/inline-edit-text.spec.ts |
-| BI-038 | - | VO-040 | verified | e2e/end-handles.spec.ts |
+| BI-038 | - | VO-040 | in progress | e2e/end-handles.spec.ts |
 | BI-039 | - | VO-041 | verified | e2e/lines-unchanged.spec.ts |
 | BI-040 | - | VO-042, MV-003 | verified | e2e/canvas-wcag.spec.ts |
 | BI-041 | - | VO-043, VO-053 | verified | e2e/c4-toolbox.spec.ts:73, e2e/handles.spec.ts, e2e/c4-toolbox.spec.ts, e2e/properties-draft.spec.ts, app/editor/inlineEdit.test.ts |
@@ -120,9 +120,9 @@ Not verified by tests
 - MV-002 manual: open
 - MV-003 manual: open
 
-Counts: verified 53, deferred 0, manual checks 3 open
+Counts: verified 49, deferred 0, manual checks 3 open
 
-**Not verified**: none.
+**Not verified**: FR-001 (VO-010 in progress), SC-006 (VO-019 in progress), US2-AS1 (VO-010 in progress), FR-006 (VO-038 in progress), FR-017 (VO-019 in progress), US3-AS5 (VO-019 in progress), FR-016 (VO-040 in progress), EC-01 (VO-038 in progress), BI-010 (in progress), BI-019 (in progress), BI-036 (in progress), BI-038 (in progress).
 
 **Open decisions**: none. **Exceptions**: EX-01 no-meaningful-red on T032 for VO-046; EX-02 no-meaningful-red on T032 for VO-047; EX-03 behaviour-preserving on T055 for VO-041; EX-04 no-meaningful-red on T068 for VO-027; EX-05 no-meaningful-red on T068 for VO-028; EX-06 no-meaningful-red on T068 for VO-029. **Expectation changes**: XC-01 on T003 for FR-006; XC-02 on T005 for FR-006; XC-03 on T007 for FR-006; XC-04 on T003 for FR-011; XC-05 on T005 for FR-011; XC-06 on T007 for FR-011; XC-07 on T013 for FR-004; XC-08 on T015 for FR-001; XC-09 on T016 for FR-001; XC-10 on T017 for FR-001; XC-11 on T018 for FR-001; XC-12 on T019 for FR-001; XC-13 on T017 for FR-006; XC-14 on T018 for FR-006; XC-15 on T019 for FR-006; XC-16 on T023 for FR-002; XC-17 on T027 for FR-003; XC-18 on T029 for FR-006; XC-19 on T031 for FR-007; XC-20 on T027 for FR-003; XC-21 on T025 for FR-004; XC-22 on T024 for FR-004; XC-23 on T035 for FR-001; XC-24 on T036 for FR-001; XC-25 on T037 for FR-004; XC-26 on T038 for FR-006; XC-27 on T039 for US3-AS7, alters behaviour (approved by Lee Sinclair); XC-28 on T044 for FR-014; XC-29 on T045 for FR-014; XC-30 on T046 for FR-015; XC-31 on T050 for FR-013; XC-32 on T052 for FR-016; XC-33 on T054 for FR-016; XC-34 on T058 for FR-010; XC-35 on T059 for FR-010; XC-36 on T061 for FR-009; XC-37 on T063 for FR-011; XC-38 on T063 for FR-011; XC-39 on T077 for FR-016, alters behaviour (approved by Lee Sinclair); XC-40 on T077 for FR-016, alters behaviour (approved by Lee Sinclair); XC-41 on T077 for US3-AS7; XC-42 on T041 for US3-AS7.
 
@@ -268,6 +268,17 @@ Counts: verified 53, deferred 0, manual checks 3 open
 | 125 | 2026-10-20T04:20:43Z | T077 | VO-043 | green | e2e | e2e/c4-toolbox.spec.ts | pass | yes | - | e2e/c4-toolbox.spec.ts | 0f5712 | - | ece5ad |
 | 126 | 2026-10-20T04:20:46Z | - | - | checkpoint | unit-all | - | pass | yes | - | - | - | - | d0b1cc |
 | 127 | 2026-10-20T04:28:06Z | - | - | checkpoint | e2e-all | - | pass | yes | - | - | - | - | bb0fd2 |
+| 128 | 2026-10-20T07:34:05Z | T010 | VO-034 | red | unit | app/rendering/sequence/gestures.test.ts | fail | no | unclassified | app/rendering/sequence/gestures.test.ts | 6de600 | failed for a different reason | 2b938b |
+| 129 | 2026-10-20T07:34:25Z | T010 | VO-034 | red | unit | app/rendering/sequence/gestures.test.ts | fail | yes | assertion | app/rendering/sequence/gestures.test.ts | 6de600 | expected: toBe(1) | 85d05d |
+| 130 | 2026-10-20T07:35:02Z | T034 | VO-010 | red | e2e | e2e/inline-edit-lines.spec.ts | fail | no | unclassified | e2e/inline-edit-lines.spec.ts | 11638e | failed for a different reason | 600831 |
+| 131 | 2026-10-20T07:36:48Z | T067 | VO-034 | green | unit | app/rendering/sequence/gestures.test.ts | pass | yes | - | app/rendering/sequence/gestures.test.ts | 6de600 | - | e58efd |
+| 132 | 2026-10-20T07:37:50Z | T034 | VO-010 | green | e2e | e2e/inline-edit-lines.spec.ts | fail | no | unclassified | e2e/inline-edit-lines.spec.ts | 11638e | - | b2245d |
+| 133 | 2026-10-20T07:39:50Z | T034 | VO-010 | green | e2e | e2e/inline-edit-lines.spec.ts | pass | yes | - | e2e/inline-edit-lines.spec.ts | 49b87c | - | f1dc0c |
+| 134 | 2026-10-20T07:40:16Z | T028 | VO-038 | green | e2e | e2e/small-gestures.spec.ts | pass | yes | - | e2e/small-gestures.spec.ts | dbf0aa | - | 3534a7 |
+| 135 | 2026-10-20T07:41:33Z | T053 | VO-040 | green | e2e | e2e/end-handles.spec.ts | fail | no | unclassified | e2e/end-handles.spec.ts | 7ca76f | - | 5a22b5 |
+| 136 | 2026-10-20T07:44:12Z | T053 | VO-040 | green | e2e | e2e/end-handles.spec.ts | fail | no | unclassified | e2e/end-handles.spec.ts | 2e82ac | - | e4aada |
+| 137 | 2026-10-20T07:47:14Z | T053 | VO-040 | green | e2e | e2e/end-handles.spec.ts | pass | yes | - | e2e/end-handles.spec.ts | 2e82ac | - | cd2218 |
+| 138 | 2026-10-20T07:48:57Z | T048 | VO-019 | green | e2e | e2e/move-vs-connect.spec.ts | pass | yes | - | e2e/move-vs-connect.spec.ts | b50534 | - | 68e427 |
 
 ## Exceptions
 

@@ -32,8 +32,13 @@ export function messageIndexAt(y: number, count: number): number {
  * Elsewhere on the canvas, including between lifelines, there is none.
  */
 export function participantAt(layout: SequenceLayout, x: number, y: number, strip: number): number | undefined {
-  const header = y >= 0 && y <= HEADER_HEIGHT - 20;
-  return layout.lifelines.find((lifeline) => Math.abs(lifeline.x - x) <= (header ? HEADER_WIDTH / 2 : strip / 2) && y >= 0)?.id;
+  return layout.lifelines.find((lifeline) => {
+    const dx = Math.abs(lifeline.x - x);
+    const headerHeight = lifeline.role === "actor" ? 72 : 50;
+    const inHeader = y >= 0 && y <= headerHeight && dx <= HEADER_WIDTH / 2;
+    const inLifeline = y >= HEADER_HEIGHT - 20 && y <= layout.height && dx <= strip / 2;
+    return inHeader || inLifeline;
+  })?.id;
 }
 
 export type DragKind =

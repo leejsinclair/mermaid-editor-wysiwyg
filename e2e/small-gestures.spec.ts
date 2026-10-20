@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test";
 import { openItem, panelLabel, sourceOf, type ItemKind } from "./support/items";
+import { openLine } from "./support/lines";
 
 // VO-038 (FR-006, EC-01): a press that moves 3 px and is released is a click: it selects and nothing else. VO-048 (FR-001,
 // EC-08): double-clicking empty canvas creates, selects and edits nothing and does not zoom.
@@ -48,3 +49,21 @@ for (const kind of ONE_PER_VIEW) {
     expect(await sourceOf(page)).toBe(sourceBefore);
   });
 }
+
+test("a 3 px wobble on a flowchart connection handle does not create a self-connection", async ({ page }) => {
+  const line = await openLine(page, "flowchart");
+  const handle = line.page.locator(".react-flow__node").first().locator('[data-side="right"]');
+  const box = await handle.boundingBox();
+  if (!box) throw new Error("The connection handle must be visible");
+  const x = box.x + box.width / 2;
+  const y = box.y + box.height / 2;
+  const sourceBefore = await sourceOf(page);
+
+  await page.mouse.move(x, y);
+  await page.mouse.down();
+  await page.mouse.move(x + 3, y + 3);
+  await page.mouse.up();
+
+  await expect(line.line).toHaveCount(1);
+  expect(await sourceOf(page)).toBe(sourceBefore);
+});

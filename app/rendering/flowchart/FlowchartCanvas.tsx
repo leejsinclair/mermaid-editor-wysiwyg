@@ -105,6 +105,7 @@ function Canvas({ handleRef, diagram, inlineEdit, onStartEdit, onAddNode, armed,
   const connecting = useRef(false);
   const connectionCancelled = useRef(false);
   const reconnecting = useRef(false);
+  const reconnectingEnd = useRef<"from" | "to" | undefined>(undefined);
   const paneRef = useRef<HTMLDivElement>(null);
   // A drag is view state until release: positions here sit over the model's until the drag ends.
   // It belongs to the Undo/Redo signal it began under: once that changes the drag is cancelled and ignored (EC-08).
@@ -287,6 +288,15 @@ function Canvas({ handleRef, diagram, inlineEdit, onStartEdit, onAddNode, armed,
       onKeyDown={onKeyDown}
       onPointerDownCapture={(event) => {
         press.current = { x: event.clientX, y: event.clientY };
+        doubles.pressed(event);
+      }}
+      onClickCapture={(event) => {
+        if (!(event.target instanceof Element)) return;
+        const label = event.target.closest("[data-testid='connection-label']");
+        if (!label) return;
+        event.stopPropagation();
+        const id = Number(label.getAttribute("data-item-id"));
+        if (Number.isInteger(id) && !doubles.released(id, event.nativeEvent)) onSelect(id);
       }}
       onFocus={(event) => {
         // Tabbing to a node or connection selects it, so the Properties panel always shows what has focus. A pointer press
@@ -323,7 +333,8 @@ function Canvas({ handleRef, diagram, inlineEdit, onStartEdit, onAddNode, armed,
       }}
       edges={edges}
       onNodeClick={(event, node) => {
-        if (!doubles.released(Number(node.id), event)) onSelect(Number(node.id));
+        const onHandle = event.target instanceof Element && event.target.closest(".react-flow__handle") !== null;
+        if (onHandle || !doubles.released(Number(node.id), event)) onSelect(Number(node.id));
       }}
       onReconnect={(oldEdge, next) => {
         const end = next.source === oldEdge.source ? "to" : "from";
@@ -350,6 +361,7 @@ function Canvas({ handleRef, diagram, inlineEdit, onStartEdit, onAddNode, armed,
       multiSelectionKeyCode={null}
       zoomOnDoubleClick={false}
       nodeClickDistance={CLICK_SLOP}
+      connectionDragThreshold={CLICK_SLOP}
       connectionMode={ConnectionMode.Loose}
       reconnectRadius={HANDLE_HIT / 2 / zoom}
       connectionRadius={HANDLE_HIT / zoom}
@@ -366,15 +378,17 @@ function Canvas({ handleRef, diagram, inlineEdit, onStartEdit, onAddNode, armed,
         const type = armed ?? DEFAULT_CONNECTION;
         onAddConnection(Number(state.fromNode.id), to, type.line, type.ending);
       }}
-      onReconnectStart={() => {
+      onReconnectStart={(event) => {
         reconnecting.current = true;
+        reconnectingEnd.current = event.target instanceof Element && event.target.closest(".react-flow__edgeupdater-source") !== null ? "from" : "to";
       }}
       onReconnectEnd={(event, edge, handleType, state) => {
         reconnecting.current = false;
+        const end = reconnectingEnd.current ?? (handleType === "source" ? "from" : "to");
+        reconnectingEnd.current = undefined;
         if (connectionCancelled.current || state.isValid === true) return;
         const to = nodeUnder(event);
-        // The end being dragged is the one opposite the handle that stayed.
-        if (to !== undefined) onMoveEnd(Number(edge.id), handleType === "source" ? "to" : "from", to);
+        if (to !== undefined) onMoveEnd(Number(edge.id), end, to);
       }}
       autoPanOnNodeDrag={false}
     />

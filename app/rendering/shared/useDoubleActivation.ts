@@ -22,6 +22,7 @@ export function useDoubleActivation(onDouble: (itemId: number) => void) {
     },
     released: (itemId: number, event: Point & { readonly timeStamp: number }): boolean => {
       const start = down.current;
+      down.current = undefined;
       const dragged = start !== undefined && Math.hypot(event.clientX - start.clientX, event.clientY - start.clientY) > CLICK_SLOP;
       const next: Release = { time: event.timeStamp, x: event.clientX, y: event.clientY, itemId, dragged };
       const double = isDoubleActivation(last.current, next);

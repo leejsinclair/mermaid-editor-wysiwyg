@@ -72,8 +72,9 @@ export function ConnectionEdge(props: Readonly<EdgeProps<ConnectionFlowEdge>>) {
               background: "white",
               padding: "0 4px",
               whiteSpace: "pre-wrap",
-              pointerEvents: "none",
+              pointerEvents: "all",
             }}
+            data-item-id={id}
           >
             {connection.label}
           </div>
