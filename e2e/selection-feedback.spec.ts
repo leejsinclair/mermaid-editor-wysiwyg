@@ -39,8 +39,8 @@ async function expectNoneSelected(items: readonly Locator[]): Promise<void> {
   for (const item of items) expect(await marked(item)).toBe(false);
 }
 
-async function exercise(page: Page, items: readonly [Locator, Locator]): Promise<void> {
-  const [first, second] = items;
+async function exercise(page: Page, items: readonly [Locator, Locator], clicks: readonly [Locator, Locator] = items): Promise<void> {
+  const [first, second] = clicks;
   await first.click();
   await expectOnlySelected(items, 0);
 
@@ -90,7 +90,8 @@ test("a sequence participant and a message show which is selected", async ({ pag
   const message = canvas(page).getByTestId("message").first();
   await expect(message).toBeAttached();
 
-  await exercise(page, [participants.nth(0), participants.nth(1)]);
+  // A message owns the whole row it is drawn on, so a participant is clicked on its header, where no message crosses it.
+  await exercise(page, [participants.nth(0), participants.nth(1)], [participants.nth(0).getByTestId("participant-header"), participants.nth(1).getByTestId("participant-header")]);
   await message.focus();
   await page.keyboard.press("Enter");
   expect(await marked(message)).toBe(true);

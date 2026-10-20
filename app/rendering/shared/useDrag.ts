@@ -16,6 +16,8 @@ export interface DragEnd<K> {
   /** The point released at, in the drawing's own coordinates. */
   readonly x: number;
   readonly y: number;
+  /** Whether the pointer was released over the drawing; a line let go outside it is cancelled. */
+  readonly inside: boolean;
 }
 
 /**
@@ -46,7 +48,9 @@ export function useDrag<K>(svg: RefObject<SVGSVGElement | null>, onDrop: (end: D
       const point = local(event);
       const current = latest.current;
       update(undefined);
-      if (current && Math.hypot(point.x - current.startX, point.y - current.startY) >= DRAG_THRESHOLD) onDrop({ what: current.what, ...point });
+      const box = svg.current?.getBoundingClientRect();
+      const inside = !box || (event.clientX >= box.left && event.clientX <= box.right && event.clientY >= box.top && event.clientY <= box.bottom);
+      if (current && Math.hypot(point.x - current.startX, point.y - current.startY) >= DRAG_THRESHOLD) onDrop({ what: current.what, ...point, inside });
     };
     const onKey = (event: KeyboardEvent) => {
       if (event.key === "Escape") update(undefined);

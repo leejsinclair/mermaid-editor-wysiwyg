@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { addItem, addRelationship, canvas, dragBetween, itemLabelled, openNew, relationshipNames, select, sourceLines, toolboxButton, toolboxNames, type Kind } from "./support/c4";
+import { addItem, addRelationship, canvas, dragBetween, handlesOf, itemLabelled, openNew, relationshipNames, select, sourceLines, toolboxButton, toolboxNames, type Kind } from "./support/c4";
 
 // VO-047 (FR-031, FR-019): each C4 kind offers exactly its own elements and boundaries; activating an element button adds
 // it at the top level; a relationship is made through the target list or by dragging from one element to another; and
@@ -75,7 +75,8 @@ test("a relationship is created by dragging from one element to another", async 
   await addItem(page, "Person", "Customer");
   await addItem(page, "System", "Shop");
 
-  await dragBetween(page, itemLabelled(page, "Customer"), itemLabelled(page, "Shop"));
+  // An element's body now moves it, so the relationship is drawn from one of its connection handles.
+  await dragBetween(page, await handlesOf(itemLabelled(page, "Customer"), "right"), itemLabelled(page, "Shop"));
 
   expect(await relationshipNames(page)).toEqual(["One-way relationship from Customer to Shop: Uses"]);
   expect((await sourceLines(page)).slice(2)).toEqual(['Rel(e1, e2, "Uses")']);

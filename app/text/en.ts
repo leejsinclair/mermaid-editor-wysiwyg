@@ -127,6 +127,7 @@ export const en = {
       dashedAsync: "Dashed async arrow",
     },
     participantName: "{role}: {label}",
+    lifelineHint: "Drag from here to add a message",
     messageName: "{type} from {from} to {to}: {text}",
   },
   moveTo: { title: "Move to", topLevel: "Top level", control: "Move to…" },
@@ -153,12 +154,22 @@ export const en = {
     relationshipName: "{kind} from {from} to {to}: {label}",
     relationshipDialog: { title: "Add relationship", source: "Source", target: "Target", add: "Add relationship" },
   },
+  canvasHelp: {
+    flowchart:
+      "Drag the node to move it, or use the arrow keys when it is selected. Drag from a handle to connect it, or use Connect… in the Properties panel. Press F2 to rename it.",
+    sequence:
+      "Drag the header to move it to a new place in the order, or use Move up and Move down in the Properties panel. Drag from its lifeline handle to connect it with a message, or use Connect… in the Properties panel. Press F2 to rename it.",
+    c4: "Drag the box to move it into or out of a boundary, or use Move to… in the Properties panel. Drag from a handle to connect it, or use Connect… in the Properties panel. Press F2 to rename it.",
+    handle: "{side} handle: drag to connect",
+    lifeline: "Lifeline handle: drag to connect and add a message",
+  },
   editor: {
     types: { flowchart: "Flowchart", sequence: "Sequence diagram", c4: "C4 {kind} diagram" },
     canvas: "Diagram canvas",
     emptyHint: "Drag an element from the toolbox, or activate one, to start.",
     nodeName: "{shape} node: {label}",
     connectionName: "{type} connection from {from} to {to}",
+    inlineLabel: "Label of {name}",
     source: "Mermaid source",
   },
   library: {

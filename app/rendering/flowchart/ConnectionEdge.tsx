@@ -1,7 +1,12 @@
 import { BaseEdge, EdgeLabelRenderer, getBezierPath, type Edge, type EdgeProps } from "@xyflow/react";
 import type { Connection } from "../../model/types";
+import { InlineLabelEditor, type InlineEdit } from "../shared/InlineLabelEditor";
 
-export type ConnectionFlowEdge = Edge<{ connection: Connection }, "connection">;
+/** The connection, and its label being edited in place when it is the one open for editing. */
+export type ConnectionFlowEdge = Edge<{ connection: Connection; name: string; edit?: InlineEdit }, "connection">;
+
+/** The width of the editor on a line, which has no box of its own to fill. */
+const EDITOR_WIDTH = 160;
 
 const INK = "#222";
 /** The colour and extra width that mark the selected connection; the width is the cue that does not rely on colour. */
@@ -41,7 +46,22 @@ export function ConnectionEdge(props: Readonly<EdgeProps<ConnectionFlowEdge>>) {
           ...(connection.line === "dotted" && { strokeDasharray: "2 6", strokeLinecap: "round" as const }),
         }}
       />
-      {connection.label !== "" && (
+      {data.edit && (
+        <EdgeLabelRenderer>
+          <div
+            className="nodrag nopan"
+            style={{
+              position: "absolute",
+              width: EDITOR_WIDTH,
+              transform: `translate(-50%, -50%) translate(${String(isLoop ? labelX + 90 : labelX)}px, ${String(labelY)}px)`,
+              pointerEvents: "all",
+            }}
+          >
+            <InlineLabelEditor name={data.name} edit={data.edit} />
+          </div>
+        </EdgeLabelRenderer>
+      )}
+      {connection.label !== "" && !data.edit && (
         <EdgeLabelRenderer>
           <div
             className="nodrag nopan"

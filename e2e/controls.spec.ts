@@ -141,8 +141,11 @@ test("Delete removes the selected node with its connection, or just the selected
 
 test("dragging a connection end to another node moves that end", async ({ page }) => {
   const { canvas, diamond } = await scene(page);
+  // The end handle belongs to a selected line: it sits under the node's connection handle until the line is selected.
+  await canvas.locator(".react-flow__edge").focus();
+  await page.keyboard.press("Enter");
   const anchor = await canvas.locator(".react-flow__edgeupdater-target").boundingBox();
-  const target = await diamond.locator(".react-flow__handle.target").boundingBox();
+  const target = await diamond.locator('[data-side="top"]').boundingBox();
   if (!anchor || !target) throw new Error("The connection end and the target handle must be visible");
 
   await page.mouse.move(anchor.x + anchor.width / 2, anchor.y + anchor.height / 2);

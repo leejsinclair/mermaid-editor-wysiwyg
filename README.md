@@ -4,10 +4,12 @@ A visual, drag-and-drop editor for Mermaid flowchart, sequence and C4 diagrams. 
 the editor generates read-only Mermaid source from it. Diagrams stay in your browser and in files you save. There is
 no server.
 
+**Live demo:** <https://leejsinclair.github.io/mermaid-editor-wysiwyg/>
+
 ## Use it
 
-Open <https://leejsinclair.github.io/mermaid-editor-wysiwyg/> in a current Chromium-based browser or Firefox on a
-desktop.
+Open the [live demo](https://leejsinclair.github.io/mermaid-editor-wysiwyg/) in a current Chromium-based browser or
+Firefox on a desktop. Nothing needs installing, and nothing you draw leaves your browser unless you save it to a file.
 
 ## Develop
 

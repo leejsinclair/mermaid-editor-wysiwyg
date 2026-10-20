@@ -1,6 +1,6 @@
-import { ReactFlow, ReactFlowProvider, useReactFlow, type Connection as FlowConnection } from "@xyflow/react";
+import { ConnectionMode, ReactFlow, ReactFlowProvider, useConnection, useReactFlow, useStore, useStoreApi, type Connection as FlowConnection } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import { useEffect, useImperativeHandle, useMemo, useRef, useState, type DragEvent, type KeyboardEvent as ReactKeyboardEvent, type Ref } from "react";
+import { useEffect, useId, useImperativeHandle, useMemo, useRef, useState, type DragEvent, type KeyboardEvent as ReactKeyboardEvent, type Ref } from "react";
 import { CONNECTION_TYPES, shapeName } from "../../model/flowchart/catalogue";
 import { NODE_HEIGHT, NODE_WIDTH } from "../../model/flowchart/freePosition";
 import type { Position } from "../../model/operations";
@@ -8,10 +8,17 @@ import type { Ending, FlowchartDiagram, FlowchartShape, LineStyle } from "../../
 import { en } from "../../text/en";
 import { fill } from "../../text/fill";
 import { TOOLBOX_DRAG_TYPE } from "../shared/dnd";
+import type { InlineEdit } from "../shared/InlineLabelEditor";
+import { useDoubleActivation } from "../shared/useDoubleActivation";
+import { CanvasHelp } from "../shared/CanvasHelp";
 import { EmptyHint } from "../shared/EmptyHint";
+import { HANDLE_HIT } from "../shared/handleSize";
 import type { ViewHandle } from "../shared/viewport";
 import { ConnectionEdge, type ConnectionFlowEdge } from "./ConnectionEdge";
-import { ShapeNode, type ShapeFlowNode } from "./ShapeNode";
+import { CoveredSides, DropTargets, ShapeNode, type ShapeFlowNode } from "./ShapeNode";
+import { validEnds } from "../shared/interaction";
+import { nearestSides, type Box, type Side } from "./sides";
+import { keepOnly, stableFor, type Stable } from "./stable";
 
 const NODE_TYPES = { shape: ShapeNode };
 const EDGE_TYPES = { connection: ConnectionEdge };
@@ -19,6 +26,8 @@ const EMPTY_POSITIONS: ReadonlyMap<string, Position> = new Map();
 // A signal no Undo/Redo count equals: no drag is in progress.
 const NO_DRAG = { signal: -1, positions: EMPTY_POSITIONS } as const;
 const DEFAULT_CONNECTION = { line: "solid", ending: "arrow" } as const;
+/** A press that moves less than this many screen pixels before it is released is a click, not a move (FR-006). */
+const CLICK_SLOP = 5;
 
 /** What the editor may ask of the canvas that only the canvas knows: where its visible middle is. */
 export interface FlowchartHandle extends ViewHandle {
@@ -29,6 +38,10 @@ export interface FlowchartHandle extends ViewHandle {
 interface FlowchartCanvasProps {
   readonly handleRef?: Ref<FlowchartHandle>;
   readonly diagram: FlowchartDiagram;
+  /** The label being edited in place, or none. */
+  readonly inlineEdit: InlineEdit | null;
+  /** A double click, tap or pen tap on a node or connection: select it and open its label for editing. */
+  readonly onStartEdit: (itemId: number) => void;
   readonly onAddNode: (shape: FlowchartShape, position: Position) => void;
   /** The connection type armed in the toolbox; a plain solid arrow when none is. */
   readonly armed: { readonly line: LineStyle; readonly ending: Ending } | null;
@@ -60,8 +73,38 @@ const ARROW_STEPS: ReadonlyMap<string, Position> = new Map([
   ["ArrowRight", { x: NUDGE_STEP, y: 0 }],
 ]);
 
-function Canvas({ handleRef, diagram, onAddNode, armed, onAddConnection, onMoveNode, onNudgeNode, onFocusLeave, onSelect, selection, cancelDragSignal, onMoveEnd }: FlowchartCanvasProps) {
+/** The sides of each node that the end handles of the selected connection sit on. */
+function coveredSides(content: FlowchartDiagram["content"], dragging: ReadonlyMap<string, Position>, selection: number | null): ReadonlyMap<number, Side[]> {
+  const covered = new Map<number, Side[]>();
+  const connection = content.connections.find((candidate) => candidate.id === selection);
+  if (!connection) return covered;
+  const box = (id: number): Box | undefined => {
+    const node = content.nodes.find((candidate) => candidate.id === id);
+    if (!node) return undefined;
+    const position = dragging.get(String(id)) ?? { x: node.x, y: node.y };
+    return { x: position.x, y: position.y, width: NODE_WIDTH, height: NODE_HEIGHT };
+  };
+  const from = box(connection.from);
+  const to = box(connection.to);
+  if (!from || !to) return covered;
+  const sides = nearestSides(from, to);
+  covered.set(connection.from, [sides.source]);
+  covered.set(connection.to, [...(covered.get(connection.to) ?? []), sides.target]);
+  return covered;
+}
+
+function Canvas({ handleRef, diagram, inlineEdit, onStartEdit, onAddNode, armed, onAddConnection, onMoveNode, onNudgeNode, onFocusLeave, onSelect, selection, cancelDragSignal, onMoveEnd }: FlowchartCanvasProps) {
   const { screenToFlowPosition, zoomIn, zoomOut, fitView } = useReactFlow();
+  const zoom = useStore((state) => state.transform[2]);
+  const doubles = useDoubleActivation(onStartEdit);
+  const flow = useStoreApi();
+  const helpId = useId();
+  const rfId = flow.getState().rfId;
+  // Whether a line is being drawn from a handle, and whether Escape has cancelled it: a line cancelled stays cancelled
+  // however the pointer is then let go.
+  const connecting = useRef(false);
+  const connectionCancelled = useRef(false);
+  const reconnecting = useRef(false);
   const paneRef = useRef<HTMLDivElement>(null);
   // A drag is view state until release: positions here sit over the model's until the drag ends.
   // It belongs to the Undo/Redo signal it began under: once that changes the drag is cancelled and ignored (EC-08).
@@ -70,6 +113,10 @@ function Canvas({ handleRef, diagram, onAddNode, armed, onAddConnection, onMoveN
   const dragSignal = useRef(0);
   // Held for the life of one drag; cancelling it makes the release commit nothing (EC-08).
   const dragToken = useRef(0);
+  // Where the last pointer press began, so a release can tell a click that wobbled from a move.
+  const press = useRef({ x: 0, y: 0 });
+  // The node that keyboard focus has just selected: the next Enter confirms it, and only a second Enter opens its label (EC-09).
+  const justFocused = useRef<number | null>(null);
   const nextToken = useRef(0);
 
   const cancelDrag = () => {
@@ -78,16 +125,19 @@ function Canvas({ handleRef, diagram, onAddNode, armed, onAddConnection, onMoveN
   };
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        dragToken.current = 0;
-        setDrag(NO_DRAG);
+      if (event.key !== "Escape") return;
+      dragToken.current = 0;
+      setDrag(NO_DRAG);
+      if (connecting.current) {
+        connectionCancelled.current = true;
+        flow.getState().cancelConnection();
       }
     };
     window.addEventListener("keydown", onKeyDown);
     return () => {
       window.removeEventListener("keydown", onKeyDown);
     };
-  }, []);
+  }, [flow]);
 
   useImperativeHandle(handleRef, () => ({
     zoomIn: () => void zoomIn(),
@@ -100,41 +150,83 @@ function Canvas({ handleRef, diagram, onAddNode, armed, onAddConnection, onMoveN
     },
   }));
 
-  const nodes = useMemo<ShapeFlowNode[]>(
-    () =>
-      diagram.content.nodes.map((node) => ({
-        id: String(node.id),
-        type: "shape",
-        position: dragging.get(String(node.id)) ?? { x: node.x, y: node.y },
-        data: { node },
-        selected: node.id === selection,
-        domAttributes: node.id === selection ? { "aria-current": true } : {},
-        ariaLabel: fill(en.editor.nodeName, { shape: shapeName(node.shape) ?? node.shape, label: node.label }),
-      })),
-    [diagram.content.nodes, dragging, selection],
-  );
+  // Held for the life of the canvas; the nodes and edges built from the model are reused while their facts stay the same.
+  const [nodeCache] = useState<Stable<ShapeFlowNode>>(() => new Map());
+  const [edgeCache] = useState<Stable<ConnectionFlowEdge>>(() => new Map());
+
+  const nodes = useMemo<ShapeFlowNode[]>(() => {
+    keepOnly(nodeCache, new Set(diagram.content.nodes.map((node) => String(node.id))));
+    // The handles a selected line's end handles sit on: only the end handle shows and is hit there.
+    return diagram.content.nodes.map((node) => {
+      const id = String(node.id);
+      const position = dragging.get(id) ?? { x: node.x, y: node.y };
+      const selected = node.id === selection;
+      const edit = inlineEdit?.itemId === node.id ? inlineEdit : undefined;
+      return stableFor(nodeCache, id, [node, position.x, position.y, selected, edit], () => {
+        const name = fill(en.editor.nodeName, { shape: shapeName(node.shape) ?? node.shape, label: node.label });
+        return {
+          id,
+          type: "shape",
+          // The nominal footprint, so a node is never unmeasured (and hidden) for a frame after it is re-created.
+          width: NODE_WIDTH,
+          height: NODE_HEIGHT,
+          position,
+          data: { node, name, ...(edit && { edit }) },
+          selected,
+          // React Flow's own hint for a node, then what this canvas does with one.
+          domAttributes: { "aria-describedby": `react-flow__node-desc-${rfId} ${helpId}`, ...(selected && { "aria-current": true }) },
+          ariaLabel: name,
+        };
+      });
+    });
+  }, [diagram.content.nodes, dragging, selection, inlineEdit, nodeCache, helpId, rfId]);
+
+  // While a line is drawn from a handle, every node is a valid end.
+  const drawing = useConnection((connection) => connection.inProgress);
+  const dropTargets = useMemo(() => (drawing ? new Set(validEnds(diagram)) : null), [drawing, diagram]);
+  const covered = useMemo(() => coveredSides(diagram.content, dragging, selection), [diagram.content, dragging, selection]);
 
   const edges = useMemo<ConnectionFlowEdge[]>(() => {
     const labels = new Map(diagram.content.nodes.map((node) => [node.id, node.label]));
     const typeNames = new Map(CONNECTION_TYPES.map((entry) => [`${entry.line}-${entry.ending}`, entry.name]));
-    return diagram.content.connections.map((connection) => ({
-      id: String(connection.id),
-      type: "connection",
-      source: String(connection.from),
-      target: String(connection.to),
-      data: { connection },
-      selected: connection.id === selection,
-      domAttributes: connection.id === selection ? { "aria-current": true } : {},
-      reconnectable: true,
-      ariaLabel: fill(en.editor.connectionName, {
+    keepOnly(edgeCache, new Set(diagram.content.connections.map((connection) => String(connection.id))));
+    // Each line joins the sides of its two nodes that face each other, wherever the nodes are now (during a drag too).
+    const boxes = new Map<number, Box>(
+      diagram.content.nodes.map((node) => {
+        const position = dragging.get(String(node.id)) ?? { x: node.x, y: node.y };
+        return [node.id, { x: position.x, y: position.y, width: NODE_WIDTH, height: NODE_HEIGHT }];
+      }),
+    );
+    return diagram.content.connections.map((connection) => {
+      const id = String(connection.id);
+      const from = boxes.get(connection.from);
+      const to = boxes.get(connection.to);
+      const sides = from && to ? nearestSides(from, to) : { source: "bottom", target: "top" };
+      const name = fill(en.editor.connectionName, {
         type: typeNames.get(`${connection.line}-${connection.ending}`) ?? connection.line,
         from: labels.get(connection.from) ?? "",
         to: labels.get(connection.to) ?? "",
-      }),
-    }));
-  }, [diagram.content.nodes, diagram.content.connections, selection]);
+      });
+      const selected = connection.id === selection;
+      const edit = inlineEdit?.itemId === connection.id ? inlineEdit : undefined;
+      return stableFor(edgeCache, id, [connection, name, selected, edit, sides.source, sides.target], () => ({
+        id,
+        type: "connection",
+        source: String(connection.from),
+        target: String(connection.to),
+        sourceHandle: sides.source,
+        targetHandle: sides.target,
+        data: { connection, name, ...(edit && { edit }) },
+        selected,
+        domAttributes: { "data-zone": "line", ...(selected && { "aria-current": true }) },
+        reconnectable: true,
+        ariaLabel: name,
+      }));
+    });
+  }, [diagram.content.nodes, diagram.content.connections, dragging, selection, inlineEdit, edgeCache]);
 
   const onConnect = (connection: FlowConnection) => {
+    if (connectionCancelled.current) return;
     const type = armed ?? DEFAULT_CONNECTION;
     onAddConnection(Number(connection.source), Number(connection.target), type.line, type.ending);
   };
@@ -148,20 +240,37 @@ function Canvas({ handleRef, diagram, onAddNode, armed, onAddConnection, onMoveN
     onAddNode(shape as FlowchartShape, { x: point.x - NODE_WIDTH / 2, y: point.y - NODE_HEIGHT / 2 });
   };
 
+  /** The id of the node drawn where a mouse or touch event happened, if there is one. */
+  const nodeUnder = (event: MouseEvent | TouchEvent): number | undefined => {
+    const point = pointOf(event);
+    if (!point) return undefined;
+    const id = Number(document.elementFromPoint(point.clientX, point.clientY)?.closest(".react-flow__node")?.getAttribute("data-id"));
+    return Number.isInteger(id) ? id : undefined;
+  };
+
+  /** Where a mouse or touch event happened on screen. */
+  const pointOf = (event: MouseEvent | TouchEvent): { readonly clientX: number; readonly clientY: number } | undefined => ("changedTouches" in event ? event.changedTouches[0] : event);
+
   const insidePane = (event: MouseEvent | TouchEvent): boolean => {
     const rect = paneRef.current?.getBoundingClientRect();
-    const point = "changedTouches" in event ? event.changedTouches[0] : event;
+    const point = pointOf(event);
     if (!rect || !point) return false;
     return point.clientX >= rect.left && point.clientX <= rect.right && point.clientY >= rect.top && point.clientY <= rect.bottom;
   };
 
   const onKeyDown = (event: ReactKeyboardEvent<HTMLDivElement>) => {
     if (event.key === "Enter" || event.key === " ") {
-      // Enter or Space on a node or connection selects it, whatever way it was focused.
+      // Enter or Space on a node or connection selects it, whatever way it was focused. Enter on a node that is already
+      // selected opens its label for editing.
       const id = itemIdOf(event.target);
-      if (id !== undefined && id !== selection) onSelect(id);
+      if (id === undefined) return;
+      const confirmsFocus = justFocused.current === id;
+      justFocused.current = null;
+      if (id !== selection) onSelect(id);
+      else if (event.key === "Enter" && !confirmsFocus) onStartEdit(id);
       return;
     }
+    justFocused.current = null;
     const step = ARROW_STEPS.get(event.key);
     const node = diagram.content.nodes.find((candidate) => candidate.id === selection);
     if (!step || !node || event.altKey || event.ctrlKey || event.metaKey) return;
@@ -176,17 +285,24 @@ function Canvas({ handleRef, diagram, onAddNode, armed, onAddConnection, onMoveN
       role="presentation"
       style={{ width: "100%", height: "100%", position: "relative" }}
       onKeyDown={onKeyDown}
+      onPointerDownCapture={(event) => {
+        press.current = { x: event.clientX, y: event.clientY };
+      }}
       onFocus={(event) => {
         // Tabbing to a node or connection selects it, so the Properties panel always shows what has focus. A pointer press
         // selects through its own click, and is left to it.
         if (!(event.target as HTMLElement).matches(":focus-visible")) return;
         const id = itemIdOf(event.target);
-        if (id !== undefined && id !== selection) onSelect(id);
+        if (id === undefined || id === selection) return;
+        justFocused.current = id;
+        onSelect(id);
       }}
       onBlur={(event) => {
         if (!event.currentTarget.contains(event.relatedTarget)) onFocusLeave();
       }}
     >
+    <CoveredSides value={covered}>
+    <DropTargets value={dropTargets}>
     <ReactFlow
       nodes={nodes}
       onNodeDragStart={() => {
@@ -201,18 +317,22 @@ function Canvas({ handleRef, diagram, onAddNode, armed, onAddConnection, onMoveN
       onNodeDragStop={(event, node) => {
         const live = dragToken.current !== 0 && dragSignal.current === cancelDragSignal;
         cancelDrag();
-        if (live && insidePane(event)) onMoveNode(Number(node.id), node.position);
+        const end = pointOf(event);
+        const wobble = end !== undefined && Math.hypot(end.clientX - press.current.x, end.clientY - press.current.y) < CLICK_SLOP;
+        if (live && !wobble && insidePane(event)) onMoveNode(Number(node.id), node.position);
       }}
       edges={edges}
-      onNodeClick={(_event, node) => {
-        onSelect(Number(node.id));
+      onNodeClick={(event, node) => {
+        if (!doubles.released(Number(node.id), event)) onSelect(Number(node.id));
       }}
       onReconnect={(oldEdge, next) => {
         const end = next.source === oldEdge.source ? "to" : "from";
         onMoveEnd(Number(oldEdge.id), end, Number(end === "to" ? next.target : next.source));
       }}
-      onEdgeClick={(_event, edge) => {
-        onSelect(Number(edge.id));
+      onEdgeClick={(event, edge) => {
+        // The grips at a line's ends only move the end: they never open the label.
+        const onEnd = event.target instanceof Element && event.target.closest(".react-flow__edgeupdater") !== null;
+        if (onEnd || !doubles.released(Number(edge.id), event)) onSelect(Number(edge.id));
       }}
       onPaneClick={() => {
         onSelect(null);
@@ -229,8 +349,38 @@ function Canvas({ handleRef, diagram, onAddNode, armed, onAddConnection, onMoveN
       selectionKeyCode={null}
       multiSelectionKeyCode={null}
       zoomOnDoubleClick={false}
+      nodeClickDistance={CLICK_SLOP}
+      connectionMode={ConnectionMode.Loose}
+      reconnectRadius={HANDLE_HIT / 2 / zoom}
+      connectionRadius={HANDLE_HIT / zoom}
+      onConnectStart={() => {
+        connecting.current = true;
+        connectionCancelled.current = false;
+      }}
+      onConnectEnd={(event, state) => {
+        connecting.current = false;
+        // Let go over a handle, React Flow has made the line itself; let go over a node's body, the line ends at that node.
+        if (reconnecting.current || connectionCancelled.current || state.isValid === true || !state.fromNode) return;
+        const to = nodeUnder(event);
+        if (to === undefined) return;
+        const type = armed ?? DEFAULT_CONNECTION;
+        onAddConnection(Number(state.fromNode.id), to, type.line, type.ending);
+      }}
+      onReconnectStart={() => {
+        reconnecting.current = true;
+      }}
+      onReconnectEnd={(event, edge, handleType, state) => {
+        reconnecting.current = false;
+        if (connectionCancelled.current || state.isValid === true) return;
+        const to = nodeUnder(event);
+        // The end being dragged is the one opposite the handle that stayed.
+        if (to !== undefined) onMoveEnd(Number(edge.id), handleType === "source" ? "to" : "from", to);
+      }}
       autoPanOnNodeDrag={false}
     />
+    </DropTargets>
+    </CoveredSides>
+    <CanvasHelp id={helpId} text={en.canvasHelp.flowchart} />
     {diagram.content.nodes.length === 0 && <EmptyHint />}
     </div>
   );

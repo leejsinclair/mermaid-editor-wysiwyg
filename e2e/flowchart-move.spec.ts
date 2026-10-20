@@ -29,7 +29,7 @@ test("a dragged connected node ends at the new position with its connection draw
   await page.getByRole("button", { name: "Circle", exact: true }).dragTo(canvas, { targetPosition: { x: 520, y: 360 } });
   const rectangle = canvas.getByLabel("Rectangle node: Rectangle", { exact: true });
   const circle = canvas.getByLabel("Circle node: Circle", { exact: true });
-  const handle = (node: Locator, kind: string) => node.locator(`.react-flow__handle.${kind}`);
+  const handle = (node: Locator, kind: "source" | "target") => node.locator(`[data-side="${kind === "source" ? "bottom" : "top"}"]`);
   const [from, to] = [await handle(rectangle, "source").boundingBox(), await handle(circle, "target").boundingBox()];
   if (!from || !to) throw new Error("Both handles must be visible");
   await page.mouse.move(from.x + 3, from.y + 3);
