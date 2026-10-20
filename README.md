@@ -11,6 +11,24 @@ no server.
 Open the [live demo](https://leejsinclair.github.io/mermaid-editor-wysiwyg/) in a current Chromium-based browser or
 Firefox on a desktop. Nothing needs installing, and nothing you draw leaves your browser unless you save it to a file.
 
+## Screenshots
+
+Examples of flowchart, sequence and C4 diagrams in the editor:
+
+### Flowchart
+
+![Flowchart showing an order process with an inventory decision and two outcomes](screenshots/flowchart.png)
+
+### Sequence diagram
+
+![Sequence diagram showing a customer placing an order and confirming payment](screenshots/sequence.png)
+
+### C4 context diagram
+
+![C4 context diagram showing a shopper, online store and payment provider](screenshots/c4-context.png)
+
+C4 support in Mermaid is experimental, so other tools may render these diagrams differently.
+
 ## Develop
 
 - `npm run dev` starts the editor with live reload.
