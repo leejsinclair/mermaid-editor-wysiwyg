@@ -1,4 +1,5 @@
-import { useCallback, useMemo, useRef, type Ref } from "react";
+import { useCallback, useId, useMemo, useRef, useState, type CSSProperties, type MouseEvent, type Ref } from "react";
+import { CanvasHelp } from "../shared/CanvasHelp";
 import { EmptyHint } from "../shared/EmptyHint";
 import { useSvgViewport, type ViewHandle } from "../shared/viewport";
 import { BOUNDARY_NAMES, DEPLOYMENT_NODE_NAME, DIRECTION_NAMES, ELEMENT_TYPE_NAMES } from "../../model/c4/catalogue";
@@ -9,15 +10,27 @@ import { fill } from "../../text/fill";
 import { c4Layout, type C4Box } from "../layout/c4Layout";
 import { MultilineText } from "../sequence/MultilineText";
 import { useDrag, type DragEnd } from "../shared/useDrag";
+import { InlineLabelEditor, type InlineEdit } from "../shared/InlineLabelEditor";
+import { HANDLE_DOT, HANDLE_HIT } from "../shared/handleSize";
+import { handlesFit, targetMark, validEnds } from "../shared/interaction";
+import { useDoubleActivation } from "../shared/useDoubleActivation";
 
-const HANDLE_RADIUS = 7;
+/** The side handles of an element or node: a square hit area with a dot in it, centred on the middle of each side. */
+const SIDES = ["top", "right", "bottom", "left"] as const;
+type HandleSide = (typeof SIDES)[number];
+/** The width of the editor on a relationship, which has no box of its own to fill. */
+const EDITOR_WIDTH = 160;
 
-type C4Drag = { readonly kind: "create"; readonly fromId: number } | { readonly kind: "move"; readonly id: number } | { readonly kind: "reorder"; readonly id: number } | { readonly kind: "end"; readonly id: number; readonly end: "from" | "to" };
+type C4Drag = { readonly kind: "create"; readonly fromId: number; readonly side: HandleSide } | { readonly kind: "move"; readonly id: number } | { readonly kind: "reorder"; readonly id: number } | { readonly kind: "end"; readonly id: number; readonly end: "from" | "to" };
 type Begin = (what: C4Drag) => (event: { clientX: number; clientY: number; button: number }) => void;
 
 interface C4CanvasProps {
   readonly handleRef?: Ref<ViewHandle>;
   readonly diagram: C4Diagram;
+  /** The label being edited in place, or none. */
+  readonly inlineEdit: InlineEdit | null;
+  /** A double click, tap or pen tap on an item or relationship: select it and open its label for editing. */
+  readonly onStartEdit: (itemId: number) => void;
   readonly selection: number | null;
   readonly onSelect: (itemId: number | null) => void;
   /** A drag from one element to another asked for a relationship between them. */
@@ -31,18 +44,20 @@ interface C4CanvasProps {
 }
 
 /** Makes a drawn item reachable from the keyboard: it takes focus and Enter or Space selects it. */
-function selectable(select: () => void) {
+function selectable<E extends { stopPropagation: () => void }>(select: () => void, activate?: (event: E) => boolean, edit?: () => void) {
   return {
     role: "button",
     tabIndex: 0,
-    onClick: (event: { stopPropagation: () => void }) => {
+    onClick: (event: E) => {
       event.stopPropagation();
-      select();
+      if (activate?.(event) !== true) select();
     },
     onKeyDown: (event: { key: string; preventDefault: () => void }) => {
       if (event.key === "Enter" || event.key === " ") {
         event.preventDefault();
-        select();
+        // Enter on an item that is already selected opens its label for editing.
+        if (event.key === "Enter" && edit) edit();
+        else select();
       }
     },
   };
@@ -75,20 +90,103 @@ const fillOpacity = (container: boolean, external: boolean): number => {
   return external ? 0.25 : 0.1;
 };
 
-function ItemView({ box, item, chosen, onSelect, begin }: Readonly<{ box: C4Box; item: C4Item; chosen: boolean; onSelect: () => void; begin: Begin }>) {
+/** Where the middle of a side of a box is. */
+function sidePoint(box: C4Box, side: HandleSide): { x: number; y: number } {
+  if (side === "top") return { x: box.x + box.width / 2, y: box.y };
+  if (side === "bottom") return { x: box.x + box.width / 2, y: box.y + box.height };
+  return { x: side === "left" ? box.x : box.x + box.width, y: box.y + box.height / 2 };
+}
+
+/** A connection handle on one side of an element or node: dragging from it draws a relationship. */
+function SideHandle({ box, side, itemId, covered, visible, zoom, begin, onHover }: Readonly<{ box: C4Box; side: HandleSide; itemId: number; covered: boolean; visible: boolean; zoom: number; begin: Begin; onHover: (hovered: boolean) => void }>) {
+  const { x, y } = sidePoint(box, side);
+  // 28 px to hit and 16 px to see on screen, however far the drawing is zoomed.
+  const hit = HANDLE_HIT / zoom;
+  return (
+    <g
+      data-zone="connect"
+      role="img"
+      aria-label={fill(en.canvasHelp.handle, { side: side.charAt(0).toUpperCase() + side.slice(1) })}
+      data-item={itemId}
+      data-side={side}
+      data-covered={covered}
+      data-visible={visible}
+      onPointerEnter={() => {
+        onHover(true);
+      }}
+      onPointerLeave={() => {
+        onHover(false);
+      }}
+      style={{ cursor: "crosshair" }}
+      onPointerDown={(event) => {
+        event.stopPropagation();
+        begin({ kind: "create", fromId: itemId, side })(event);
+      }}
+    >
+      <rect x={x - hit / 2} y={y - hit / 2} width={hit} height={hit} fill="transparent" />
+      <circle data-handle-dot data-visible={visible} cx={x} cy={y} r={HANDLE_DOT / 2 / zoom} fill="currentColor" fillOpacity={0.6} pointerEvents="none" style={{ "--hover-r": `${String(HANDLE_DOT * 0.75 / zoom)}px` } as CSSProperties} />
+    </g>
+  );
+}
+
+/** An item's label, or the editor on it, and the lines under it. */
+function ItemText({ box, item, name, edit }: Readonly<{ box: C4Box; item: C4Item; name: string; edit: InlineEdit | undefined }>) {
   const container = item.item !== "element";
+  const x = container ? box.x + 12 : box.x + box.width / 2;
+  return (
+    <>
+      {edit ? (
+        <foreignObject overflow="visible" x={box.x + 8} y={container ? box.y + 4 : box.y + 8} width={box.width - 16} height={36}>
+          <InlineLabelEditor name={name} edit={edit} />
+        </foreignObject>
+      ) : (
+        <MultilineText data-testid="item-label" text={item.label} x={x} y={container ? box.y + 24 : box.y + 30} textAnchor={container ? "start" : "middle"} fill="currentColor" fontSize={14} fontWeight="bold" />
+      )}
+      {details(item).map((line, index) => (
+        <MultilineText
+          key={line.name}
+          data-testid={line.name}
+          text={line.text}
+          x={x}
+          y={container ? box.y + 40 + index * 16 : box.y + 54 + index * 18}
+          textAnchor={container ? "start" : "middle"}
+          fill="currentColor"
+          fontSize={12}
+        />
+      ))}
+    </>
+  );
+}
+
+function ItemView({ box, item, chosen, target, helpId, onSelect, onEdit, onHover, begin, edit, activate }: Readonly<{ box: C4Box; item: C4Item; chosen: boolean; helpId: string; target: "valid" | "drop" | undefined; onSelect: () => void; onEdit: () => void; onHover: (hovered: boolean) => void; begin: Begin; edit: InlineEdit | undefined; activate: (event: MouseEvent<SVGGElement>) => boolean }>) {
+  const container = item.item !== "element";
+  const name = fill(en.c4.itemName, { type: typeNameOf(item), label: item.label });
   const external = item.item === "element" && item.elementType.endsWith("-ext");
-  const lines = details(item);
   return (
     <g
       data-testid={TESTIDS.get(item.item)}
+      {...(target && { "data-target": target })}
       data-id={item.id}
-      aria-label={fill(en.c4.itemName, { type: typeNameOf(item), label: item.label })}
-      aria-pressed={chosen}
-      {...selectable(onSelect)}
-      style={{ cursor: "pointer", outline: "none" }}
-      onPointerDown={begin(item.item === "element" ? { kind: "create", fromId: item.id } : { kind: "move", id: item.id })}
+      aria-label={name}
+      aria-describedby={helpId}
+      aria-pressed={edit ? undefined : chosen}
+      {...selectable(onSelect, activate, chosen ? onEdit : undefined)}
+      // While its label is typed the item holds a text field, so it is a group rather than a button.
+      role={edit ? "group" : "button"}
+      style={{ outline: "none" }}
     >
+      <g
+        data-zone="body"
+        onPointerDown={begin({ kind: "move", id: item.id })}
+        onPointerEnter={() => {
+          onHover(true);
+        }}
+        onPointerLeave={() => {
+          onHover(false);
+        }}
+      >
+      <rect data-target-ring x={box.x - 7} y={box.y - 7} width={box.width + 14} height={box.height + 14} rx={9} fill="none" stroke="currentColor" />
+      <rect data-hover-outline x={box.x - 4} y={box.y - 4} width={box.width + 8} height={box.height + 8} rx={8} fill="none" stroke="currentColor" strokeWidth={1} strokeDasharray="3 3" />
       <rect
         x={box.x}
         y={box.y}
@@ -101,28 +199,8 @@ function ItemView({ box, item, chosen, onSelect, begin }: Readonly<{ box: C4Box;
         strokeWidth={chosen ? 3 : 1.5}
         strokeDasharray={item.item === "boundary" ? "8 5" : undefined}
       />
-      <MultilineText
-        data-testid="item-label"
-        text={item.label}
-        x={container ? box.x + 12 : box.x + box.width / 2}
-        y={container ? box.y + 24 : box.y + 30}
-        textAnchor={container ? "start" : "middle"}
-        fill="currentColor"
-        fontSize={14}
-        fontWeight="bold"
-      />
-      {lines.map((line, index) => (
-        <MultilineText
-          key={line.name}
-          data-testid={line.name}
-          text={line.text}
-          x={container ? box.x + 12 : box.x + box.width / 2}
-          y={container ? box.y + 40 + index * 16 : box.y + 54 + index * 18}
-          textAnchor={container ? "start" : "middle"}
-          fill="currentColor"
-          fontSize={12}
-        />
-      ))}
+      <ItemText box={box} item={item} name={name} edit={edit} />
+      </g>
     </g>
   );
 }
@@ -138,7 +216,8 @@ function edgePoint(from: C4Box, to: C4Box): { x: number; y: number } {
   return { x: cx + dx * scale, y: cy + dy * scale };
 }
 
-function RelationshipView({ relationship, source, target, names, chosen, number, onSelect, begin }: Readonly<{ relationship: Relationship; source: C4Box; target: C4Box; names: { from: string; to: string }; chosen: boolean; number: number | undefined; onSelect: () => void; begin: Begin }>) {
+function RelationshipView({ relationship, source, target, names, chosen, number, onSelect, onEdit, begin, pressed, edit, activate }: Readonly<{ relationship: Relationship; source: C4Box; target: C4Box; names: { from: string; to: string }; chosen: boolean; number: number | undefined; onSelect: () => void; onEdit: () => void; begin: Begin; pressed: (event: { clientX: number; clientY: number }) => void; edit: InlineEdit | undefined; activate: (event: MouseEvent<SVGGElement>) => boolean }>) {
+  const name = fill(en.c4.relationshipName, { kind: DIRECTION_NAMES.get(relationship.direction) ?? relationship.direction, ...names, label: relationship.label });
   const from = source;
   const to = target;
   const start = edgePoint(source, target);
@@ -152,13 +231,19 @@ function RelationshipView({ relationship, source, target, names, chosen, number,
   return (
     <g
       data-testid="c4-relationship"
+      data-zone="line"
       data-id={relationship.id}
       data-number={number}
-      aria-label={fill(en.c4.relationshipName, { kind: DIRECTION_NAMES.get(relationship.direction) ?? relationship.direction, ...names, label: relationship.label })}
-      aria-pressed={chosen}
-      {...selectable(onSelect)}
+      aria-label={name}
+      aria-pressed={edit ? undefined : chosen}
+      {...selectable(onSelect, activate, chosen ? onEdit : undefined)}
+      // While its label is typed the item holds a text field, so it is a group rather than a button.
+      role={edit ? "group" : "button"}
       style={{ cursor: "pointer", outline: "none" }}
-      onPointerDown={number === undefined ? undefined : begin({ kind: "reorder", id: relationship.id })}
+      onPointerDown={(event) => {
+        pressed(event);
+        if (number !== undefined) begin({ kind: "reorder", id: relationship.id })(event);
+      }}
     >
       <path d={path} stroke="transparent" strokeWidth={18} fill="none" />
       <path d={path} fill="none" stroke="currentColor" strokeWidth={chosen ? 3 : 1.5} markerEnd="url(#c4-arrow)" markerStart={twoWay ? "url(#c4-arrow)" : undefined} />
@@ -170,49 +255,81 @@ function RelationshipView({ relationship, source, target, names, chosen, number,
           </text>
         </g>
       )}
-      <MultilineText text={relationship.label} x={middle.x} y={middle.y - 6} textAnchor={looping ? "start" : "middle"} fill="currentColor" fontSize={12} data-testid="relationship-text" />
+      {edit ? (
+        <foreignObject overflow="visible" x={looping ? middle.x : middle.x - EDITOR_WIDTH / 2} y={middle.y - 36} width={EDITOR_WIDTH} height={30}>
+          <InlineLabelEditor name={name} edit={edit} />
+        </foreignObject>
+      ) : (
+        <MultilineText text={relationship.label} x={middle.x} y={middle.y - 6} textAnchor={looping ? "start" : "middle"} fill="currentColor" fontSize={12} data-testid="relationship-text" />
+      )}
     </g>
   );
 }
 
-function EndHandle({ end, x, y, begin, id }: Readonly<{ end: "from" | "to"; x: number; y: number; begin: Begin; id: number }>) {
+function EndHandle({ end, x, y, begin, id, zoom }: Readonly<{ end: "from" | "to"; x: number; y: number; begin: Begin; id: number; zoom: number }>) {
+  const hit = HANDLE_HIT / zoom;
   return (
-    <circle
+    <g
       data-testid={`relationship-end-${end}`}
-      cx={x}
-      cy={y}
-      r={HANDLE_RADIUS}
-      fill="currentColor"
-      opacity={0.6}
-      style={{ cursor: "grab" }}
+      data-zone="end"
+      onClick={(event) => {
+        // A click on an end handle is not a click on the canvas: the line stays selected.
+        event.stopPropagation();
+      }}
       onPointerDown={(event) => {
         event.stopPropagation();
         begin({ kind: "end", id, end })(event);
       }}
-    />
+    >
+      <rect x={x - hit / 2} y={y - hit / 2} width={hit} height={hit} fill="transparent" />
+      <circle cx={x} cy={y} r={HANDLE_DOT / 2 / zoom} fill="currentColor" opacity={0.6} pointerEvents="none" />
+    </g>
   );
 }
 
-/** The element (or, in Deployment, node) drawn at a point, the innermost when they nest. */
-function endAt(boxes: readonly C4Box[], x: number, y: number): number | undefined {
+/**
+ * The element (or, in Deployment, node) drawn at a point, the innermost when they nest. A point over a side handle, which
+ * straddles the edge of its item, counts as over that item even where the handle sticks out.
+ */
+function endAt(boxes: readonly C4Box[], x: number, y: number, reach: number): number | undefined {
   const hits = boxes.filter((box) => box.item !== "boundary" && x >= box.x && x <= box.x + box.width && y >= box.y && y <= box.y + box.height);
-  return hits.at(-1)?.id;
+  const inside = hits.at(-1);
+  if (inside) return inside.id;
+  return boxes.find((box) => box.item !== "boundary" && SIDES.some((side) => Math.hypot(sidePoint(box, side).x - x, sidePoint(box, side).y - y) <= reach))?.id;
 }
 
-type Place = { readonly kind: "parent"; readonly parentId: number | null } | { readonly kind: "element"; readonly id: number } | { readonly kind: "nowhere" };
+/** The side handles, as "<item id>-<side>", that the end handles of a selected relationship sit on. */
+function coveredHandles(ends: readonly (readonly [C4Box, { readonly x: number; readonly y: number }])[], reach: number): Set<string> {
+  const covered = new Set<string>();
+  for (const [box, point] of ends) {
+    for (const side of SIDES) {
+      const middle = sidePoint(box, side);
+      if (Math.hypot(middle.x - point.x, middle.y - point.y) < reach) covered.add(`${String(box.id)}-${side}`);
+    }
+  }
+  return covered;
+}
+
+/** The item a line let go at a point ends at: the one an end handle there belongs to, or the element or node drawn there. */
+function lineEndAt(boxes: readonly C4Box[], endHandles: readonly { readonly id: number; readonly x: number; readonly y: number }[], at: { readonly x: number; readonly y: number }, reach: number): number | undefined {
+  const onEndHandle = endHandles.find((handle) => Math.hypot(handle.x - at.x, handle.y - at.y) < reach);
+  return onEndHandle?.id ?? endAt(boxes, at.x, at.y, reach);
+}
+
+type Place = { readonly kind: "parent"; readonly parentId: number | null } | { readonly kind: "nowhere" };
 
 /**
- * What dropping the item at a point means: on an element, a relationship to it; on a boundary or node, a move into it;
- * on blank canvas, a move out to the top level. Dropping where the item already is, or inside itself, means nothing.
+ * What dropping a moved item at a point means: a move into the innermost boundary or node drawn there, whether or not an
+ * element is drawn there too, or out to the top level on blank canvas. Dropping where the item already is, or inside itself,
+ * means nothing.
  */
 function placeAt(boxes: readonly C4Box[], movedId: number, x: number, y: number): Place {
   const moved = boxes.find((box) => box.id === movedId);
   const hits = boxes.filter((box) => x >= box.x && x <= box.x + box.width && y >= box.y && y <= box.y + box.height);
-  const target = hits.at(-1);
+  if (hits.some((box) => box.id === movedId)) return { kind: "nowhere" };
+  const target = hits.filter((box) => box.item !== "element").at(-1);
   if (target === undefined) return moved?.parentId === null ? { kind: "nowhere" } : { kind: "parent", parentId: null };
-  if (target.item === "element") return { kind: "element", id: target.id };
-  const inside = hits.some((box) => box.id === movedId);
-  return inside || moved?.parentId === target.id ? { kind: "nowhere" } : { kind: "parent", parentId: target.id };
+  return moved?.parentId === target.id ? { kind: "nowhere" } : { kind: "parent", parentId: target.id };
 }
 
 /** How close to another relationship's middle a drop must be to take its place. */
@@ -235,11 +352,26 @@ function relationshipIndexAt(boxes: readonly C4Box[], relationships: readonly Re
 }
 
 /** Elements, boundaries and nodes in the order and nesting Mermaid arranges them, with relationships between (research R3, FR-038). */
-export function C4Canvas({ handleRef, diagram, selection, onSelect, onCreateRelationship, onMoveEnd, onMoveToParent, onReorder }: Readonly<C4CanvasProps>) {
+export function C4Canvas({ handleRef, diagram, inlineEdit, onStartEdit, selection, onSelect, onCreateRelationship, onMoveEnd, onMoveToParent, onReorder }: Readonly<C4CanvasProps>) {
   const svg = useRef<SVGSVGElement>(null);
+  const helpId = useId();
+  // The item under the pointer, whose handles are shown with those of the selected item.
+  const [hovered, setHovered] = useState<number | null>(null);
   const { content } = diagram;
   const layout = useMemo(() => c4Layout(content), [content]);
   const boxes = useMemo(() => new Map(layout.boxes.map((box) => [box.id, box])), [layout]);
+  const scroller = useRef<HTMLDivElement>(null);
+  const zoom = useSvgViewport(handleRef, layout, scroller);
+  // How far from a handle's middle a press or a release still counts as on it, in the drawing's own units.
+  const reach = HANDLE_HIT / 2 / zoom;
+  const chosen = content.relationships.find((relationship) => relationship.id === selection);
+  const chosenFrom = chosen && boxes.get(chosen.from);
+  const chosenTo = chosen && boxes.get(chosen.to);
+  // The end handles of the selected relationship: a line let go over one of them ends at the item that end belongs to.
+  const endHandles = useMemo(
+    () => (chosen && chosenFrom && chosenTo ? [{ id: chosen.from, ...edgePoint(chosenFrom, chosenTo) }, { id: chosen.to, ...edgePoint(chosenTo, chosenFrom) }] : []),
+    [chosen, chosenFrom, chosenTo],
+  );
   const onDrop = useCallback(
     (drop: DragEnd<C4Drag>) => {
       if (drop.what.kind === "reorder") {
@@ -248,25 +380,35 @@ export function C4Canvas({ handleRef, diagram, selection, onSelect, onCreateRela
         return;
       }
       if (drop.what.kind === "end") {
-        const target = endAt(layout.boxes, drop.x, drop.y);
+        if (!drop.inside) return;
+        const target = endAt(layout.boxes, drop.x, drop.y, reach);
         if (target !== undefined) onMoveEnd(drop.what.id, drop.what.end, target);
         return;
       }
-      const movedId = drop.what.kind === "create" ? drop.what.fromId : drop.what.id;
-      const place = placeAt(layout.boxes, movedId, drop.x, drop.y);
-      if (place.kind === "parent") onMoveToParent(movedId, place.parentId);
-      else if (place.kind === "element" && drop.what.kind === "create") onCreateRelationship(drop.what.fromId, place.id);
+      if (drop.what.kind === "create") {
+        // A line drawn from a handle ends on the element or node it is released over; anywhere else it is cancelled.
+        const target = drop.inside ? lineEndAt(layout.boxes, endHandles, drop, reach) : undefined;
+        if (target !== undefined) onCreateRelationship(drop.what.fromId, target);
+        return;
+      }
+      const place = placeAt(layout.boxes, drop.what.id, drop.x, drop.y);
+      if (place.kind === "parent") onMoveToParent(drop.what.id, place.parentId);
     },
-    [layout, content.relationships, onCreateRelationship, onMoveEnd, onMoveToParent, onReorder],
+    [layout, content.relationships, endHandles, reach, onCreateRelationship, onMoveEnd, onMoveToParent, onReorder],
   );
-  const scroller = useRef<HTMLDivElement>(null);
-  const zoom = useSvgViewport(handleRef, layout, scroller);
-  const { begin, current } = useDrag<C4Drag>(svg, onDrop, zoom);
+  const { begin: beginDrag, current } = useDrag<C4Drag>(svg, scroller, onDrop, zoom);
+  const doubles = useDoubleActivation(onStartEdit);
+  const begin: Begin = (what) => (event) => {
+    doubles.pressed(event);
+    beginDrag(what)(event);
+  };
   const creatingFrom = current?.what.kind === "create" ? boxes.get(current.what.fromId) : undefined;
-  const chosen = content.relationships.find((relationship) => relationship.id === selection);
-  const chosenFrom = chosen && boxes.get(chosen.from);
-  const chosenTo = chosen && boxes.get(chosen.to);
-
+  // While a relationship is drawn every element and node is a valid end (never a boundary) and the one under the pointer is where it will land.
+  const drawing = creatingFrom !== undefined;
+  const dropOn = drawing && current ? endAt(layout.boxes, current.x, current.y, reach) : undefined;
+  const validIds = useMemo(() => new Set(validEnds(diagram)), [diagram]);
+  // The side handles the end handles of the selected relationship sit on: only the end handle shows and is hit there.
+  const coveredSides = chosenFrom && chosenTo ? coveredHandles([[chosenFrom, edgePoint(chosenFrom, chosenTo)], [chosenTo, edgePoint(chosenTo, chosenFrom)]], reach) : new Set<string>();
   return (
     <div
       ref={scroller}
@@ -276,6 +418,7 @@ export function C4Canvas({ handleRef, diagram, selection, onSelect, onCreateRela
         onSelect(null);
       }}
     >
+      <CanvasHelp id={helpId} text={en.canvasHelp.c4} />
       {content.tree.length === 0 && <EmptyHint />}
       {diagram.title !== "" && (
         <div data-testid="c4-title" style={{ padding: "16px 32px 0", fontSize: 18, fontWeight: "bold", whiteSpace: "pre-wrap" }}>
@@ -296,7 +439,7 @@ export function C4Canvas({ handleRef, diagram, selection, onSelect, onCreateRela
         </defs>
         {layout.boxes.map((box) => {
           const item = findItem(content.tree, box.id);
-          return item && <ItemView key={box.id} box={box} item={item} chosen={box.id === selection} onSelect={() => { onSelect(box.id); }} begin={begin} />;
+          return item && <ItemView key={box.id} box={box} item={item} helpId={helpId} chosen={box.id === selection} onSelect={() => { onSelect(box.id); }} target={drawing ? targetMark(validIds.has(box.id), dropOn === box.id) : undefined} onEdit={() => { onStartEdit(box.id); }} onHover={(over) => { setHovered(over ? box.id : null); }} begin={begin} edit={inlineEdit?.itemId === box.id ? inlineEdit : undefined} activate={(event) => doubles.released(box.id, event)} />;
         })}
         {content.relationships.map((relationship, position) => {
           const from = boxes.get(relationship.from);
@@ -314,17 +457,31 @@ export function C4Canvas({ handleRef, diagram, selection, onSelect, onCreateRela
               onSelect={() => {
                 onSelect(relationship.id);
               }}
+              onEdit={() => {
+                onStartEdit(relationship.id);
+              }}
               begin={begin}
+              pressed={doubles.pressed}
+              edit={inlineEdit?.itemId === relationship.id ? inlineEdit : undefined}
+              activate={(event) => doubles.released(relationship.id, event)}
             />
           );
         })}
+        {layout.boxes.map((box) => {
+          const item = findItem(content.tree, box.id);
+          // The handles are drawn above the lines, so a line crossing an item never takes a press meant for a handle.
+          // An element or node too small on screen to hold handles shows none.
+          return item && item.item !== "boundary" && handlesFit(box, zoom) && SIDES.map((side) => <SideHandle key={`${String(box.id)}-${side}`} box={box} side={side} itemId={box.id} covered={coveredSides.has(`${String(box.id)}-${side}`)} visible={hovered === box.id || selection === box.id} zoom={zoom} begin={begin} onHover={(over) => { setHovered(over ? box.id : null); }} />);
+        })}
         {chosen && chosenFrom && chosenTo && (
           <g>
-            <EndHandle end="from" {...edgePoint(chosenFrom, chosenTo)} begin={begin} id={chosen.id} />
-            <EndHandle end="to" {...edgePoint(chosenTo, chosenFrom)} begin={begin} id={chosen.id} />
+            <EndHandle end="from" {...edgePoint(chosenFrom, chosenTo)} begin={begin} id={chosen.id} zoom={zoom} />
+            <EndHandle end="to" {...edgePoint(chosenTo, chosenFrom)} begin={begin} id={chosen.id} zoom={zoom} />
           </g>
         )}
-        {creatingFrom && current && <line x1={creatingFrom.x + creatingFrom.width / 2} y1={creatingFrom.y + creatingFrom.height / 2} x2={current.x} y2={current.y} stroke="currentColor" strokeDasharray="4 4" pointerEvents="none" />}
+        {creatingFrom && current?.what.kind === "create" && (
+          <line data-testid="connection-preview" x1={sidePoint(creatingFrom, current.what.side).x} y1={sidePoint(creatingFrom, current.what.side).y} x2={current.x} y2={current.y} stroke="currentColor" strokeDasharray="4 4" pointerEvents="none" />
+        )}
       </svg>
     </div>
   );

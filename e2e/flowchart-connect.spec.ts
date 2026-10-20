@@ -21,7 +21,7 @@ test("drawing a chosen connection type between two nodes adds exactly that conne
   const circle = canvas.getByLabel("Circle node: Circle", { exact: true });
 
   await page.getByRole("button", { name: "Dotted arrow", exact: true }).click();
-  await dragBetween(page, rectangle.locator(".react-flow__handle.source"), circle.locator(".react-flow__handle.target"));
+  await dragBetween(page, rectangle.locator('[data-side="bottom"]'), circle.locator('[data-side="top"]'));
 
   await expect(canvas.getByLabel("Dotted arrow connection from Rectangle to Circle", { exact: true })).toBeVisible();
   await page.getByRole("button", { name: "Mermaid source" }).click();

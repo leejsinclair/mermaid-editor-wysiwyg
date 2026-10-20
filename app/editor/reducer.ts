@@ -3,7 +3,7 @@ import { liftNotice } from "../model/c4/apply";
 import type { LabelField, Operation } from "../model/operations";
 import type { Ending, LineStyle } from "../model/types";
 import { rejectionMessage } from "../validation/messages";
-import { labelFieldOf } from "./selection";
+import { describeSelection, labelFieldOf } from "./selection";
 import type { CommitOutcome } from "../validation/reasons";
 import type { FeedbackMessage } from "../rendering/shared/Feedback";
 
@@ -16,7 +16,7 @@ export interface EditorState {
   /** The diagram name being typed in the header, or none. */
   readonly nameDraft: string | null;
   /** The label being typed for the selected item, kept until it is confirmed or cancelled. */
-  readonly draft: { readonly itemId: number; readonly text: string; readonly field?: LabelField } | null;
+  readonly draft: { readonly itemId: number; readonly text: string; readonly field?: LabelField; readonly origin: "panel" | "canvas" } | null;
   /** The connection type armed in the toolbox, drawn by the next handle-to-handle drag, or none. */
   readonly armed: { readonly line: LineStyle; readonly ending: Ending } | null;
   /** The latest message for the live region, or none. */
@@ -27,7 +27,9 @@ export type EditorAction =
   | { readonly type: "commit"; readonly operation: Operation; readonly mergeKey?: string }
   | { readonly type: "seal" }
   | { readonly type: "select"; readonly itemId: number | null }
-  | { readonly type: "draft"; readonly itemId: number; readonly text: string; readonly field?: LabelField }
+  | { readonly type: "draft"; readonly itemId: number; readonly text: string; readonly field?: LabelField; readonly origin: "panel" | "canvas" }
+  | { readonly type: "startInlineEdit" }
+  | { readonly type: "blurInlineEdit"; readonly discard: boolean }
   | { readonly type: "confirmLabel" }
   | { readonly type: "nameDraft"; readonly text: string | null }
   | { readonly type: "confirmName" }
@@ -92,7 +94,17 @@ export function reducer(state: EditorState, action: EditorAction): EditorState {
     case "seal":
       return { ...state, history: seal(state.history) };
     case "draft":
-      return { ...state, draft: { itemId: action.itemId, text: action.text, ...(action.field && { field: action.field }) } };
+      return { ...state, draft: { itemId: action.itemId, text: action.text, origin: action.origin, ...(action.field && { field: action.field }) } };
+    case "startInlineEdit": {
+      if (state.selection === null) return state;
+      const diagram = state.history.present;
+      const text = describeSelection(diagram, state.selection).label;
+      if (text === undefined) return state;
+      return { ...state, draft: { itemId: state.selection, text, field: labelFieldOf(diagram, state.selection), origin: "canvas" } };
+    }
+    case "blurInlineEdit":
+      if (state.draft?.origin !== "canvas") return state;
+      return action.discard ? { ...state, draft: null } : confirmDraft(state, "label");
     case "release":
       // Editing has been handed to another tab: whatever was half done is dropped (FR-050).
       return { ...state, draft: null, nameDraft: null, armed: null, gesture: state.gesture + 1 };

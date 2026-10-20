@@ -25,6 +25,7 @@ import { MESSAGE_STYLE_NAMES } from "../model/sequence/catalogue";
 import type { Operation } from "../model/operations";
 import type { Direction, MessageStyle } from "../model/types";
 import { defaultEnd, describeSelection, extraFieldsOf, wording, messageInsertIndex, moveToOptions, participantInsertIndex, steppedIndex, steppedRelationshipIndex } from "./selection";
+import "../rendering/shared/canvas.css";
 import { Feedback } from "../rendering/shared/Feedback";
 import type { ViewHandle } from "../rendering/shared/viewport";
 import { Toolbar } from "../rendering/shared/Toolbar";
@@ -33,6 +34,7 @@ import { SourcePanel } from "../rendering/shared/SourcePanel";
 import { en } from "../text/en";
 import { typeLabel } from "../text/typeLabel";
 import { copyText, markdownFence } from "./clipboard";
+import { inlineEditOf } from "./inlineEdit";
 import { reducer, type EditorAction, type EditorState } from "./reducer";
 import { useSourceCheck } from "./useSourceCheck";
 
@@ -91,9 +93,9 @@ export function Editor({ initial, stored = false, onFirstSaved, locked = false }
     if (c4) return { op: "addRelationship", from: selection, to: targetId, direction: "one-way" };
     return { op: "addConnection", from: selection, to: targetId, line: "solid", ending: "arrow" };
   };
-  /** Adds a message after the selected one (or at the bottom), its text the message type's name. */
-  const addMessage = (from: number, to: number, style: MessageStyle) => {
-    const index = sequence ? messageInsertIndex(sequence, state.selection) : undefined;
+  /** Adds a message at `at` (where a drawn one was let go), else after the selected one or at the bottom; its text is the message type's name. */
+  const addMessage = (from: number, to: number, style: MessageStyle, at?: number) => {
+    const index = at ?? (sequence ? messageInsertIndex(sequence, state.selection) : undefined);
     dispatch({
       type: "commit",
       operation: { op: "addMessage", from, to, style, text: MESSAGE_STYLE_NAMES.get(style) ?? style, ...(index !== undefined && { index }) },
@@ -138,7 +140,13 @@ export function Editor({ initial, stored = false, onFirstSaved, locked = false }
     saver.enqueue(diagram);
   }, [diagram, saver, locked]);
   const { draft } = state;
-  const draftText = draft !== null && draft.itemId === state.selection ? draft.text : undefined;
+  const draftText = draft?.origin === "panel" && draft.itemId === state.selection ? draft.text : undefined;
+  const inlineEdit = inlineEditOf(state, dispatch);
+  /** Selects the item or line and opens its label for editing where it sits. */
+  const startEdit = (itemId: number) => {
+    dispatch({ type: "select", itemId });
+    dispatch({ type: "startInlineEdit" });
+  };
   const { source, notices, status } = useSourceCheck(diagram);
 
   return (
@@ -269,6 +277,8 @@ export function Editor({ initial, stored = false, onFirstSaved, locked = false }
             <SequenceCanvas
               handleRef={viewHandle}
               diagram={diagram}
+              inlineEdit={inlineEdit}
+              onStartEdit={startEdit}
               selection={state.selection}
               onSelect={(itemId) => {
                 dispatch({ type: "select", itemId });
@@ -276,8 +286,8 @@ export function Editor({ initial, stored = false, onFirstSaved, locked = false }
               onReorder={(itemId, toIndex) => {
                 dispatch({ type: "commit", operation: { op: "reorder", itemId, toIndex } });
               }}
-              onCreateMessage={(from, to) => {
-                addMessage(from, to, "solid-arrow");
+              onCreateMessage={(from, to, index) => {
+                addMessage(from, to, "solid-arrow", index);
               }}
               onMoveEnd={(messageId, end, targetId) => {
                 dispatch({ type: "commit", operation: { op: "moveEnd", linkId: messageId, end, targetId } });
@@ -288,6 +298,8 @@ export function Editor({ initial, stored = false, onFirstSaved, locked = false }
             <C4Canvas
               handleRef={viewHandle}
               diagram={c4}
+              inlineEdit={inlineEdit}
+              onStartEdit={startEdit}
               selection={state.selection}
               onSelect={(itemId) => {
                 dispatch({ type: "select", itemId });
@@ -310,6 +322,8 @@ export function Editor({ initial, stored = false, onFirstSaved, locked = false }
             <FlowchartCanvas
               handleRef={canvasHandle}
               diagram={diagram}
+              inlineEdit={inlineEdit}
+              onStartEdit={startEdit}
               onAddNode={(shape, position) => {
                 dispatch({ type: "commit", operation: { op: "addNode", shape, position } });
               }}
@@ -376,7 +390,7 @@ export function Editor({ initial, stored = false, onFirstSaved, locked = false }
             if (state.selection !== null) commitOperation({ type: "commit", operation: { op: "deleteItem", itemId: state.selection } });
           }}
           onDraft={(text, field) => {
-            if (state.selection !== null) dispatch({ type: "draft", itemId: state.selection, text, ...(field && { field }) });
+            if (state.selection !== null) dispatch({ type: "draft", itemId: state.selection, text, origin: "panel", ...(field && { field }) });
           }}
           onConfirm={() => {
             dispatch({ type: "confirmLabel" });

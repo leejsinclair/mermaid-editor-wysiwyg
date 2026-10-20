@@ -18,13 +18,18 @@ interface ToolbarProps {
   readonly onFit: () => void;
 }
 
+/** Pressing a view control must not take focus from a label being typed on the canvas: zooming and panning keep the edit open. */
+const keepFocus = (event: { preventDefault: () => void }): void => {
+  event.preventDefault();
+};
+
 export function Toolbar({ showLayoutNote, previewOpen, onTogglePreview, canUndo, canRedo, onUndo, onRedo, onCopySource, onCopyMarkdown, onSaveFile, onZoomIn, onZoomOut, onFit }: ToolbarProps) {
   return (
     <Box role="toolbar" aria-label={en.toolbar.region} sx={{ display: "flex", alignItems: "center", gap: 1, p: 1, borderBottom: 1, borderColor: "divider" }}>
-      <Button variant="outlined" size="small" disabled={!canUndo} onClick={onUndo}>
+      <Button variant="outlined" size="small" disabled={!canUndo} onClick={onUndo} data-discards-draft>
         {en.toolbar.undo}
       </Button>
-      <Button variant="outlined" size="small" disabled={!canRedo} onClick={onRedo}>
+      <Button variant="outlined" size="small" disabled={!canRedo} onClick={onRedo} data-discards-draft>
         {en.toolbar.redo}
       </Button>
       <Button variant="outlined" size="small" onClick={onCopySource}>
@@ -36,13 +41,13 @@ export function Toolbar({ showLayoutNote, previewOpen, onTogglePreview, canUndo,
       <Button variant="outlined" size="small" onClick={onSaveFile}>
         {en.toolbar.saveFile}
       </Button>
-      <Button variant="outlined" size="small" onClick={onZoomIn}>
+      <Button variant="outlined" size="small" onClick={onZoomIn} onMouseDown={keepFocus}>
         {en.toolbar.zoomIn}
       </Button>
-      <Button variant="outlined" size="small" onClick={onZoomOut}>
+      <Button variant="outlined" size="small" onClick={onZoomOut} onMouseDown={keepFocus}>
         {en.toolbar.zoomOut}
       </Button>
-      <Button variant="outlined" size="small" onClick={onFit}>
+      <Button variant="outlined" size="small" onClick={onFit} onMouseDown={keepFocus}>
         {en.toolbar.fit}
       </Button>
       {showLayoutNote && (

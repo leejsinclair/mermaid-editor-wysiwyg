@@ -18,6 +18,16 @@ export const toolboxButton = (page: Page, name: string): Locator => page.getByRo
 export const itemLabelled = (page: Page, label: string): Locator =>
   canvas(page).locator('[data-testid="c4-element"], [data-testid="c4-boundary"], [data-testid="c4-node"]').filter({ has: page.getByTestId("item-label").filter({ hasText: new RegExp(`^${label}$`) }) });
 
+/**
+ * The connection handles of an element or node. They are drawn above the relationships, so they are not inside the item's own
+ * group: they are found by the item's id. Give a side to get that handle only.
+ */
+export async function handlesOf(item: Locator, side?: "top" | "right" | "bottom" | "left"): Promise<Locator> {
+  const id = await item.getAttribute("data-id");
+  const sideFilter = side ? `[data-side="${side}"]` : "";
+  return item.page().locator(`[data-zone="connect"][data-item="${String(id)}"]${sideFilter}`);
+}
+
 /** Every element, boundary and node on the canvas, in document order, as the names they announce. */
 export async function itemNames(page: Page): Promise<string[]> {
   return canvas(page)

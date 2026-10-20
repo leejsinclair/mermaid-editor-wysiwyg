@@ -20,8 +20,8 @@ async function connectedPair(page: Page) {
   await page.getByRole("button", { name: "Circle", exact: true }).dragTo(canvas, { targetPosition: { x: 520, y: 360 } });
   const rectangle = canvas.getByLabel("Rectangle node: Rectangle", { exact: true });
   const circle = canvas.getByLabel("Circle node: Circle", { exact: true });
-  const from = await rectangle.locator(".react-flow__handle.source").boundingBox();
-  const to = await circle.locator(".react-flow__handle.target").boundingBox();
+  const from = await rectangle.locator('[data-side="bottom"]').boundingBox();
+  const to = await circle.locator('[data-side="top"]').boundingBox();
   if (!from || !to) throw new Error("Both handles must be visible");
   await page.mouse.move(from.x + 3, from.y + 3);
   await page.mouse.down();

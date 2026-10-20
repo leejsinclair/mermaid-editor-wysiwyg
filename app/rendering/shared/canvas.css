@@ -1,0 +1,113 @@
+/*
+ * What a drag will do is shown before anything is pressed (spec 004-canvas-usability). Every hit-testable part of a canvas
+ * carries a data-zone: the body of an item moves it, a connection handle draws a line from it, the end handle of a selected
+ * line moves that end, and a line can be reordered or renamed.
+ */
+
+/* A press on a part of a canvas is a drag or a tap on it, never the browser's own scroll or zoom. */
+[data-zone] {
+  touch-action: none;
+}
+
+[data-zone="body"] {
+  cursor: move;
+}
+
+[data-zone="connect"] {
+  cursor: crosshair;
+}
+
+[data-zone="end"] {
+  cursor: grab;
+}
+
+[data-zone="line"] {
+  cursor: pointer;
+}
+
+[class~="react-flow__edgeupdater"] {
+  cursor: grab;
+}
+
+/* A thin dashed outline marks the item under the pointer; the selection outline is thicker and solid. */
+[data-hover-outline] {
+  opacity: 0;
+  pointer-events: none;
+}
+
+[data-zone="body"]:hover > [data-hover-outline] {
+  opacity: 1;
+}
+
+/* The handle under the pointer is drawn larger. */
+[data-zone="connect"]:hover circle {
+  r: var(--hover-r, 12px);
+}
+
+span[data-zone="connect"]:hover {
+  scale: 1.5;
+}
+
+/* The lifeline of a Sequence participant is a strip rather than a dot: it is highlighted instead. */
+rect[data-zone="connect"]:hover {
+  fill: currentcolor;
+  fill-opacity: 0.12;
+}
+
+/* A connection handle is shown while its item is hovered or selected, and not at rest. It stays where it is, so a press on it still lands. */
+[data-zone="connect"],
+[data-handle-dot] {
+  opacity: 0;
+}
+
+[data-zone="connect"][data-visible="true"],
+[data-handle-dot][data-visible="true"] {
+  opacity: 1;
+}
+
+/* Where a selected line's end handle sits on an item's connection handle, only the end handle shows and is hit. */
+[data-zone][data-covered="true"] {
+  opacity: 0;
+  pointer-events: none !important;
+}
+
+/* A flowchart handle: a 28 px hit square with a 16 px dot, however far the drawing is zoomed, centred on the point where lines end. */
+.shape-handle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  translate: -50% -50%;
+}
+
+.shape-handle::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: var(--handle-dot);
+  height: var(--handle-dot);
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: currentcolor;
+  opacity: 0.6;
+}
+
+/* While a line is drawn every valid end is ringed with a thin dashed ring, and the one under the pointer with a thick solid one. */
+[data-target-ring] {
+  opacity: 0;
+  pointer-events: none;
+}
+
+[data-target="valid"] [data-target-ring] {
+  opacity: 1;
+  border: 1px dashed currentcolor;
+  stroke-width: 1px;
+  stroke-dasharray: 3 3;
+}
+
+[data-target="drop"] [data-target-ring] {
+  opacity: 1;
+  border: 3px solid currentcolor;
+  stroke-width: 3px;
+  stroke-dasharray: none;
+}

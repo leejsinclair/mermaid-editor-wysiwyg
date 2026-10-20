@@ -4,7 +4,7 @@
 
 ## Summary
 
-_Generated from the tables below on 2026-10-19T11:08:28Z._
+_Generated from the tables below on 2026-10-19T21:18:04Z._
 
 | Obligation | Requirements | Status | Tests | Latest result |
 |------------|--------------|--------|-------|---------------|
@@ -16,7 +16,7 @@ _Generated from the tables below on 2026-10-19T11:08:28Z._
 | VO-006 | FR-007, US2-AS2, DC-03 | verified | publish-gate | pass (#38) |
 | VO-007 | FR-010, EC-06 | verified | publish-supersede | pass (#40) |
 | VO-008 | FR-011, EC-07 | verified | publish-fail-visible | pass (#42) |
-| VO-009 | FR-013, US3-AS2 | verified | readme | pass (#44) |
+| VO-009 | FR-013, US3-AS2 | verified | readme | pass (#48) |
 
 | Behaviour item | Scenario | Obligations | Status | Tests |
 |----------------|----------|-------------|--------|-------|
@@ -113,6 +113,7 @@ Counts: verified 9, deferred 0, manual checks 5 open
 | 45 | 2026-10-19T11:04:21Z | - | - | checkpoint | unit-all | - | pass | yes | - | - | - | - | d8d5d2 |
 | 46 | 2026-10-19T11:07:46Z | - | - | checkpoint | e2e-all | - | pass | yes | - | - | - | - | dac0c6 |
 | 47 | 2026-10-19T11:08:18Z | T017 | VO-005 | green | e2e | publish-triggers | pass | yes | - | e2e/publish-triggers.spec.ts, e2e/support/workflow.ts | 915bd9 | - | 6a682e |
+| 48 | 2026-10-19T21:18:04Z | T026 | VO-009 | green | e2e | readme | pass | yes | - | e2e/readme.spec.ts | cea4db | - | 7b4f2c |
 
 ## Exceptions
 
