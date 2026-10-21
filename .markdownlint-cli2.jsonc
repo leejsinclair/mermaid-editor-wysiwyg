@@ -8,5 +8,5 @@
     "MD060": false
   },
   "globs": ["**/*.md"],
-  "ignores": ["node_modules/**", "build/**", "specs/**", ".specify/**", ".crews/**", ".claude/**", "tools/**", "setup.md"]
+  "ignores": ["node_modules/**", "build/**", "specs/**", ".specify/**", ".crews/**", ".claude/**", "tools/**", ".speckit-companion/**", "setup.md"]
 }

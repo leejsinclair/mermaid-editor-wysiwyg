@@ -1,5 +1,6 @@
 // Test support: reads a generated source back through Mermaid's own parser (research R8). Needs a jsdom environment.
 import mermaid from "mermaid";
+import { decodePlaceholders } from "../importing/decode";
 
 export async function readBack(source: string) {
   // Registers Mermaid's diagram types, which `getDiagramFromText` alone does not.
@@ -10,22 +11,9 @@ export async function readBack(source: string) {
   return diagram.db;
 }
 
-const NUMERIC = /ﬂ°°(\d+)¶ß/g;
-const NAMED = /ﬂ°([A-Za-z]+)¶ß/g;
-const NAMED_CHARS = new Map([
-  ["quot", '"'],
-  ["amp", "&"],
-  ["lt", "<"],
-  ["gt", ">"],
-]);
-
-/** Turns Mermaid's entity placeholders and `<br>` back into the text the user typed. */
+/** Turns Mermaid's entity placeholders and `<br>` back into the text the user typed (research R8). */
 export function decode(text: string): string {
-  // Line breaks first: a typed `<br/>` arrives as placeholders and must stay literal.
-  return text
-    .replace(/<br\s*\/?>/gi, "\n")
-    .replace(NUMERIC, (_match, code: string) => String.fromCodePoint(Number(code)))
-    .replace(NAMED, (match, name: string) => NAMED_CHARS.get(name) ?? match);
+  return decodePlaceholders(text);
 }
 
 /** What a flowchart vertex looks like once the parser has read it. */

@@ -126,7 +126,7 @@ A developer has a `.mmd`, `.md` or `.txt` file. They drop it on the start screen
 
 - EC-01: Mermaid front matter, a `%%{init}%%` directive or an `accTitle`/`accDescr` line is not a diagram element; it is reported as ignored with its line number, never silently dropped.
 - EC-02: A document with several diagrams (several `flowchart` headers) imports only the first and the report says the rest were not imported.
-- EC-03: Labels with Mermaid escapes (`#quot;`, `&amp;`, `<br/>`), quotes, Unicode and line breaks import as the same text the editor would have typed, and generate to the editor's own escaping.
+- EC-03: Labels with Mermaid escapes (`#quot;`, `&amp;`, `<br/>`), quotes, Unicode and line breaks import as the same text the editor would have typed, and generate to the editor's own escaping. Known limit: an editor label whose typed text is itself an entity such as `&amp;` generates source that imports as the decoded character (`&`), so generate, import, generate does not return that label unchanged; the import still decodes entities as this edge case states.
 - EC-04: Duplicate or reused ids in the document (the same node mentioned twice, a node defined after use) refer to one item, as Mermaid does; an id used for two different labels keeps the first label and reports the later one.
 - EC-05: A Sequence document using `autonumber`, `activate`/`deactivate`, aliases or `create`/`destroy` is imported without them and reports each.
 - EC-06: A C4 document whose kind cannot be detected, or that mixes kinds, is refused with the kinds named.

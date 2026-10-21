@@ -133,3 +133,15 @@ export async function importFile(file: { readonly size: number; text(): Promise<
   await putRecord(toRecord(diagram), ownerOf(diagram.id));
   return { ok: true, id: diagram.id };
 }
+
+/**
+ * Saves an imported diagram as a new saved diagram with its own id and the name the developer chose (FR-011). Nothing
+ * else is touched. A storage failure rejects with its reason, and nothing is created (VO-036).
+ */
+export async function createImported(diagram: Diagram, name: string): Promise<string> {
+  const id = crypto.randomUUID();
+  const saved = { ...diagram, id, name, changedAt: new Date().toISOString() } as Diagram;
+  await putRecord(toRecord(saved), ownerOf(id));
+  announceChange();
+  return id;
+}

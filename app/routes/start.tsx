@@ -1,10 +1,17 @@
 import { Box, Button, Container, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, List, ListItem, Typography } from "@mui/material";
 import { useCallback, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router";
-import { importFile, listDiagrams, onLibraryChanged, lockedDiagramIds, removeDiagram, type LibraryEntry } from "../editor/library";
+import { createImported, importFile, listDiagrams, onLibraryChanged, lockedDiagramIds, removeDiagram, type LibraryEntry } from "../editor/library";
 import type { C4Kind, DiagramType } from "../model/types";
 import { Feedback, type FeedbackMessage } from "../rendering/shared/Feedback";
 import { C4KindDialog } from "../rendering/shared/C4KindDialog";
+import { ImportDialog } from "../rendering/import/ImportDialog";
+import { readTextFile } from "../rendering/import/readFile";
+import { parseLocated } from "../editor/mermaidParser";
+import { snapshotFlowchart, snapshotSequence } from "../editor/mermaidSnapshot";
+import type { ReadDeps } from "../importing/outcome";
+
+const importDeps: ReadDeps = { parse: parseLocated, snapshotFlowchart, snapshotSequence };
 import { en } from "../text/en";
 import { fill } from "../text/fill";
 import { typeLabel } from "../text/typeLabel";
@@ -78,6 +85,10 @@ export default function Start() {
   const [choosingKind, setChoosingKind] = useState(false);
   const [saved, setSaved] = useState<SavedList>({ kind: "loading" });
   const [deleting, setDeleting] = useState<LibraryEntry | undefined>();
+  const [importing, setImporting] = useState(false);
+  // A file dragged over the page shows the drop overlay; a dropped file's text goes to the import dialog (FR-002).
+  const [dragging, setDragging] = useState(false);
+  const [incoming, setIncoming] = useState<{ readonly at: number; readonly text?: string; readonly problem?: string } | undefined>();
   const [refusal, setRefusal] = useState<FeedbackMessage | null>(null);
   const openChosen = async (file: File) => {
     const imported = await importFile(file);
@@ -100,28 +111,93 @@ export default function Start() {
   };
 
   return (
-    <Container component="main" maxWidth="md" sx={{ py: 4 }}>
+    <Container
+      component="main"
+      maxWidth="md"
+      sx={{ py: 4 }}
+      onDragEnter={(event) => {
+        event.preventDefault();
+        setDragging(true);
+      }}
+      onDragOver={(event) => {
+        event.preventDefault();
+      }}
+      onDragLeave={(event) => {
+        if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setDragging(false);
+      }}
+      onDrop={(event) => {
+        event.preventDefault();
+        setDragging(false);
+        const file = event.dataTransfer.files[0];
+        if (file === undefined) return;
+        void readTextFile(file).then((read) => {
+          setIncoming(read.ok ? { text: read.text, at: Date.now() } : { problem: read.problem, at: Date.now() });
+          setImporting(true);
+        });
+      }}
+    >
+      {dragging && (
+        <Box
+          data-testid="drop-overlay"
+          sx={{ position: "fixed", inset: 0, zIndex: 1300, display: "flex", alignItems: "center", justifyContent: "center", bgcolor: "rgba(0, 0, 0, 0.4)", color: "common.white" }}
+        >
+          <Typography variant="h5">{en.importMermaid.dropHint}</Typography>
+        </Box>
+      )}
       <Typography variant="h4" component="h1" gutterBottom>
         {en.start.heading}
       </Typography>
-      <Box component="section" aria-labelledby="new-diagram-heading">
-        <Typography variant="h6" component="h2" id="new-diagram-heading" gutterBottom>
-          {en.start.newDiagram}
-        </Typography>
-        <Box sx={{ display: "flex", gap: 2 }}>
-          {CHOICES.map(({ type, name }) => (
-            <Button
-              key={type}
-              variant="contained"
-              onClick={() => {
-                choose(type);
-              }}
-            >
-              {name}
-            </Button>
-          ))}
+      <Box sx={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
+        <Box component="section" aria-labelledby="new-diagram-heading">
+          <Typography variant="h6" component="h2" id="new-diagram-heading" gutterBottom>
+            {en.start.newDiagram}
+          </Typography>
+          <Box sx={{ display: "flex", gap: 2 }}>
+            {CHOICES.map(({ type, name }) => (
+              <Button
+                key={type}
+                variant="contained"
+                onClick={() => {
+                  choose(type);
+                }}
+              >
+                {name}
+              </Button>
+            ))}
+          </Box>
+        </Box>
+        <Box component="section" aria-labelledby="import-diagram-heading">
+          <Typography variant="h6" component="h2" id="import-diagram-heading" gutterBottom>
+            {en.importMermaid.heading}
+          </Typography>
+          <Button
+            variant="outlined"
+            onClick={() => {
+              setImporting(true);
+            }}
+          >
+            {en.importMermaid.start}
+          </Button>
         </Box>
       </Box>
+      <ImportDialog
+        deps={importDeps}
+        open={importing}
+        loadText={incoming}
+        onClose={() => {
+          setImporting(false);
+        }}
+        onImport={(ready) =>
+          createImported(ready.diagram, ready.name).then(
+            (id) => {
+              setImporting(false);
+              void navigate(`/d/${id}`);
+              return undefined;
+            },
+            (error: unknown) => (error instanceof Error ? error.message : String(error)),
+          )
+        }
+      />
       <Feedback feedback={refusal} />
       <Box component="section" aria-label={en.file.openRegion} sx={{ mt: 2 }}>
         <Button variant="outlined" component="label">

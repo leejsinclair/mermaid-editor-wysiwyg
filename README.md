@@ -11,6 +11,22 @@ no server.
 Open the [live demo](https://leejsinclair.github.io/mermaid-editor-wysiwyg/) in a current Chromium-based browser or
 Firefox on a desktop. Nothing needs installing, and nothing you draw leaves your browser unless you save it to a file.
 
+## Start a diagram
+
+The start screen offers three new diagrams (flowchart, sequence, C4) and your saved ones. **New from Mermaid…** starts
+a diagram from existing Mermaid text instead. Paste the text, or choose or drop a `.mmd`, `.md` or `.txt` file (up to
+5 MB; a Markdown file's first `mermaid` block is used). The dialog shows the picture as it would be drawn, the type it
+detected, and an **Import report** that lists anything the editor could not keep:
+
+- **dropped**: a construct the editor does not have (for example `subgraph`, `classDef` or a click handler), gone from the
+  diagram;
+- **approximated**: a construct kept in the nearest form the editor has, with the change named;
+- **ignored**: a second diagram in the same text, or a second `mermaid` block in a Markdown file.
+
+**Compare** sets the original text beside the generated source, line by line, so you can see what changed. Nothing is
+created until you press **Import**, and the diagram you get is the same kind of diagram as one you draw yourself.
+Mermaid text is never run as code, and nothing in it is followed or fetched.
+
 ## Develop
 
 - `npm run dev` starts the editor with live reload.
