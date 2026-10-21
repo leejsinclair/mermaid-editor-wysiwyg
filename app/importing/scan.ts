@@ -1,4 +1,5 @@
 import { BOUNDARY_MACROS, ELEMENT_MACROS, NODE_MACROS, nearestOffered } from "./c4";
+import { linesInDirectives } from "./document";
 import { BOUNDARY_TYPES_BY_KIND, ELEMENT_TYPES_BY_KIND } from "../model/c4/catalogue";
 import type { C4Kind } from "../model/types";
 import { en } from "../text/en";
@@ -28,13 +29,13 @@ function flowchartApproximations(raw: string, number: number): ReportEntry[] {
   const approximated = (construct: string, becomes: string, reason: string): void => {
     entries.push({ line: number, category: "approximated", construct, reason, becomes });
   };
-  if (line.includes("(((")) approximated("double circle", "circle", REASONS.shape);
-  if (/\w>[^\]]*\]/.test(line)) approximated("asymmetric shape", "rectangle", REASONS.shape);
-  if (/\[\/[^\]]*\\\]/.test(line)) approximated("trapezoid", "rectangle", REASONS.shape);
-  if (/\[\\[^\]]*\/\]/.test(line)) approximated("inverted trapezoid", "rectangle", REASONS.shape);
-  if (/\[\\[^\]]*\\\]/.test(line)) approximated("lean-left shape", "parallelogram", REASONS.shape);
+  if (line.includes("(((")) approximated("double circle", "a circle", REASONS.shape);
+  if (/\w>[^\]]*\]/.test(line)) approximated("asymmetric shape", "a rectangle", REASONS.shape);
+  if (/\[\/[^\]]*\\\]/.test(line)) approximated("trapezoid", "a rectangle", REASONS.shape);
+  if (/\[\\[^\]]*\/\]/.test(line)) approximated("inverted trapezoid", "a rectangle", REASONS.shape);
+  if (/\[\\[^\]]*\\\]/.test(line)) approximated("lean-left shape", "a parallelogram", REASONS.shape);
   const named = /@\{\s*shape:\s*([\w-]+)/.exec(line)?.[1];
-  if (named !== undefined && !KNOWN_SHAPES.has(named)) approximated(`shape ${named}`, "rectangle", REASONS.shape);
+  if (named !== undefined && !KNOWN_SHAPES.has(named)) approximated(`shape ${named}`, "a rectangle", REASONS.shape);
   if (/(?:^|\s)o--o(?=\s|$)|(?:^|\s)x--x(?=\s|$)/.test(line)) {
     approximated("two-way circle or cross", "a two-way link", REASONS.endingBoth);
   } else if (/--[ox](?=\s|$)/.test(line)) {
@@ -103,7 +104,9 @@ function conflictingLabels(text: string): ReportEntry[] {
 export function scanFlowchart(text: string): ReportEntry[] {
   const entries: ReportEntry[] = [...conflictingLabels(text)];
   let inFrontMatter = false;
-  text.split(/\r?\n/).forEach((raw, index) => {
+  const lines = text.split(/\r?\n/);
+  const inDirective = linesInDirectives(lines);
+  lines.forEach((raw, index) => {
     const line = raw.trim();
     const word = line.split(/\s/)[0] ?? "";
     const line1 = index + 1;
@@ -117,8 +120,9 @@ export function scanFlowchart(text: string): ReportEntry[] {
       if (line === "---") inFrontMatter = false;
       return;
     }
-    if (line.startsWith("%%{")) {
-      entries.push({ line: line1, category: "ignored", construct: "directive", reason: REASONS.directive });
+    // A directive is one construct, however many lines it spans (feature 006, FR-006): one entry, on its first line.
+    if (inDirective.has(index)) {
+      if (line.startsWith("%%{")) entries.push({ line: line1, category: "ignored", construct: "directive", reason: REASONS.directive });
       return;
     }
     const ignoredWord = IGNORED_WORDS.get(word);
@@ -183,19 +187,27 @@ function linesEntries(line: string, number: number, open: Opened[]): ReportEntry
   }
   if ((MESSAGE.exec(line)?.[1] ?? "") !== "") entries.push(sequenceEntry(number, "activation", REASONS.activation));
   if (inside !== undefined) {
-    entries.push({ line: number, category: "approximated", construct: "message", reason: fill(REASONS.message, { label: inside.label }), becomes: "message" });
+    entries.push({ line: number, category: "approximated", construct: "message", reason: fill(REASONS.message, { label: inside.label }), becomes: "a message" });
   }
   return entries;
 }
 
 /** The sequence's lines the editor does not keep, with the block each kept message sits in (EC-05). */
+/** The report entry for a directive, on its first line; none for its other lines (feature 006, FR-006). */
+function directiveEntry(line: string, number: number): ReportEntry[] {
+  return line.startsWith("%%{") ? [{ line: number, category: "ignored", construct: "directive", reason: REASONS.directive }] : [];
+}
+
 export function scanSequence(text: string): ReportEntry[] {
   const open: Opened[] = [];
-  return text.split(/\r?\n/).flatMap((raw, index) => {
+  const lines = text.split(/\r?\n/);
+  const inDirective = linesInDirectives(lines);
+  return lines.flatMap((raw, index) => {
     const line = raw.trim();
+    if (inDirective.has(index)) return directiveEntry(line, index + 1);
     const word = line.split(/\s/)[0] ?? "";
     if (word === "actor" && line.includes("@{")) {
-      return [{ line: index + 1, category: "approximated", construct: "actor", reason: REASONS.actorKind, becomes: "participant" }];
+      return [{ line: index + 1, category: "approximated", construct: "actor", reason: REASONS.actorKind, becomes: "a participant" }];
     }
     if (line === "" || word === "sequenceDiagram" || word === "participant" || word === "actor" || word === "title") return [];
     return linesEntries(line, index + 1, open);
@@ -215,11 +227,12 @@ const KIND_OF_HEADER: ReadonlyMap<string, C4Kind> = new Map<string, C4Kind>([
   ["C4Deployment", "deployment"],
 ]);
 
+/** What an element of a type the kind does not offer became, completing "Kept as …" (feature 006, research R6). */
 const FAMILY_NAMES: ReadonlyMap<string, string> = new Map([
-  ["person", "Person"],
-  ["system", "System"],
-  ["container", "Container"],
-  ["component", "Component"],
+  ["person", "a Person"],
+  ["system", "a System"],
+  ["container", "a Container"],
+  ["component", "a Component"],
 ]);
 
 /** The C4 lines of a document that are relationships, with their macro's first word and the two ends they name. */
@@ -237,7 +250,7 @@ function c4LineEntries(line: string, number: number, kind: C4Kind, declared: Rea
   if (style) return [{ line: number, category: "dropped", construct: style[1] ?? "", reason: REASONS.c4Style }];
   if (elementType !== undefined && !ELEMENT_TYPES_BY_KIND[kind].includes(elementType)) {
     const family = nearestOffered(elementType, kind).split("-")[0] ?? "";
-    return [{ line: number, category: "approximated", construct: macro, reason: REASONS.c4NotOffered, becomes: FAMILY_NAMES.get(family) ?? family }];
+    return [{ line: number, category: "approximated", construct: macro, reason: REASONS.c4NotOffered, becomes: FAMILY_NAMES.get(family) ?? `a ${family}` }];
   }
   if (BOUNDARY_MACROS.has(macro) && BOUNDARY_TYPES_BY_KIND[kind].length === 0) {
     return [{ line: number, category: "dropped", construct: macro, reason: REASONS.c4Boundary }];
@@ -245,7 +258,7 @@ function c4LineEntries(line: string, number: number, kind: C4Kind, declared: Rea
   if (macro === "RelIndex") {
     index.dynamic += 1;
     const given = Number(/^RelIndex\s*\(\s*(\d+)/.exec(line)?.[1] ?? "");
-    return given === index.dynamic ? [] : [{ line: number, category: "approximated", construct: macro, reason: REASONS.c4Order, becomes: "the order it was written" }];
+    return given === index.dynamic ? [] : [{ line: number, category: "approximated", construct: macro, reason: REASONS.c4Order, becomes: "a relationship in the order it was written" }];
   }
   if (hint) return [{ line: number, category: "approximated", construct: hint[1] ?? "", reason: REASONS.c4Hint, becomes: "a relationship without a direction hint" }];
   if (relationship && c4Ends(relationship[1] ?? "", (relationship[2] ?? "").split(",").map((value) => value.trim())).some((end) => !declared.has(end))) {
@@ -255,8 +268,11 @@ function c4LineEntries(line: string, number: number, kind: C4Kind, declared: Rea
 }
 
 export function scanC4(text: string): ReportEntry[] {
-  const lines = text.split(/\r?\n/).map((raw, index) => ({ line: raw.trim(), number: index + 1 }));
-  const kind = KIND_OF_HEADER.get(lines.find(({ line }) => line !== "")?.line ?? "") ?? "context";
+  const rawLines = text.split(/\r?\n/);
+  const inDirective = linesInDirectives(rawLines);
+  const all = rawLines.map((raw, index) => ({ line: raw.trim(), number: index + 1 }));
+  const lines = all.filter(({ number }) => !inDirective.has(number - 1));
+  const kind = KIND_OF_HEADER.get(lines.find(({ line }) => line !== "" && !line.startsWith("%%"))?.line ?? "") ?? "context";
   const declared = new Set<string>();
   for (const { line } of lines) {
     const alias = /^(\w+)\s*\(\s*(\w+)/.exec(line);
@@ -264,5 +280,6 @@ export function scanC4(text: string): ReportEntry[] {
     if (alias && (ELEMENT_MACROS.has(macro) || BOUNDARY_MACROS.has(macro) || NODE_MACROS.has(macro))) declared.add(alias[2] ?? "");
   }
   const index = { dynamic: 0 };
-  return lines.flatMap(({ line, number }) => c4LineEntries(line, number, kind, declared, index));
+  const directives = all.flatMap(({ line, number }) => (inDirective.has(number - 1) ? directiveEntry(line, number) : []));
+  return [...directives, ...lines.flatMap(({ line, number }) => c4LineEntries(line, number, kind, declared, index))];
 }

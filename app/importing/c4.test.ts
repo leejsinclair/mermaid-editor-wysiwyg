@@ -1,4 +1,6 @@
 import { describe, expect, it } from "vitest";
+import { generateC4 } from "../generation/c4";
+import { c4Diagram, element } from "../testing/c4Builder";
 import { readC4 } from "./c4";
 
 // VO-011 (FR-005): each C4 kind's statements become the editor's elements, boundaries, Deployment nodes and relationships,
@@ -170,5 +172,46 @@ describe("readC4", () => {
     const text = ["C4Context", '  Person(a, "A")', '  System(b, "B")', '  Rel(a, b, "Asks")', '  Rel(a, b, "Calls")'].join("\n");
     const result = readC4(text, "context");
     expect(result.relationships.map((relationship) => relationship.label)).toEqual(["Asks", "Calls"]);
+  });
+
+  // VO-001 (FR-001, US1-AS1): the editor's own C4 output escapes its fields; reading it back gives the typed text.
+  it("decodes the escapes the editor writes in an element's label, description and technology", () => {
+    const typed = element(1, "container", "R&D", { description: '"fast" <cheap>', technology: "C#" });
+    const { source } = generateC4(c4Diagram("container", [typed]));
+    const [read] = readC4(source, "container").tree;
+    expect(read).toMatchObject({ label: "R&D", description: '"fast" <cheap>', technology: "C#" });
+  });
+
+  // VO-002 (FR-001, US1-AS3): every other text field is decoded the way a flowchart label is: Mermaid's `#…;` escapes,
+  // `<br/>` and entities.
+  it("decodes boundary, Deployment node, relationship and title text", () => {
+    const escaped = "A#38;B#quot; &lt;x&gt;<br/>two";
+    const decoded = 'A&B" <x>\ntwo';
+    const boundaries = ["C4Context", `  title ${escaped}`, `  System_Boundary(b, "${escaped}") {`, '    System(s1, "S1")', "  }", '  System(s2, "S2")', `  Rel(s1, s2, "${escaped}", "${escaped}")`].join("\n");
+    const context = readC4(boundaries, "context");
+    expect(context.title).toBe(decoded);
+    expect(context.tree[0]).toMatchObject({ item: "boundary", label: decoded });
+    expect(context.relationships[0]).toMatchObject({ label: decoded, technology: decoded });
+    const nodes = ["C4Deployment", `  Deployment_Node(d, "${escaped}", "${escaped}", "${escaped}") {`, '    Container(c, "C", "T")', "  }"].join("\n");
+    expect(readC4(nodes, "deployment").tree[0]).toMatchObject({ item: "deployment-node", label: decoded, technology: decoded, description: decoded });
+  });
+
+  // VO-004 (FR-001, DC-01): the C4 import has no report entry for removed tags, so a tag is kept as text, not removed.
+  it("keeps an HTML tag in C4 text as typed", () => {
+    const text = ["C4Context", '  System(s, "<b>x</b>", "a <i>b</i>")'].join("\n");
+    expect(readC4(text, "context").tree[0]).toMatchObject({ label: "<b>x</b>", description: "a <i>b</i>" });
+  });
+
+  // VO-027 (FR-001, PR #5): an entity in hand-written source is decoded once, whole: the `#65;` inside `&#65;` is not read
+  // as a Mermaid escape on its own.
+  it("decodes decimal, hexadecimal and named entities in hand-written C4 source", () => {
+    const text = ["C4Context", '  System(s, "&#65; &#x42; &amp;")'].join("\n");
+    expect(readC4(text, "context").tree[0]).toMatchObject({ label: "A B &" });
+  });
+
+  // VO-032 (FR-001, PR #5): a numeric entity that names no character is kept as typed; reading never throws.
+  it("keeps a numeric entity that names no character as typed", () => {
+    const text = ["C4Context", '  System(s, "&#xzz; &#99999999;")'].join("\n");
+    expect(readC4(text, "context").tree[0]).toMatchObject({ label: "&#xzz; &#99999999;" });
   });
 });

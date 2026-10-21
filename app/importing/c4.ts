@@ -1,4 +1,5 @@
 import { ELEMENT_TYPES_BY_KIND, hasTechnology } from "../model/c4/catalogue";
+import { decodeSourceText } from "./decode";
 import type { BoundaryType, C4Content, C4Item, C4Kind, DeploymentNode, Element, ElementType, Relationship } from "../model/types";
 
 // Reads C4 statements one by one, depth first (research R1): not Mermaid's database, which merges relationships and keeps
@@ -84,6 +85,9 @@ export function nearestOffered(type: ElementType, kind: C4Kind): ElementType {
 
 const arg = (args: readonly string[], index: number): string => args.at(index) ?? "";
 
+/** An argument that holds text the developer typed, decoded (FR-001). */
+const typed = (args: readonly string[], index: number): string => decodeSourceText(arg(args, index));
+
 /** A boundary or Deployment node whose `}` has not been read yet. A transparent one (a boundary Deployment has none) keeps its children. */
 interface Open {
   readonly children: C4Item[];
@@ -126,7 +130,7 @@ class StatementReader {
   line(text: string): void {
     if (text === "" || text.startsWith("%%") || /^C4\w+$/.test(text)) return;
     if (text.startsWith("title ")) {
-      this.title = text.slice("title ".length).trim();
+      this.title = decodeSourceText(text.slice("title ".length).trim());
     } else if (text === "}") {
       this.closeOne();
     } else {
@@ -155,16 +159,16 @@ class StatementReader {
       item: "element",
       id,
       elementType,
-      label: arg(args, 1),
-      description: withTechnology ? arg(args, 3) : arg(args, 2),
-      technology: withTechnology ? (arg(args, 2)) : "",
+      label: typed(args, 1),
+      description: withTechnology ? typed(args, 3) : typed(args, 2),
+      technology: withTechnology ? typed(args, 2) : "",
     };
     this.add(element);
   }
 
   private boundary(boundaryType: BoundaryType, args: readonly string[]): void {
     const id = this.take(arg(args, 0));
-    const label = arg(args, 1);
+    const label = typed(args, 1);
     // A Deployment diagram has no boundaries: the boundary is dropped and what it holds moves up (research R7).
     const transparent = this.kind === "deployment";
     this.open.push({ children: [], transparent, build: (children) => ({ item: "boundary", id, boundaryType, label, children }) });
@@ -175,9 +179,9 @@ class StatementReader {
     const node: Omit<DeploymentNode, "children"> = {
       item: "deployment-node",
       id,
-      label: arg(args, 1),
-      technology: arg(args, 2),
-      description: arg(args, 3),
+      label: typed(args, 1),
+      technology: typed(args, 2),
+      description: typed(args, 3),
     };
     if (opens) this.open.push({ children: [], build: (children) => ({ ...node, children }) });
     else this.add({ ...node, children: [] });
@@ -195,8 +199,8 @@ class StatementReader {
       from: this.aliases.get(arg(args, shift)) ?? 0,
       to: this.aliases.get(arg(args, shift + 1)) ?? 0,
       direction: RELATIONSHIP_MACROS.get(name) ?? "one-way",
-      label: arg(args, shift + 2) === "" ? "Uses" : arg(args, shift + 2),
-      technology: arg(args, shift + 3),
+      label: arg(args, shift + 2) === "" ? "Uses" : typed(args, shift + 2),
+      technology: typed(args, shift + 3),
     });
   }
 }

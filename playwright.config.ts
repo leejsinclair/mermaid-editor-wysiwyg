@@ -1,6 +1,8 @@
 import { defineConfig, devices } from "@playwright/test";
 
 const port = 5173;
+/** The test files that time the app against a fixed budget. */
+const TIMING = ["**/performance.spec.ts", "**/import-performance.spec.ts"];
 
 export default defineConfig({
   testDir: "./e2e",
@@ -18,10 +20,15 @@ export default defineConfig({
   projects: [
     {
       name: "chromium",
+      testIgnore: TIMING,
       // The async clipboard API (Copy Source) needs these in headless Chromium; Firefox cannot grant clipboard read.
       use: { ...devices["Desktop Chrome"], permissions: ["clipboard-read", "clipboard-write"] },
     },
-    { name: "firefox", use: { ...devices["Desktop Firefox"] } },
+    { name: "firefox", testIgnore: TIMING, use: { ...devices["Desktop Firefox"] } },
+    // The tests that time the app against a fixed budget run after the rest, one at a time and one browser after the
+    // other, so they measure the app rather than the other workers' load (feature 006, DN-01).
+    { name: "chromium-timing", testMatch: TIMING, workers: 1, dependencies: ["chromium", "firefox"], use: { ...devices["Desktop Chrome"] } },
+    { name: "firefox-timing", testMatch: TIMING, workers: 1, dependencies: ["chromium-timing"], use: { ...devices["Desktop Firefox"] } },
   ],
   webServer: {
     command: "npm run dev -- --port " + String(port),

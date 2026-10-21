@@ -9,7 +9,13 @@ export type FileRead = { readonly ok: true; readonly text: string } | { readonly
 /** The text of a file, decoded as UTF-8, or the reason it was not loaded. */
 export async function readTextFile(file: File): Promise<FileRead> {
   if (file.size > MAX_FILE_BYTES) return { ok: false, problem: en.importMermaid.fileTooLarge };
-  const bytes = new Uint8Array(await file.arrayBuffer());
+  // A file that was removed, or that the browser may not read, rejects here; that is a reason, not an error (feature 006, FR-009).
+  let bytes: Uint8Array;
+  try {
+    bytes = new Uint8Array(await file.arrayBuffer());
+  } catch {
+    return { ok: false, problem: en.importMermaid.fileUnreadable };
+  }
   if (bytes.includes(0)) return { ok: false, problem: en.importMermaid.fileNotText };
   try {
     return { ok: true, text: new TextDecoder("utf-8", { fatal: true }).decode(bytes) };

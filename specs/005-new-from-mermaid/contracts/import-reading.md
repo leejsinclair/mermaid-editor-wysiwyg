@@ -40,3 +40,9 @@ An entry is never added for something the model keeps. A group's contents are ke
 - The generated source of an imported diagram is valid Mermaid (the editor's own check passes).
 - Generating from a model, then reading that source, then generating again gives the same source (SC-006).
 - A line that is neither represented nor reported is a test failure (SC-003).
+
+## Changes in feature 006
+
+Feature 006 (import review fixes) changed this contract in five places: C4 text decoding, multi-line and unclosed
+directives, the block ending before a second diagram header, "Kept as …" for approximated entries, and a bounded
+compare. The changes are listed in [006 contracts/import-changes.md](../../006-import-review-fixes/contracts/import-changes.md#reading-import-readingmd).

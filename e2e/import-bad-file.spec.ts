@@ -41,3 +41,27 @@ test("a binary file and a file over 5 MB are not loaded, the dialog says why, an
   await expect(dialog.getByRole("textbox", { name: TEXT_LABEL })).toHaveValue(FILE_TEXT);
   await expect(dialog.getByTestId("detected-type")).toHaveText(/Flowchart/);
 });
+
+// VO-019 (FR-009, US4-AS3, EC-06): a chosen file whose contents cannot be read gives a message; the earlier text and
+// picture stay, and nothing is left unhandled (feature 006).
+test("a chosen file that cannot be read is reported, and the earlier text and picture stay", async ({ page }) => {
+  const errors: string[] = [];
+  page.on("pageerror", (error) => errors.push(error.message));
+  await openImportWithPointer(page);
+  const dialog = importDialog(page);
+  await dialog.getByRole("textbox", { name: TEXT_LABEL }).fill(FILE_TEXT);
+  await expect(dialog.getByTestId("picture-wrap")).toBeVisible({ timeout: 10000 });
+  await page.evaluate(() => {
+    window.addEventListener("unhandledrejection", (event) => {
+      throw new Error(`unhandled: ${String(event.reason)}`);
+    });
+    File.prototype.arrayBuffer = () => Promise.reject(new DOMException("The requested file could not be read.", "NotReadableError"));
+  });
+
+  await dialog.locator('input[type="file"]').setInputFiles({ name: "gone.mmd", mimeType: "text/plain", buffer: Buffer.from("flowchart LR\n  X --> Y") });
+
+  await expect(dialog.getByRole("status", { name: "Import status" })).toContainText("The file could not be read.");
+  await expect(dialog.getByRole("textbox", { name: TEXT_LABEL })).toHaveValue(FILE_TEXT);
+  await expect(dialog.getByTestId("picture-wrap")).toBeVisible();
+  expect(errors).toEqual([]);
+});

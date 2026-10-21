@@ -248,9 +248,10 @@ export function ImportDialog({
         <Button
           variant="contained"
           aria-describedby="import-description"
-          disabled={ready === undefined || !nameFilled}
+          disabled={ready === undefined || checking || !nameFilled}
           onClick={() => {
-            if (ready && nameFilled) {
+            // Only the outcome read from the text now on screen is imported (feature 006, FR-004).
+            if (ready && !checking && nameFilled) {
               void onImport({ ...ready, name: name.trim() }).then((problem) => {
                 setSaveProblem(problem);
               });

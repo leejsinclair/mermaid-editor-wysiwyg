@@ -44,11 +44,13 @@ export function ImportReport({ entries, onSelect }: { readonly entries: readonly
                   }}
                   sx={{ display: "block", textAlign: "left", textTransform: "none" }}
                 >
-                  {fill(en.importMermaid.entry, {
+                  {/* An approximated entry also says what the construct became (feature 006, FR-008). */}
+                  {fill(entry.becomes === undefined ? en.importMermaid.entry : en.importMermaid.entryKept, {
                     line: String(entry.line),
                     construct: entry.construct,
                     category,
                     reason: entry.reason,
+                    becomes: entry.becomes ?? "",
                   })}
                 </Button>
               ))}

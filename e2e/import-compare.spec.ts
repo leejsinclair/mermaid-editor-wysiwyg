@@ -48,3 +48,20 @@ test("a dropped construct's original lines show as removed in the compare view",
   const compare = dialog.getByRole("region", { name: "Compare original with generated" });
   await expect(compare.locator('[data-change="removed"]').filter({ hasText: "subgraph Group" })).toBeVisible({ timeout: 1000 });
 });
+
+// VO-022 (FR-010, US5-AS2): a document whose generated text differs on nearly every line passes the work limit; the
+// compare view still shows both texts and says the marking was simplified (feature 006).
+test("a document too different from its generated text to compare exactly says the marking was simplified", async ({ page }) => {
+  // Unlinked nodes keep under Mermaid's edge limit; each line differs from the generated `n1["Node 1"]` form.
+  const lines = ["flowchart TD", ...Array.from({ length: 2100 }, (_, index) => `n${String(index + 1)}[Node ${String(index + 1)}]`)];
+  await openImportWithPointer(page);
+  await paste(page, lines.join("\n"));
+  const dialog = importDialog(page);
+  await expect(dialog.getByTestId("detected-type")).toHaveText(/Flowchart/, { timeout: 20000 });
+
+  await dialog.getByRole("button", { name: "Compare" }).click();
+  const compare = dialog.getByRole("region", { name: "Compare original with generated" });
+  await expect(compare).toContainText("shown in simple form because the texts are very large");
+  await expect(compare).toContainText("n1[Node 1]");
+  await expect(compare.locator('[data-change="changed"]').first()).toBeVisible();
+});

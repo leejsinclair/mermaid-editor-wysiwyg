@@ -1,9 +1,9 @@
 import { expect, test } from "@playwright/test";
 import { importDialog, openImportWithPointer, paste, TEXT_LABEL } from "./support/import";
 
-// VO-050 (EC-07, SC-005, Chromium): a 100-node document shows its picture within one second, and typing into a 500-node
-// document delays no keystroke by more than 100 ms, measured from each input event to the next painted frame. Both
-// browsers run it: the budget must hold in each.
+// VO-050 (EC-07, SC-005, Chromium): a 100-node document shows its picture within a second (verified since feature 006
+// by its VO-024), and typing into a 500-node document delays no keystroke by more than 100 ms, measured from each input
+// event to the next painted frame. Both browsers run it: the budget must hold in each.
 
 /** A flowchart of `count` nodes in a chain, one per line. */
 function chain(count: number): string {
@@ -12,15 +12,43 @@ function chain(count: number): string {
   return lines.join("\n");
 }
 
-test("a 100-node document shows its picture within one second", async ({ page }) => {
+test("a 100-node document shows its picture within a second", async ({ page }, testInfo) => {
   await openImportWithPointer(page);
   const dialog = importDialog(page);
+  const preview = dialog.getByRole("region", { name: "Preview" });
   // The first picture of a session also loads Mermaid, which is not the budget (SC-005 is about use once the editor is
   // ready): a small document is drawn first, then the 100-node document is timed.
   await paste(page, "flowchart TD\n  A --> B");
-  await expect(dialog.getByRole("region", { name: "Preview" }).locator("img, svg").first()).toBeVisible({ timeout: 10000 });
+  await expect(preview.locator("img, svg").first()).toBeVisible({ timeout: 10000 });
+  // The warm-up picture stays on screen while the next one is drawn, so the wait is for a label only the new picture
+  // has; it must be absent first, or the check could pass on the old picture (feature 006, FR-011).
+  const lastLabel = preview.getByText("Node 100", { exact: true });
+  await expect(lastLabel).toHaveCount(0);
+
+  // The moment "Node 100" appears is stamped inside the page: Playwright's own wait re-checks only every few hundred
+  // milliseconds, so the time it ends is not the time the picture was shown (PR #5).
+  await preview.evaluate((region) => {
+    const timing = window as unknown as { pasteStarted: number; nodeShown: Promise<number> };
+    timing.nodeShown = new Promise((resolve) => {
+      const observer = new MutationObserver(() => {
+        if (region.textContent.includes("Node 100")) {
+          observer.disconnect();
+          resolve(performance.now());
+        }
+      });
+      observer.observe(region, { subtree: true, childList: true, characterData: true });
+    });
+    timing.pasteStarted = performance.now();
+  });
   await paste(page, chain(100));
-  await expect(dialog.getByRole("region", { name: "Preview" }).locator("img, svg").first()).toBeVisible({ timeout: 1000 });
+  await expect(lastLabel).toBeVisible({ timeout: 1000 });
+  const elapsed = await page.evaluate(async () => {
+    const timing = window as unknown as { pasteStarted: number; nodeShown: Promise<number> };
+    return (await timing.nodeShown) - timing.pasteStarted;
+  });
+  testInfo.annotations.push({ type: "100-node preview (ms)", description: String(Math.round(elapsed)) });
+  // The budget runs from before the paste, so the recorded time is checked, not only the wait after the paste (PR #5).
+  expect(elapsed).toBeLessThanOrEqual(1000);
 });
 
 test("typing into a 500-node document delays no keystroke by more than 100 ms", async ({ page }) => {

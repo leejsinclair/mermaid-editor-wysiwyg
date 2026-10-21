@@ -1,0 +1,7 @@
+#!/usr/bin/env sh
+# Refuses a push while the project's type check or lint fails, including commits made with --no-verify.
+set -e
+echo "pre-push: npm run typecheck"
+npm run --silent typecheck
+echo "pre-push: npm run lint"
+npm run --silent lint
