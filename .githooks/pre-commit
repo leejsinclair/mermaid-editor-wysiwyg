@@ -1,0 +1,8 @@
+#!/usr/bin/env sh
+# Refuses a commit while the project's type check or lint fails (CLAUDE.md, Commands). Installed by `npm install`
+# through the `prepare` script, which points git's core.hooksPath at this directory.
+set -e
+echo "pre-commit: npm run typecheck"
+npm run --silent typecheck
+echo "pre-commit: npm run lint"
+npm run --silent lint
