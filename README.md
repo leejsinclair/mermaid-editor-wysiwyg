@@ -27,6 +27,24 @@ detected, and an **Import report** that lists anything the editor could not keep
 created until you press **Import**, and the diagram you get is the same kind of diagram as one you draw yourself.
 Mermaid text is never run as code, and nothing in it is followed or fetched.
 
+## Screenshots
+
+Examples of flowchart, sequence and C4 diagrams in the editor:
+
+### Flowchart
+
+![Flowchart showing an order process with an inventory decision and two outcomes](screenshots/flowchart.png)
+
+### Sequence diagram
+
+![Sequence diagram showing a customer placing an order and confirming payment](screenshots/sequence.png)
+
+### C4 context diagram
+
+![C4 context diagram showing a shopper, online store and payment provider](screenshots/c4-context.png)
+
+C4 support in Mermaid is experimental, so other tools may render these diagrams differently.
+
 ## Develop
 
 - `npm run dev` starts the editor with live reload.
