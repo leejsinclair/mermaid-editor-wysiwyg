@@ -169,6 +169,29 @@ None. No change blocks more than one story.
 
 ---
 
+## Phase 10: Review round two (PR #5)
+
+**Goal**: The four Copilot comments on PR #5 are fixed: C4 text is decoded in one pass, only real diagram headers end a
+block, directive scans are linear, and the 100-node check enforces the time it records.
+
+**Independent Test**: The new unit tests and the 100-node test pass; each new unit test failed first.
+
+- [X] T062 [US1] [VO-026] Add to the C4 round-trip cases in app/importing/roundtrip.test.ts fields typed as `one<br/>two`, `&amp;` and `&lt;b&gt;`: every field reads as typed and every generated source equals the first, over three rounds, for each C4 kind
+- [X] T063 [US1] [VO-027] Write the failing test in app/importing/c4.test.ts: hand-written C4 source with `&#65;`, `&#x42;` and `&amp;` in an element label reads `A`, `B` and `&`
+- [X] T064 [US1] [VO-026] [VO-027] Decode `#n;` and `#name;` escapes, `<br>` tags and HTML entities with one pattern in a single pass in `decodeSourceText` in app/importing/decode.ts, so no replacement is read again
+- [X] T065 [US3] [VO-028] Write the failing test in app/importing/document.test.ts: `splitDocument` keeps every line and ignores nothing for a flowchart with unindented `pie[Chart]` and `C4Node[Service]` nodes, and for a sequence diagram with `graph->>Bob: Next`
+- [X] T066 [US3] [VO-029] Write the failing test in app/importing/document.test.ts: a flowchart followed by `  flowchart LR` (indented) and its statements ends before that line, which is listed as ignored with its line number
+- [X] T067 [US3] [VO-028] [VO-029] Recognise a diagram header in app/importing/document.ts only on the trimmed line, as the type word alone or followed by white space and its header arguments (a direction for flowchart and graph; C4 limited to the five kinds)
+- [X] T068 [US3] [VO-030] Write the failing test in app/importing/document.test.ts: `splitDocument` and `detectType` on 20,000 one-line directives before a flowchart header finish within 200 ms together
+- [X] T069 [US3] [VO-030] Search for each directive's closing line forward from its opening line in `directiveLines` in app/importing/document.ts
+- [X] T070 [US6] [VO-031] In e2e/import-performance.spec.ts assert that the recorded time from before the paste until "Node 100" is shown is at most 1,000 ms. If the first run passes, record a `no-meaningful-red` exception: the build already meets the budget, and MV-001 shows the check can fail
+- [X] T071 [US6] [VO-031] Run the 100-node test green in both browsers with the `e2e` command
+- [X] T073 [US1] [VO-032] Write the failing test in app/importing/c4.test.ts: hand-written C4 source with `&#xzz;` and `&#99999999;` in an element label is read without an error and keeps both as typed
+- [X] T074 [US1] [VO-032] In `decodeEntity` in app/importing/decode.ts keep an entity as typed when its number is not a valid code point
+- [X] T072 [NT: documentation and checkpoint runs, no behaviour] Add the header rule and single-pass decoding to specs/006-import-review-fixes/contracts/import-changes.md, run `npm run typecheck` and `npm run lint`, and run `unit-all` and `e2e-all` as `checkpoint` runs
+
+---
+
 ## Dependencies & Execution Order
 
 - **Setup (T001)** comes first: no other run is accepted until the baseline exists.

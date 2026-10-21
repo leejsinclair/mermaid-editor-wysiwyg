@@ -6,8 +6,10 @@ These are changes to feature 005's contracts
 
 ## Reading (import-reading.md)
 
-1. **C4 text decoding.** Every C4 text field the import keeps is decoded: Mermaid escapes `#<n>;` and `#<name>;` in a
-   single pass, then `<br/>` becomes a newline, then HTML entities are decoded. Other HTML tags stay as text.
+1. **C4 text decoding.** Every C4 text field the import keeps is decoded in a single pass: each Mermaid escape `#<n>;` or
+   `#<name>;`, each `<br/>` (which becomes a newline) and each HTML entity is replaced once, and no replacement is read
+   again, so text typed as `<br/>` or `&amp;` comes back as typed. An entity is matched whole, and one whose number names
+   no character is kept as typed. Other HTML tags stay as text.
    Stable guarantee added: for any C4 diagram the editor builds, generate, then import, then generate gives the same
    source, and it stays the same after three round trips.
 2. **Directives.** A `%%{ … }%%` directive may span lines. It is one `ignored` entry on its first line. A directive that
@@ -15,7 +17,9 @@ These are changes to feature 005's contracts
    "The directive that opens on line {line} is never closed with }%%."
 3. **Second diagram header.** The text given to the parser ends before a second diagram header. The header keeps its
    `ignored` entry. A C4 block with two different kinds is still refused (005 EC-06). Lines inside a directive are never
-   taken for a diagram header.
+   taken for a diagram header. A line is a header only when, trimmed, it is a diagram type word alone or followed by
+   white space and that type's header arguments (a direction for `flowchart` and `graph`), so a statement such as
+   `pie[Chart]` or `graph->>Bob: Next` is not a header and an indented `  flowchart LR` is.
 4. **Approximated entries.** `becomes` completes "Kept as …" (see the data model).
 5. **Compare.** `compareLines(original, generated)` returns `{ lines, simplified }`. Memory is bounded by the text length
    plus a fixed trace limit. The edit script is minimal up to 2,000 edits. Past that, shared lines at the start and end

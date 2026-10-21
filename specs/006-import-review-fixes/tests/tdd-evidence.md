@@ -4,7 +4,7 @@
 
 ## Summary
 
-_Generated from the tables below on 2026-10-21T12:31:16Z._
+_Generated from the tables below on 2026-10-21T22:21:55Z._
 
 | Obligation | Requirements | Status | Tests | Latest result |
 |------------|--------------|--------|-------|---------------|
@@ -33,6 +33,13 @@ _Generated from the tables below on 2026-10-21T12:31:16Z._
 | VO-023 | FR-010, US5-AS3 | verified | app/importing/compare.test.ts, app/importing | pass (#73) |
 | VO-025 | FR-010, US5-AS2 | verified | app/importing/compare.test.ts | pass (#76) |
 | VO-024 | FR-011, US6-AS1, US6-AS3 | verified | e2e/import-performance.spec.ts -g 100-node --reporter=line, e2e/import-performance.spec.ts | pass (#80) |
+| VO-026 | FR-001, FR-002, EC-03 | verified | app/importing/roundtrip.test.ts, app/importing | pass (#87) |
+| VO-027 | FR-001 | verified | app/importing/c4.test.ts, app/importing | pass (#88) |
+| VO-028 | FR-007 | verified | app/importing/document.test.ts, app/importing | pass (#92) |
+| VO-029 | FR-007, EC-05 | verified | app/importing/document.test.ts, app/importing | pass (#92) |
+| VO-030 | FR-006 | verified | app/importing/document.test.ts, app/importing | pass (#95) |
+| VO-031 | FR-011, US6-AS1 | verified | e2e/import-performance.spec.ts | pass (#98) |
+| VO-032 | FR-001 | verified | app/importing/c4.test.ts | pass (#100) |
 
 | Behaviour item | Scenario | Obligations | Status | Tests |
 |----------------|----------|-------------|--------|-------|
@@ -61,16 +68,23 @@ _Generated from the tables below on 2026-10-21T12:31:16Z._
 | BI-023 | - | VO-010 | verified | e2e/import-report-select.spec.ts, e2e/import-report |
 | BI-024 | - | VO-015 | verified | app/importing/directive.test.ts, app/importing |
 | BI-025 | - | exemption FR-012 | exempt | - |
+| BI-026 | - | VO-026 | verified | app/importing/roundtrip.test.ts, app/importing |
+| BI-027 | - | VO-027 | verified | app/importing/c4.test.ts, app/importing |
+| BI-028 | - | VO-028 | verified | app/importing/document.test.ts, app/importing |
+| BI-029 | - | VO-029 | verified | app/importing/document.test.ts, app/importing |
+| BI-030 | - | VO-030 | verified | app/importing/document.test.ts, app/importing |
+| BI-031 | - | VO-031 | verified | e2e/import-performance.spec.ts |
+| BI-032 | - | VO-032 | verified | app/importing/c4.test.ts |
 
 Not verified by tests
 
 - MV-001 manual: open
 
-Counts: verified 25, deferred 0, manual checks 1 open
+Counts: verified 32, deferred 0, manual checks 1 open
 
 **Not verified**: US6-AS2 (exempt: see plan), FR-012 (exempt: see plan).
 
-**Open decisions**: none. **Exceptions**: EX-01 no-meaningful-red on T006 for VO-003; EX-02 no-meaningful-red on T008 for VO-004; EX-03 no-meaningful-red on T013 for VO-006; EX-04 no-meaningful-red on T015 for VO-007; EX-05 no-meaningful-red on T019 for VO-009; EX-06 no-meaningful-red on T042 for VO-019; EX-07 no-meaningful-red on T047 for VO-020; EX-08 no-meaningful-red on T051 for VO-025 (approved by Lee Sinclair). **Expectation changes**: XC-01 on T032 for FR-007; XC-02 on T037 for FR-008; XC-03 on T057 for FR-011.
+**Open decisions**: none. **Exceptions**: EX-01 no-meaningful-red on T006 for VO-003; EX-02 no-meaningful-red on T008 for VO-004; EX-03 no-meaningful-red on T013 for VO-006; EX-04 no-meaningful-red on T015 for VO-007; EX-05 no-meaningful-red on T019 for VO-009; EX-06 no-meaningful-red on T042 for VO-019; EX-07 no-meaningful-red on T047 for VO-020; EX-08 no-meaningful-red on T051 for VO-025 (approved by Lee Sinclair); EX-09 no-meaningful-red on T070 for VO-031. **Expectation changes**: XC-01 on T032 for FR-007; XC-02 on T037 for FR-008; XC-03 on T057 for FR-011; XC-04 on T067 for FR-007.
 
 **Item changes**: none.
 
@@ -169,6 +183,27 @@ Counts: verified 25, deferred 0, manual checks 1 open
 | 80 | 2026-10-21T12:21:44Z | T057 | VO-024 | green | e2e | e2e/import-performance.spec.ts | pass | yes | - | e2e/import-performance.spec.ts | 7dafc7 | - | 1aff97 |
 | 81 | 2026-10-21T12:22:59Z | - | - | checkpoint | unit-all | - | pass | yes | - | - | - | - | 10f59a |
 | 82 | 2026-10-21T12:31:16Z | - | - | checkpoint | e2e-all | - | pass | yes | - | - | - | - | 031cdd |
+| 83 | 2026-10-21T21:58:38Z | T062 | VO-026 | red | unit | app/importing/roundtrip.test.ts | fail | yes | assertion | app/importing/roundtrip.test.ts | 71e56b | expected: expected | f3a8e9 |
+| 84 | 2026-10-21T21:58:45Z | T063 | VO-027 | red | unit | app/importing/c4.test.ts | fail | yes | assertion | app/importing/c4.test.ts | 42c3c7 | expected: A B & | 5725ee |
+| 85 | 2026-10-21T21:58:58Z | T064 | VO-027 | green | unit | app/importing | pass | yes | - | app/importing/c4.test.ts | 42c3c7 | - | 15c27c |
+| 86 | 2026-10-21T21:59:30Z | T064 | VO-026, VO-027 | green | unit | app/importing | pass | yes | - | app/importing/c4.test.ts, app/importing/roundtrip.test.ts | 99b0ec | - | 5fa8e2 |
+| 87 | 2026-10-21T21:59:47Z | T064 | VO-026 | green | unit | app/importing/roundtrip.test.ts | pass | yes | - | app/importing/roundtrip.test.ts | 71e56b | - | 675331 |
+| 88 | 2026-10-21T21:59:47Z | T064 | VO-027 | green | unit | app/importing/c4.test.ts | pass | yes | - | app/importing/c4.test.ts | 42c3c7 | - | 705c31 |
+| 89 | 2026-10-21T21:59:57Z | T065 | VO-028 | red | unit | app/importing/document.test.ts | fail | yes | assertion | app/importing/document.test.ts | 17e998 | expected: is kept in the block | e90147 |
+| 90 | 2026-10-21T22:00:02Z | T066 | VO-029 | red | unit | app/importing/document.test.ts | fail | yes | assertion | app/importing/document.test.ts | eab323 | expected: ends the block before it | a1e412 |
+| 91 | 2026-10-21T22:00:25Z | T067 | VO-028, VO-029 | green | unit | app/importing | pass | yes | - | app/importing/document.test.ts | eab323 | - | c9300e |
+| 92 | 2026-10-21T22:00:49Z | T067 | VO-028, VO-029 | refactor | unit | app/importing | pass | yes | - | app/importing/document.test.ts | eab323 | - | 49e0fb |
+| 93 | 2026-10-21T22:01:02Z | T068 | VO-030 | red | unit | app/importing/document.test.ts | fail | yes | assertion | app/importing/document.test.ts | 4c8d7f | expected: to be less than 200 | 9b908b |
+| 94 | 2026-10-21T22:01:12Z | T069 | VO-030 | green | unit | app/importing/document.test.ts | pass | yes | - | app/importing/document.test.ts | 4c8d7f | - | 0eb834 |
+| 95 | 2026-10-21T22:01:14Z | T069 | VO-030 | green | unit | app/importing | pass | yes | - | app/importing/document.test.ts | 4c8d7f | - | d81620 |
+| 96 | 2026-10-21T22:01:32Z | T070 | VO-031 | red | e2e | e2e/import-performance.spec.ts | pass | no | - | e2e/import-performance.spec.ts | 70a0de | passed on first run: investigate | b2878c |
+| 97 | 2026-10-21T22:01:50Z | T071 | VO-031 | green | e2e | e2e/import-performance.spec.ts | fail | no | assertion | e2e/import-performance.spec.ts | 70a0de | Firefox recorded 1009 ms because the time was read after Playwright's toBeVisible, which re-checks at about 100, 350 and 850 ms and then at the timeout; the measurement was rounded up to the next check. The test now stamps the moment the label appears inside the page. | aab11d |
+| 98 | 2026-10-21T22:02:40Z | T071 | VO-031 | green | e2e | e2e/import-performance.spec.ts | pass | yes | - | e2e/import-performance.spec.ts | 546223 | - | dc31ea |
+| 99 | 2026-10-21T22:02:53Z | T073 | VO-032 | red | unit | app/importing/c4.test.ts | fail | yes | assertion | app/importing/c4.test.ts | 99a257 | expected: RangeError | 12bcd5 |
+| 100 | 2026-10-21T22:03:04Z | T074 | VO-032 | green | unit | app/importing/c4.test.ts | pass | yes | - | app/importing/c4.test.ts | 99a257 | - | fe7a13 |
+| 101 | 2026-10-21T22:03:58Z | - | - | checkpoint | unit-all | - | pass | yes | - | - | - | - | 9471e6 |
+| 102 | 2026-10-21T22:12:17Z | - | - | checkpoint | e2e-all | - | fail | no | environment | - | - | The 100-node preview test in Firefox missed its 1,000 ms wait while three other workers ran the rest of the suite (it takes about 600-700 ms alone, and passed in #98). The timing tests now run in their own projects after the rest, one at a time (playwright.config.ts). | 56a1ba |
+| 103 | 2026-10-21T22:21:55Z | - | - | checkpoint | e2e-all | - | pass | yes | - | - | - | - | 1a0b6f |
 
 ## Exceptions
 
@@ -182,6 +217,7 @@ Counts: verified 25, deferred 0, manual checks 1 open
 | EX-06 | 2026-10-21T11:33:59Z | T042 | VO-019 | no-meaningful-red | T041 (VO-018) moved the file read inside the try; VO-018's unit test failed first on the unhandled NotReadableError (record #45). The dialog already showed any problem the reader returned, so once the reader returned one nothing further could fail. | The e2e test is written and passes in both browsers (record #47): with the read made to fail in the page, the dialog shows 'The file could not be read.', keeps the earlier text and picture, and no page error or unhandled rejection occurs. | no | - |
 | EX-07 | 2026-10-21T11:45:08Z | T047 | VO-020 | no-meaningful-red | T046 (VO-023) replaced the lines x lines table with Myers after matching shared start and end lines; VO-023's tests failed first on the old API (record #52). Under the old table two 10,000-line texts needed 100 million cells, which is the review finding; the test written after T046 could no longer fail for that reason. | The test is written and passes (record #56): 10,000-line texts differing in 300 scattered lines compare in under 2,000 ms and exactly those 300 lines are marked changed. | no | - |
 | EX-08 | 2026-10-21T11:46:26Z | T051 | VO-025 | no-meaningful-red | VO-025 was added at analysis to make FR-010's memory bound observable. Its behaviour was delivered by T046 (Myers instead of the table) and T050 (trace capped at 2,000 edits) before this test could be written in task order, so it cannot fail now. Under the old code the same texts needed a 5,001 x 5,001 table of JS numbers (about 25 million cells, well over 64 MB). | The test is written and passes (record #61): growth of heap plus array buffers measured straight after comparing two completely different 5,000-line texts is under 64 MB. Limit: it measures memory in use after the call, not the true peak, since a collection can run during it; the 2,000-edit cap in compare.ts bounds the trace at about 4 million 32-bit numbers by construction. | yes | Lee Sinclair |
+| EX-09 | 2026-10-21T22:01:39Z | T070 | VO-031 | no-meaningful-red | The defect was in the test: it timed from before the paste but enforced only the wait after it. The build already meets the budget (DN-01), so the added assertion passes on its first run (#96). | MV-001 raises the pause to 1,500 ms and shows the 100-node test failing. | no | - |
 
 ## Expectation changes
 
@@ -190,6 +226,7 @@ Counts: verified 25, deferred 0, manual checks 1 open
 | XC-01 | 2026-10-21T11:30:31Z | T032 | app/importing/document.test.ts | FR-007 | Correction: the feature 005 test 'lists a second diagram header inside one block as ignored' asserted that the block given to the parser still held the second diagram, which is the defect FR-007 removes. The assertion now expects the block to end before the second header; its ignored-entry assertion is unchanged. | no | - | 6948ce |
 | XC-02 | 2026-10-21T11:32:11Z | T037 | app/importing/approximate.test.ts | FR-008 | Correction: three assertions in feature 005's existing approximation tests named what a construct became in the old bare form ('circle', 'participant', 'System'). FR-008 and contract import-changes.md require each value to complete 'Kept as …', so they now read 'a circle', 'a participant', 'a System'. No case was removed and the new VO-017 test is unchanged since its Red run. | no | - | 8a7830 |
 | XC-03 | 2026-10-21T12:21:51Z | T057 | e2e/import-performance.spec.ts | FR-011 | Only the test title changed, from 'within one second' to 'within a second', so the publish workflow's existing filter for fixed-limit timing tests (--grep-invert "within a second") covers it like the editor's other timing tests; no assertion, timeout or step changed. | no | - | 7dafc7 |
+| XC-04 | 2026-10-21T22:00:54Z | T067 | app/importing/document.test.ts | FR-007 | The file changed only by T066 appending VO-029's indented-header test after VO-028's red run (#89); VO-028's own cases are unchanged. | no | - | eab323 |
 
 ## Decisions
 
@@ -226,6 +263,13 @@ Counts: verified 25, deferred 0, manual checks 1 open
 | BI-023 | VO-010 | c9aaeb | 1 |
 | BI-024 | VO-015 | 519c36 | 1 |
 | BI-025 | exemption FR-012 | 912d2c | 1 |
+| BI-026 | VO-026 | 4dae05 | 83 |
+| BI-027 | VO-027 | 5f8593 | 83 |
+| BI-028 | VO-028 | 89543e | 83 |
+| BI-029 | VO-029 | 629097 | 83 |
+| BI-030 | VO-030 | 386c07 | 83 |
+| BI-031 | VO-031 | cefa34 | 83 |
+| BI-032 | VO-032 | 63264c | 99 |
 
 ## Behaviour item changes
 

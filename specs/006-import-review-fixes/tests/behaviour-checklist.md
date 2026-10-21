@@ -229,3 +229,31 @@
   - **Given** any fix in this feature
   - **When** it is made
   - **Then** a test that fails because of the defect is recorded before the fix, and no existing test is weakened
+- **BI-026** Expresses: FR-001, FR-002, EC-03. Verified by: VO-026.
+  - **Given** a C4 diagram whose fields are typed as text that looks like a line-break tag or an HTML entity
+  - **When** its source is generated, imported and generated again, three times over
+  - **Then** every field reads exactly as typed and every generated source equals the first
+- **BI-027** Expresses: FR-001. Verified by: VO-027.
+  - **Given** hand-written C4 source holding decimal, hexadecimal and named HTML entities in a label
+  - **When** it is imported
+  - **Then** each entity reads as the one character it stands for
+- **BI-028** Expresses: FR-007. Verified by: VO-028.
+  - **Given** a statement that begins with a diagram word but is not a header, such as a node or a participant named after a diagram type
+  - **When** the document is imported
+  - **Then** the statement and everything after it are imported, and nothing is reported as ignored
+- **BI-029** Expresses: FR-007, EC-05. Verified by: VO-029.
+  - **Given** a second diagram header written with leading spaces
+  - **When** the document is imported
+  - **Then** the second diagram is not passed to the parser and is listed as not imported with its line number
+- **BI-030** Expresses: FR-006. Verified by: VO-030.
+  - **Given** a document holding a great many one-line directives
+  - **When** it is read
+  - **Then** the directives are found in time that grows with the length of the text, not with its square
+- **BI-031** Expresses: FR-011. Verified by: VO-031.
+  - **Given** the 100-node performance check
+  - **When** the time from before the paste until the new picture is shown exceeds one second
+  - **Then** the check fails
+- **BI-032** Expresses: FR-001. Verified by: VO-032.
+  - **Given** hand-written C4 source holding a numeric entity that names no character
+  - **When** it is imported
+  - **Then** it is read without an error and the entity is kept as typed

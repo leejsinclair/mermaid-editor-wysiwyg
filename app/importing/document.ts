@@ -24,7 +24,10 @@ export function directiveLines(lines: readonly string[]): DirectiveSpan[] {
       index += 1;
       continue;
     }
-    const close = lines.findIndex((line, position) => position >= index && line.includes("}%%"));
+    // The closing line is searched for from the opening line on, so every line is visited once (PR #5).
+    let close = index;
+    while (close < lines.length && !(lines.at(close) ?? "").includes("}%%")) close += 1;
+    if (close === lines.length) close = -1;
     spans.push({ first: index, last: close === -1 ? undefined : close });
     if (close === -1) break;
     index = close + 1;
@@ -85,7 +88,41 @@ export function c4KindsIn(text: string): C4Kind[] {
   return kinds;
 }
 
-const DIAGRAM_HEADER = /^(flowchart|graph|sequenceDiagram|classDiagram|stateDiagram|erDiagram|gantt|pie|journey|gitGraph|mindmap|timeline|C4\w+)\b/;
+type HeaderRest = (rest: string) => boolean;
+const nothingMore: HeaderRest = (rest) => rest === "";
+const direction: HeaderRest = (rest) => ["", "TB", "TD", "BT", "RL", "LR"].includes(rest);
+/**
+ * Each diagram word Mermaid starts a diagram with, and what may follow it on the header line. A line is a header only when
+ * it is the word alone or the word, white space and what may follow, so `pie[Chart]` or `graph->>Bob: Next` is a statement
+ * and `  flowchart LR` is a header (PR #5).
+ */
+const HEADER_REST: ReadonlyMap<string, HeaderRest> = new Map([
+  ["flowchart", direction],
+  ["graph", direction],
+  ["sequenceDiagram", nothingMore],
+  ["classDiagram", nothingMore],
+  ["classDiagram-v2", nothingMore],
+  ["stateDiagram", nothingMore],
+  ["stateDiagram-v2", nothingMore],
+  ["erDiagram", nothingMore],
+  ["gantt", nothingMore],
+  ["pie", (rest) => rest === "" || rest === "showData" || rest.startsWith("title ")],
+  ["journey", nothingMore],
+  ["gitGraph", (rest) => ["", "LR", "TB", "BT", "LR:", "TB:", "BT:"].includes(rest)],
+  ["mindmap", nothingMore],
+  ["timeline", () => true],
+  ...[...C4_KINDS.keys()].map((word): [string, HeaderRest] => [word, nothingMore]),
+]);
+
+/** True when the line, trimmed and without a trailing `%%` comment, is a diagram header. */
+function isDiagramHeader(line: string): boolean {
+  const comment = line.indexOf("%%");
+  const trimmed = (comment === -1 ? line : line.slice(0, comment)).trim();
+  const space = trimmed.search(/\s/);
+  const word = space === -1 ? trimmed : trimmed.slice(0, space);
+  const rest = space === -1 ? "" : trimmed.slice(space).trim();
+  return HEADER_REST.get(word)?.(rest) ?? false;
+}
 const FENCE_OPEN = /^```mermaid\s*$/;
 const FENCE_CLOSE = /^```\s*$/;
 
@@ -134,7 +171,7 @@ export function splitDocument(text: string): SplitDocument {
   // (feature 006, FR-007). A directive's lines are never a header, whatever word they start with (EC-08).
   const whole = lines.slice(blockStart, blockEnd);
   const inDirective = linesInDirectives(whole);
-  const headers = whole.flatMap((line, offset) => (DIAGRAM_HEADER.test(line) && !inDirective.has(offset) ? [offset] : []));
+  const headers = whole.flatMap((line, offset) => (isDiagramHeader(line) && !inDirective.has(offset) ? [offset] : []));
   for (const offset of headers.slice(1)) ignored.push({ line: blockStart + offset + 1, firstLine: (whole.at(offset) ?? "").trim() });
   const second = headers[1];
   const block = second === undefined ? whole : whole.slice(0, second);

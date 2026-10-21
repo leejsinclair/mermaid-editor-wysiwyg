@@ -25,10 +25,30 @@ test("a 100-node document shows its picture within a second", async ({ page }, t
   const lastLabel = preview.getByText("Node 100", { exact: true });
   await expect(lastLabel).toHaveCount(0);
 
-  const started = Date.now();
+  // The moment "Node 100" appears is stamped inside the page: Playwright's own wait re-checks only every few hundred
+  // milliseconds, so the time it ends is not the time the picture was shown (PR #5).
+  await preview.evaluate((region) => {
+    const timing = window as unknown as { pasteStarted: number; nodeShown: Promise<number> };
+    timing.nodeShown = new Promise((resolve) => {
+      const observer = new MutationObserver(() => {
+        if (region.textContent.includes("Node 100")) {
+          observer.disconnect();
+          resolve(performance.now());
+        }
+      });
+      observer.observe(region, { subtree: true, childList: true, characterData: true });
+    });
+    timing.pasteStarted = performance.now();
+  });
   await paste(page, chain(100));
   await expect(lastLabel).toBeVisible({ timeout: 1000 });
-  testInfo.annotations.push({ type: "100-node preview (ms)", description: String(Date.now() - started) });
+  const elapsed = await page.evaluate(async () => {
+    const timing = window as unknown as { pasteStarted: number; nodeShown: Promise<number> };
+    return (await timing.nodeShown) - timing.pasteStarted;
+  });
+  testInfo.annotations.push({ type: "100-node preview (ms)", description: String(Math.round(elapsed)) });
+  // The budget runs from before the paste, so the recorded time is checked, not only the wait after the paste (PR #5).
+  expect(elapsed).toBeLessThanOrEqual(1000);
 });
 
 test("typing into a 500-node document delays no keystroke by more than 100 ms", async ({ page }) => {

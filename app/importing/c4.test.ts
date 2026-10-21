@@ -201,4 +201,17 @@ describe("readC4", () => {
     const text = ["C4Context", '  System(s, "<b>x</b>", "a <i>b</i>")'].join("\n");
     expect(readC4(text, "context").tree[0]).toMatchObject({ label: "<b>x</b>", description: "a <i>b</i>" });
   });
+
+  // VO-027 (FR-001, PR #5): an entity in hand-written source is decoded once, whole: the `#65;` inside `&#65;` is not read
+  // as a Mermaid escape on its own.
+  it("decodes decimal, hexadecimal and named entities in hand-written C4 source", () => {
+    const text = ["C4Context", '  System(s, "&#65; &#x42; &amp;")'].join("\n");
+    expect(readC4(text, "context").tree[0]).toMatchObject({ label: "A B &" });
+  });
+
+  // VO-032 (FR-001, PR #5): a numeric entity that names no character is kept as typed; reading never throws.
+  it("keeps a numeric entity that names no character as typed", () => {
+    const text = ["C4Context", '  System(s, "&#xzz; &#99999999;")'].join("\n");
+    expect(readC4(text, "context").tree[0]).toMatchObject({ label: "&#xzz; &#99999999;" });
+  });
 });

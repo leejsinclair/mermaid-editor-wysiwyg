@@ -125,3 +125,41 @@ describe("a multi-line directive before a sequence or C4 header", () => {
   });
 });
 
+
+// VO-028 (FR-007, PR #5): a statement that starts with a diagram word is not a header: the block keeps it and everything
+// after it, and nothing is listed as ignored.
+describe("a statement that starts with a diagram word", () => {
+  it.each([
+    ["a flowchart node named pie", "flowchart TD\npie[Chart] --> B\n  B --> C"],
+    ["a flowchart node named after a C4 element", "flowchart TD\nC4Node[Service] --> B\n  B --> C"],
+    ["a sequence message from a participant named graph", "sequenceDiagram\ngraph->>Bob: Next\n  Bob->>Alice: Done"],
+  ])("is kept in the block: %s", (_name, text) => {
+    const split = splitDocument(text);
+    expect(split.text).toBe(text);
+    expect(split.ignored).toEqual([]);
+  });
+});
+
+// VO-029 (FR-007, EC-05, PR #5): a second header written with leading spaces still ends the block, and is listed as
+// ignored on its own line.
+describe("an indented second diagram header", () => {
+  it("ends the block before it and is listed as ignored with its line number", () => {
+    const split = splitDocument("flowchart TD\n  A --> B\n  flowchart LR\n  C --> D");
+    expect(split.text).toBe("flowchart TD\n  A --> B");
+    expect(split.ignored).toEqual([{ line: 3, firstLine: "flowchart LR" }]);
+  });
+});
+
+// VO-030 (FR-006, PR #5): finding directives takes time that grows with the text, not with its square: 20,000 one-line
+// directives are split and detected within 200 ms together.
+describe("a document of many one-line directives", () => {
+  it("is split and its type detected within 200 ms", () => {
+    const text = [...Array.from({ length: 20000 }, () => "%%{init: {}}%%"), "flowchart TD", "  A --> B"].join("\n");
+    const started = performance.now();
+    splitDocument(text);
+    const detected = detectType(text);
+    const elapsed = performance.now() - started;
+    expect(detected).toEqual({ type: "flowchart" });
+    expect(elapsed).toBeLessThan(200);
+  });
+});

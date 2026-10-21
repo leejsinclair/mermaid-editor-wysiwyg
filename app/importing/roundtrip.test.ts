@@ -183,4 +183,27 @@ describe("generate, import, generate", () => {
       expect(source).toBe(first);
     }
   });
+
+  // VO-026 (FR-001, FR-002, EC-03, PR #5): text typed as a line-break tag or an HTML entity is escaped like any other
+  // text, so it must come back as typed, not as a line break or the character the entity names.
+  const markup = ["one<br/>two", "&amp;", "&lt;b&gt;"];
+  const markupCases = special4.flatMap((kind) => markup.map((text) => [kind, text] as const));
+  it.each(markupCases)("keeps text typed as %s markup %s over three round trips", async (kind, text) => {
+    const base = kind === "deployment" ? c4Diagram("deployment", [node(1, [element(2, "container", "API")])], []) : fullDiagram(kind);
+    const original = inNormalForm({
+      ...base,
+      title: text,
+      content: { tree: relabel(base.content.tree, text), relationships: base.content.relationships.map((item) => ({ ...item, label: text, technology: text })) },
+    });
+    const first = generate(original).source;
+    let source = first;
+    for (let round = 0; round < 3; round += 1) {
+      const outcome = await readDocument(source, realDeps);
+      expect(outcome.kind).toBe("ready");
+      if (outcome.kind !== "ready") return;
+      expect(canonical(outcome.diagram)).toEqual(canonical(original));
+      source = generate(outcome.diagram).source;
+      expect(source).toBe(first);
+    }
+  });
 });

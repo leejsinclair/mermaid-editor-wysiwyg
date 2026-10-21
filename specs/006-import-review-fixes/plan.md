@@ -146,6 +146,13 @@ None.
 | VO-023 | FR-010, US5-AS3 | Texts within the work limit are compared, including the existing compare cases | The number of removed plus added lines is the minimum possible, and the result is not marked simplified | unit | planned |
 | VO-025 | FR-010, US5-AS2 | Two completely different 5,000-line texts are compared | The heap grows by less than 64 MB during the comparison | unit | planned |
 | VO-024 | FR-011, US6-AS1, US6-AS3 | The warm-up picture is shown, then a 100-node chain is pasted | Before the paste the preview holds no "Node 100"; after it, "Node 100" appears in the preview within 1 second, and the measured time is reported | end-to-end | planned |
+| VO-026 | FR-001, FR-002, EC-03 | A C4 diagram of each kind whose fields are typed as `one<br/>two`, `&amp;` and `&lt;b&gt;` is generated, imported and generated again, three times | Every field reads exactly as typed and every generated source equals the first | unit | discovered |
+| VO-027 | FR-001 | Hand-written C4 source holds `&#65;`, `&#x42;` and `&amp;` in an element label | The label reads `A`, `B` and `&`; no entity is decoded twice or split | unit | discovered |
+| VO-028 | FR-007 | A flowchart with unindented nodes `pie[Chart]` and `C4Node[Service]`, and a sequence diagram with the message `graph->>Bob: Next`, are split | The block keeps every line and nothing is listed as ignored | unit | discovered |
+| VO-029 | FR-007, EC-05 | A flowchart is followed by an indented second header `  flowchart LR` and its statements | The block ends before the indented header, which is listed as ignored with its line number | unit | discovered |
+| VO-030 | FR-006 | A document of 20,000 one-line directives before a flowchart header is split and its type detected | Both together finish within 200 ms | unit | discovered |
+| VO-031 | FR-011, US6-AS1 | The 100-node chain is pasted after the warm-up picture | The test fails when the time from before the paste until "Node 100" is shown exceeds 1,000 ms, not only when the wait after the paste does | end-to-end | discovered |
+| VO-032 | FR-001 | Hand-written C4 source holds `&#xzz;` and `&#99999999;` in an element label | The source is read without an error and the label keeps both entities as typed | unit | discovered |
 
 ### Verification exemptions
 
@@ -158,7 +165,7 @@ None.
 
 | ID | Covers | Steps | Expected result | Why not automated |
 |----|--------|-------|-----------------|-------------------|
-| MV-001 | US6-AS2, FR-011, VO-024 | Set the preview pause in `useImport.ts` to 1500 ms locally; run `npm run test:e2e -- e2e/import-performance.spec.ts`; restore the pause and run it again | The 100-node test fails with the pause at 1500 ms and passes once restored | It needs a temporary change to shipped code that must not be committed |
+| MV-001 | US6-AS2, FR-011, VO-024 | Set both preview pauses in `useImport.ts` (`PAUSE_MS` and `PASTE_PAUSE_MS`) to 1500 ms locally; run `npm run test:e2e -- e2e/import-performance.spec.ts`; restore the pause and run it again | The 100-node test fails with the pause at 1500 ms and passes once restored | It needs a temporary change to shipped code that must not be committed |
 
 ### Behaviour checklist
 
