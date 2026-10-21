@@ -197,6 +197,9 @@ None.
 | VO-055 | SC-003 | The same corpus with unsupported constructs added | Every non-blank line is represented or has an entry with the right line number; none is silent | contract | planned |
 | VO-056 | FR-002 | The developer chooses a file in the dialog | The file's text is loaded into the paste area and checked like pasted text | end-to-end | planned |
 
+VO-050's first part (the 100-node picture within one second) is verified since feature 006 by its VO-024: the earlier
+check passed on the warm-up picture and is not evidence for SC-005. See [006 plan.md](../006-import-review-fixes/plan.md#verification-plan).
+
 ### Verification exemptions
 
 | Requirement | Reason | Alternative verification |

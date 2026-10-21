@@ -54,3 +54,21 @@ export function decodePlaceholders(text: string): string {
     .replace(PLACEHOLDER_NUMERIC, (_match, code: string) => String.fromCodePoint(Number(code)))
     .replace(PLACEHOLDER_NAMED, (match, name: string) => NAMED.get(name) ?? match);
 }
+
+const SOURCE_ESCAPE = /#(?:(\d+)|([A-Za-z]+));/g;
+
+/**
+ * Turns text read straight from Mermaid source, as the C4 reader reads it, into the text the editor would have typed
+ * (FR-001, research R1). Mermaid's own `#<n>;` and `#<name>;` escapes are replaced in one pass, so the replaced text is not
+ * read again: `#35;38#59;` is `#38;`, as typed. Then `<br>` becomes a line break and entities are decoded. Other tags
+ * are kept as text, since the C4 import has no report entry for removing them (DC-01).
+ */
+export function decodeSourceText(text: string): string {
+  return text
+    .replace(SOURCE_ESCAPE, (match, code: string | undefined, name: string | undefined) => {
+      if (code !== undefined) return String.fromCodePoint(Number(code));
+      return NAMED.get(name ?? "") ?? match;
+    })
+    .replace(LINE_BREAK, "\n")
+    .replace(ENTITY, (_match, name: string) => decodeEntity(name));
+}

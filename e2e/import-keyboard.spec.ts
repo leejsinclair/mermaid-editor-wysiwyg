@@ -13,7 +13,7 @@ async function focusedName(page: Page): Promise<string> {
   return page.evaluate(() => {
     const element = document.activeElement;
     if (!(element instanceof HTMLElement)) return "";
-    const labelText = element instanceof HTMLInputElement || element instanceof HTMLTextAreaElement ? Array.from(element.labels, (label) => label.textContent).join(" ") : "";
+    const labelText = element instanceof HTMLInputElement || element instanceof HTMLTextAreaElement ? Array.from(element.labels ?? [], (label) => label.textContent).join(" ") : "";
     const ariaLabel = element.getAttribute("aria-label") ?? "";
     return (ariaLabel || labelText || element.textContent || "").trim();
   });

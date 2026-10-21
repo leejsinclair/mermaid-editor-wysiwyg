@@ -149,4 +149,38 @@ describe("generate, import, generate", () => {
     const tree = [boundary(1, "system", [element(2, "person", "Customer", { description: "Buys" })], "Shop")];
     await expectRoundtrip(c4Diagram("context", tree, [], "Shop estate"));
   });
+
+  // VO-003 (FR-002, US1-AS2, EC-03, SC-001): text holding every character the generator escapes survives generate,
+  // import and generate three times over, for two diagrams of each C4 kind; text typed as `#38;` stays `#38;`.
+  const special = ` R&D "fast" <cheap> C# 50% $5 a\\b \`x\` {y} [z] (w) a|b, c:d 'e' *f* _g_ ~h~ =i= -j- /k/ ; #38; `;
+  const texts = [special, `Line one\nLine two & ${special.trim()}`];
+  const relabel = (items: readonly C4Item[], text: string): C4Item[] =>
+    items.map((item) => {
+      if (item.item === "element") return { ...item, label: text, description: item.description === "" ? "" : text, technology: item.technology === "" ? "" : text };
+      if (item.item === "boundary") return { ...item, label: text, children: relabel(item.children, text) };
+      return { ...item, label: text, description: text, technology: text, children: relabel(item.children, text) };
+    });
+  const special4: readonly C4Kind[] = ["context", "container", "component", "dynamic", "deployment"];
+  const cases = special4.flatMap((kind) => texts.map((text, index) => [kind, index, text] as const));
+  it.each(cases)("keeps every escaped character in a C4 %s diagram (text %i) over three round trips", async (kind, _index, text) => {
+    const base =
+      kind === "deployment"
+        ? c4Diagram("deployment", [node(1, [element(2, "container", "API")]), node(3, [element(4, "container", "DB")])], [relationship(5, 2, 4)])
+        : fullDiagram(kind);
+    const original = inNormalForm({
+      ...base,
+      title: text,
+      content: { tree: relabel(base.content.tree, text), relationships: base.content.relationships.map((item) => ({ ...item, label: text, technology: text })) },
+    });
+    const first = generate(original).source;
+    let source = first;
+    for (let round = 0; round < 3; round += 1) {
+      const outcome = await readDocument(source, realDeps);
+      expect(outcome.kind).toBe("ready");
+      if (outcome.kind !== "ready") return;
+      expect(canonical(outcome.diagram)).toEqual(canonical(original));
+      source = generate(outcome.diagram).source;
+      expect(source).toBe(first);
+    }
+  });
 });

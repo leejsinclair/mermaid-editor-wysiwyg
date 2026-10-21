@@ -9,17 +9,50 @@ const C4_KINDS: ReadonlyMap<string, C4Kind> = new Map<string, C4Kind>([
   ["C4Deployment", "deployment"],
 ]);
 
-/** The first line that is not blank, a `%%` comment, a `%%{...}%%` directive or part of front matter. */
+/** A `%%{ … }%%` directive: its first and last line, counted from 0; `last` is undefined when it never closes (research R4). */
+export interface DirectiveSpan {
+  readonly first: number;
+  readonly last: number | undefined;
+}
+
+/** The directives among the lines: each opens on a line starting `%%{` and closes on the first line holding `}%%`, which may be the same line. */
+export function directiveLines(lines: readonly string[]): DirectiveSpan[] {
+  const spans: DirectiveSpan[] = [];
+  let index = 0;
+  while (index < lines.length) {
+    if (!(lines.at(index) ?? "").trim().startsWith("%%{")) {
+      index += 1;
+      continue;
+    }
+    const close = lines.findIndex((line, position) => position >= index && line.includes("}%%"));
+    spans.push({ first: index, last: close === -1 ? undefined : close });
+    if (close === -1) break;
+    index = close + 1;
+  }
+  return spans;
+}
+
+/** Every line that belongs to a directive, its first line included; an unclosed directive runs to the end. */
+export function linesInDirectives(lines: readonly string[]): ReadonlySet<number> {
+  const inside = new Set<number>();
+  for (const { first, last } of directiveLines(lines)) {
+    for (let index = first; index <= (last ?? lines.length - 1); index += 1) inside.add(index);
+  }
+  return inside;
+}
+
+/** The first line that is not blank, a `%%` comment, a line of a `%%{...}%%` directive or part of front matter. */
 function firstSignificantLine(text: string): string | undefined {
   const lines = text.split(/\r?\n/);
-  let index = 0;
+  let start = 0;
   if (lines[0]?.trim() === "---") {
     const close = lines.findIndex((line, position) => position > 0 && line.trim() === "---");
-    index = close === -1 ? lines.length : close + 1;
+    start = close === -1 ? lines.length : close + 1;
   }
-  for (const line of lines.slice(index)) {
-    const trimmed = line.trim();
-    if (trimmed === "" || trimmed.startsWith("%%")) continue;
+  const inDirective = linesInDirectives(lines);
+  for (let index = start; index < lines.length; index += 1) {
+    const trimmed = (lines.at(index) ?? "").trim();
+    if (trimmed === "" || trimmed.startsWith("%%") || inDirective.has(index)) continue;
     return trimmed;
   }
   return undefined;
@@ -27,6 +60,8 @@ function firstSignificantLine(text: string): string | undefined {
 
 /** The diagram type named by the document's header (FR-002). Mermaid's own parser judges the rest. */
 export function detectType(text: string): Detection {
+  const unclosed = directiveLines(text.split(/\r?\n/)).find((span) => span.last === undefined);
+  if (unclosed !== undefined) return { type: "unclosedDirective", line: unclosed.first + 1 };
   const header = firstSignificantLine(text);
   if (header === undefined) return { type: "none" };
   const word = header.split(/\s/)[0] ?? "";
@@ -40,7 +75,10 @@ export function detectType(text: string): Detection {
 /** The C4 kinds of every C4 header in the text, each once, in order of first appearance (EC-06). */
 export function c4KindsIn(text: string): C4Kind[] {
   const kinds: C4Kind[] = [];
-  for (const line of text.split(/\r?\n/)) {
+  const lines = text.split(/\r?\n/);
+  const inDirective = linesInDirectives(lines);
+  for (const [index, line] of lines.entries()) {
+    if (inDirective.has(index)) continue;
     const kind = C4_KINDS.get(line.trim().split(/\s/)[0] ?? "");
     if (kind !== undefined && !kinds.includes(kind)) kinds.push(kind);
   }
@@ -69,7 +107,7 @@ function frontMatterTitle(lines: readonly string[]): { readonly title: string } 
 /**
  * Splits a document into the block to import and the blocks that are not imported (FR-012, EC-02).
  * Text with Mermaid fences is read as Markdown: the first fence is the block, each further fence is ignored.
- * A second diagram header inside the chosen block is ignored as well, from its own line.
+ * A second diagram header inside the chosen block is ignored as well, from its own line, and the block ends before it.
  */
 export function splitDocument(text: string): SplitDocument {
   const lines = text.split(/\r?\n/);
@@ -92,17 +130,19 @@ export function splitDocument(text: string): SplitDocument {
     }
   }
 
-  const block = lines.slice(blockStart, blockEnd);
-  let headerSeen = false;
-  block.forEach((line, offset) => {
-    if (!DIAGRAM_HEADER.test(line)) return;
-    if (headerSeen) ignored.push({ line: blockStart + offset + 1, firstLine: line.trim() });
-    headerSeen = true;
-  });
+  // The block ends before a second diagram header, so the parser never reads what the report says was not imported
+  // (feature 006, FR-007). A directive's lines are never a header, whatever word they start with (EC-08).
+  const whole = lines.slice(blockStart, blockEnd);
+  const inDirective = linesInDirectives(whole);
+  const headers = whole.flatMap((line, offset) => (DIAGRAM_HEADER.test(line) && !inDirective.has(offset) ? [offset] : []));
+  for (const offset of headers.slice(1)) ignored.push({ line: blockStart + offset + 1, firstLine: (whole.at(offset) ?? "").trim() });
+  const second = headers[1];
+  const block = second === undefined ? whole : whole.slice(0, second);
 
   const title = frontMatterTitle(block);
   return {
     text: block.join("\n"),
+    wholeBlock: whole.join("\n"),
     lineOffset: blockStart,
     ...(title === undefined ? {} : { frontMatter: title }),
     ignored: [...ignored].sort((a, b) => a.line - b.line),

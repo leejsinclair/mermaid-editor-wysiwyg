@@ -23,12 +23,17 @@ function separateDropped(rows: readonly CompareLine[], dropped: ReadonlySet<numb
 
 /** The original and generated texts side by side, line by line; each differing line carries a marker and a style. */
 export function CompareView({ original, generated, dropped }: { readonly original: string; readonly generated: string; readonly dropped: ReadonlySet<number> }) {
-  const rows: readonly CompareLine[] = separateDropped(compareLines(original, generated), dropped);
+  const compared = compareLines(original, generated);
+  const rows: readonly CompareLine[] = separateDropped(compared.lines, dropped);
   const identical = rows.every((row) => row.kind === "same");
   return (
     <Box component="section" aria-label={en.importMermaid.compareRegion} sx={{ mt: 2, maxHeight: 360, overflow: "auto", fontFamily: "monospace", whiteSpace: "pre" }}>
       {identical && (
         <Typography sx={{ fontFamily: "inherit", whiteSpace: "normal", mb: 1 }}>{en.importMermaid.compareIdentical}</Typography>
+      )}
+      {/* Texts too different to compare exactly are marked in simple form, and the view says so (feature 006, FR-010). */}
+      {compared.simplified && (
+        <Typography sx={{ fontFamily: "inherit", whiteSpace: "normal", mb: 1 }}>{en.importMermaid.compareSimplified}</Typography>
       )}
       {rows.map((row, index) => (
         <Box

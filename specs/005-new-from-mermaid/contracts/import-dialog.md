@@ -36,7 +36,8 @@ A modal dialog titled **New from Mermaid**. Two columns at 900 px and wider, one
 | Refused | unchanged | none | the reason | disabled |
 | Ready | unchanged | drawn | entries or "Nothing was dropped" | enabled |
 
-The state changes 300 ms after the last keystroke or at once for a file; the newest text always wins (EC-09).
+The state changes 300 ms after the last keystroke, or 100 ms after a paste, a drop or a file (feature 006); the newest
+text always wins (EC-09).
 Checking never blocks typing.
 
 ## Messages
@@ -88,3 +89,9 @@ is no difference the region says "The original already matches the generated tex
 | Name field | textbox **Diagram name** |
 | Confirm | button **Import** |
 | Drop overlay | test id `drop-overlay` |
+
+## Changes in feature 006
+
+Feature 006 (import review fixes) made Import follow the Checking state above for every edit, including emptying the
+text, and changed report selection, report entry text, file problems and the compare view. The changes are listed in
+[006 contracts/import-changes.md](../../006-import-review-fixes/contracts/import-changes.md#dialog-import-dialogmd).

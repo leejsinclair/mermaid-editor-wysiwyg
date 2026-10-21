@@ -86,3 +86,16 @@ test("Import stays enabled with dropped and approximated constructs and says the
   await expect(confirm).toHaveAccessibleDescription(/2 dropped/);
   expect(await confirm.evaluate((element) => element.getAttribute("aria-describedby"))).toBe(before);
 });
+
+// VO-016 (FR-008, US4-AS1): an approximated entry ends by saying what the construct became, in its visible text and so
+// in its accessible name (feature 006).
+
+const ASYMMETRIC_ON_LINE_7 = ["flowchart TD", "  A --> B", "  B --> C", "  C --> D", "  D --> E", "  E --> F", "  F>Flag]"].join("\n");
+
+test("an approximated entry names the construct, its reason and ends with what it was kept as", async ({ page }) => {
+  await openImportWithPointer(page);
+  await paste(page, ASYMMETRIC_ON_LINE_7);
+  const entry = importDialog(page).getByTestId("report-entry").filter({ hasText: "line 7" });
+  await expect(entry).toHaveCount(1);
+  await expect(entry).toHaveAccessibleName(/^line 7: asymmetric shape .*\. Kept as a rectangle\.$/);
+});

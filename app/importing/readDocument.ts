@@ -84,7 +84,7 @@ function reportOf(split: SplitDocument, detection: Detection): ReportEntry[] {
 /** A C4 document whose kind cannot be found, or that mixes kinds, is refused before parsing, naming the kinds (EC-06). */
 function kindRefusal(split: SplitDocument, detection: Detection): Outcome | undefined {
   if (detection.type === "c4") {
-    const kinds = c4KindsIn(split.text);
+    const kinds = c4KindsIn(split.wholeBlock);
     return kinds.length > 1 ? { kind: "refused", reason: "kindsMixed", kinds } : undefined;
   }
   if (detection.type === "unsupported" && detection.found.startsWith("C4")) return { kind: "refused", reason: "kindUndetected" };
@@ -99,6 +99,10 @@ export async function readDocument(text: string, deps: ReadDeps): Promise<Outcom
 
   const split = splitDocument(text);
   const detection = detectType(split.text);
+  if (detection.type === "unclosedDirective") {
+    const line = detection.line + split.lineOffset;
+    return { kind: "invalid", message: fill(en.importMermaid.unclosedDirective, { line: String(line) }), line, column: 1 };
+  }
   const refusal = kindRefusal(split, detection);
   if (refusal !== undefined) return refusal;
   const parsed = await deps.parse(split.text);
