@@ -27,11 +27,12 @@ Enable business analysts and developers to create accurate, readable diagrams mo
 * Copy generated Mermaid source to the clipboard.
 * Maintain consistency between the visual diagram and its generated source.
 * Keep diagrams in the user's own browser between sessions, and save diagrams to and open them from files in the editor's own format.
+* Start a new diagram from existing Mermaid source, as a one-way import: the source is read once into the visual model, anything the editor cannot represent is reported, and the diagram is then edited only visually.
 
 ### Excluded
 
 * Direct editing of Mermaid source.
-* Importing or editing existing Mermaid source.
+* Editing existing Mermaid source after import, and any import other than starting a new diagram (for example from a URL).
 * SVG or PNG export.
 * Real-time collaboration.
 * Diagram version history (earlier versions of a diagram, or undo history kept after the diagram is closed).

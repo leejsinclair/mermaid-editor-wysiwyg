@@ -1,8 +1,8 @@
 import { parseFile, type ParsedFile } from "./codec";
 import { en } from "../text/en";
 
-/** Larger than this is not a diagram file from this editor (DC-05). */
-export const MAX_FILE_BYTES = 5 * 1024 * 1024;
+export { MAX_FILE_BYTES } from "../model/limits";
+import { MAX_FILE_BYTES } from "../model/limits";
 
 /** Opens a chosen file: the size is checked before the contents are read (contracts/file-format.md, Open 1). */
 export async function openFile(file: { readonly size: number; text(): Promise<string> }): Promise<ParsedFile> {

@@ -1,28 +1,13 @@
-<!--
-Sync Impact Report (temporary; remove before commit)
-- Version change: 1.2.0 → 1.2.1 (PATCH: Workflow and Quality Gates, commit rule; instructed by the user on
-  2026-10-19: agents may commit and push when the user asks; the crew still never does). No spec, plan or task
-  is affected.
-- Previous: 1.1.0 → 1.2.0 (MINOR: local persistence brought into scope; approved by the Business Analyst
-  on 2026-10-18, following setup.md's amended Scope)
-- Migration: specs/002-visual-diagram-editor/spec.md updated in the same change (User Story 7, FR-018, FR-023,
-  FR-040 to FR-052). No plans or tasks existed yet.
-- Previous: 1.0.0 → 1.1.0 (MINOR: supported diagram types widened); (unfilled template) → 1.0.0
-- Modified principles: none renamed; all five template principle slots filled
-  (I. Visual Model Is the Source of Truth, II. Layered Architecture, III. Test-First (NON-NEGOTIABLE),
-  IV. Invalid Operations Never Corrupt, V. Undoable, Consistent, Honest Feedback)
-- Added sections: Technology and Scope Constraints; Workflow and Quality Gates
-- Removed sections: none
-- Deferred TODOs: none
--->
 # Mermaid Editor (WYSIWYG) Constitution
 
 ## Core Principles
 
 ### I. Visual Model Is the Source of Truth
 The visual diagram model is the only editable state. Mermaid source MUST be generated from the
-model, MUST be read-only in the editor, and MUST NOT be parsed back into, or stored as, editable
-state. Importing or hand-editing Mermaid source is out of scope. Users MUST NOT need to know
+model, MUST be read-only in the editor, and MUST NOT be stored as editable state or edited as
+text. Existing Mermaid source MAY be read once, to start a new diagram, into the visual model
+(a one-way import that reports every construct it drops or approximates); after that the model
+is edited only visually. Hand-editing Mermaid source is out of scope. Users MUST NOT need to know
 Mermaid syntax to create or modify a diagram. The model MAY be kept in the user's browser and
 saved to or opened from files in the editor's own format; stored or opened data is untrusted
 and MUST be validated in full before it becomes the model.
@@ -72,7 +57,7 @@ actually occurred. Controls MUST NOT be offered for unsupported actions.
   each supported type MUST meet that bar before release.
 - Persistence is local only: in the user's browser storage and in files the user saves or opens.
   A save MUST be reported only after it succeeds and MUST NOT damage previously saved diagrams.
-- Excluded: direct source editing, Mermaid source import, SVG/PNG export, real-time collaboration,
+- Excluded: direct source editing, Mermaid source import other than starting a new diagram, SVG/PNG export, real-time collaboration,
   version history, and server-side or cloud storage or sync.
 - Dependencies, test frameworks, linters and build tools MUST be those named by the approved plan.
 
@@ -98,4 +83,4 @@ principle or materially expanded guidance, PATCH for clarifications. Every plan,
 review MUST check compliance with these principles, and any departure MUST be justified in the
 plan's complexity record. Runtime guidance lives in `CLAUDE.md` and `.crews/directives.md`.
 
-**Version**: 1.2.1 | **Ratified**: 2026-10-18 | **Last Amended**: 2026-10-19
+**Version**: 1.3.0 | **Ratified**: 2026-10-18 | **Last Amended**: 2026-10-20

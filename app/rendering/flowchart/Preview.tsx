@@ -2,6 +2,7 @@ import { Alert, Box, Button, Typography } from "@mui/material";
 import { useEffect, useMemo, useRef, useState, type KeyboardEvent, type PointerEvent } from "react";
 import { en } from "../../text/en";
 import { fill } from "../../text/fill";
+import { drawWithMermaid, type Drawn } from "../shared/MermaidPicture";
 import { latestOnly } from "../shared/latestOnly";
 
 interface ViewBox {
@@ -11,33 +12,8 @@ interface ViewBox {
   readonly h: number;
 }
 
-type Drawn = { readonly svg: string } | { readonly error: string };
-
 const ZOOM_STEP = 1.25;
 const PAN_STEP = 0.1;
-let drawings = 0;
-
-/**
- * Draws the source the way Mermaid does, with the strict security level (research R4). Mermaid measures text in a
- * container that must be in the document, so it gets a hidden one that is removed afterwards.
- */
-async function drawWithMermaid(source: string): Promise<Drawn> {
-  const scratch = document.createElement("div");
-  scratch.setAttribute("aria-hidden", "true");
-  scratch.style.cssText = "position:absolute;left:-10000px;top:0;visibility:hidden";
-  document.body.append(scratch);
-  try {
-    const { default: mermaid } = await import("mermaid");
-    mermaid.initialize({ startOnLoad: false, securityLevel: "strict" });
-    drawings += 1;
-    const { svg } = await mermaid.render(`preview-${String(drawings)}`, source, scratch);
-    return { svg };
-  } catch (error) {
-    return { error: error instanceof Error ? error.message : String(error) };
-  } finally {
-    scratch.remove();
-  }
-}
 
 function parseViewBox(svg: SVGSVGElement): ViewBox | undefined {
   const [x, y, w, h] = (svg.getAttribute("viewBox") ?? "").split(/\s+/).map(Number);
