@@ -3,6 +3,7 @@ import { useEffect, useMemo, useRef, useState, type KeyboardEvent, type PointerE
 import { en } from "../../text/en";
 import { fill } from "../../text/fill";
 import { drawWithMermaid, type Drawn } from "../shared/MermaidPicture";
+import { useAppearance } from "../theme/appearanceContext";
 import { latestOnly } from "../shared/latestOnly";
 
 interface ViewBox {
@@ -40,11 +41,13 @@ export function Preview({ source }: PreviewProps) {
   const host = useRef<HTMLDivElement>(null);
   const pointer = useRef<{ x: number; y: number } | null>(null);
 
+  // The drawing is made again when the appearance changes, in that appearance's look (spec 007, FR-019).
+  const { appearance } = useAppearance();
   useEffect(() => {
     void latest(() => drawWithMermaid(source)).then((result) => {
       if (result) setDrawn({ source, result });
     });
-  }, [latest, source]);
+  }, [latest, source, appearance]);
 
   const svgMarkup = drawn && "svg" in drawn.result ? drawn.result.svg : undefined;
   // Mermaid sanitises its own output at the strict security level before it reaches this point.
@@ -142,7 +145,8 @@ export function Preview({ source }: PreviewProps) {
           onPointerUp={() => {
             pointer.current = null;
           }}
-          style={{ height: 320, overflow: "hidden", cursor: "grab", touchAction: "none" }}
+          data-testid="preview-frame"
+          style={{ height: 320, overflow: "hidden", cursor: "grab", touchAction: "none", background: "var(--canvas-surface)" }}
         />
       ) : (
         <Alert severity="error">{fill(en.preview.failed, { reason: failure })}</Alert>

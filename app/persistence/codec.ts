@@ -15,6 +15,7 @@ export type ParsedFile =
 const refuse = (reason: FileRefusalReason, problem = ""): ParsedFile => ({
   ok: false,
   reason,
+  // eslint-disable-next-line security/detect-object-injection -- numeric index or typed key, never user text
   message: fill(en.fileRefusals[reason], { problem }),
 });
 

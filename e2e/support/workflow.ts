@@ -26,6 +26,7 @@ export const job = (text: string, name: string): string => block(text, name, 2);
 
 /** The keys one level inside a block, such as the triggers under `on`. */
 export function childKeys(blockText: string, indent: number): string[] {
+  // eslint-disable-next-line security/detect-non-literal-regexp -- indent is a number
   const pattern = new RegExp(`^ {${String(indent)}}([\\w-]+):`);
   return blockText
     .split("\n")

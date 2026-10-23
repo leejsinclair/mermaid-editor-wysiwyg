@@ -17,7 +17,7 @@ const realDeps = { parse: parseLocated, snapshotFlowchart, snapshotSequence };
 const corpus = join(__dirname, "corpus");
 
 const ELEMENT = /^(Person|System|Container|Component)(Db|Queue)?(_Ext)?$/;
-const BOUNDARY = /^(\w+_)?Boundary$/;
+const BOUNDARY = { test: (macro: string): boolean => macro === "Boundary" || /^[A-Za-z]+_Boundary$/.test(macro) };
 const NODE = /^(Deployment_)?Node(_L|_R)?$/;
 const RELATIONSHIP = /^(Rel|RelIndex|BiRel)$/;
 const DIRECTION: Readonly<Record<string, Direction>> = { Rel: "one-way", RelIndex: "one-way", BiRel: "two-way" };

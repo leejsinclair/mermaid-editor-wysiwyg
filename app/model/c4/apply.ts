@@ -85,6 +85,7 @@ export function setLabel(diagram: C4Diagram, itemId: number, field: LabelField, 
 export function reorder(diagram: C4Diagram, relationshipId: number, toIndex: number): C4Diagram {
   const { relationships } = diagram.content;
   const from = relationships.findIndex((relationship) => relationship.id === relationshipId);
+  // eslint-disable-next-line security/detect-object-injection -- numeric index or typed key, never user text
   const moving = relationships[from];
   if (!moving || from === toIndex) return diagram;
   const rest = relationships.filter((relationship) => relationship !== moving);

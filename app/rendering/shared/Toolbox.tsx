@@ -23,12 +23,14 @@ interface ToolboxProps {
   /** The id of the armed toggle item, if any. */
   readonly armedId?: string | null;
   readonly onActivate?: (id: string) => void;
+  /** Fills the width it is given (a panel above the canvas) instead of standing as a column beside it. */
+  readonly fullWidth?: boolean;
 }
 
 /** One button per element or connection type of the diagram's type; nothing else is offered (FR-002). */
-export function Toolbox({ groups, armedId = null, onActivate }: ToolboxProps) {
+export function Toolbox({ groups, armedId = null, onActivate, fullWidth = false }: ToolboxProps) {
   return (
-    <Box component="section" aria-label={en.toolbox.region} sx={{ p: 2, width: 240, borderRight: 1, borderColor: "divider" }}>
+    <Box component="section" aria-label={en.toolbox.region} sx={{ p: 2, width: fullWidth ? "100%" : 240, boxSizing: "border-box", ...(fullWidth ? { borderBottom: 1 } : { borderRight: 1 }), borderColor: "divider", bgcolor: "background.paper" }}>
       {groups.map((group) => (
         <Box key={group.label} role="group" aria-label={group.label} sx={{ mb: 2 }}>
           <Typography variant="subtitle2" component="h2" aria-hidden="true">

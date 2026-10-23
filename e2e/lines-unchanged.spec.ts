@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
+import { exactly } from "./support/regexp";
 import { addItem, addRelationship, canvas as c4Canvas, dragBetween as c4DragBetween, itemLabelled, openNew, relabel as c4Relabel } from "./support/c4";
 import { addMessage, addParticipants, canvas as sequenceCanvas, dragBetween, messageTexts, relabel } from "./support/sequence";
 
@@ -34,7 +35,7 @@ test("a Sequence message dragged to a new place is reordered, and its end handle
   expect(await message.getAttribute("data-to")).toBe(before);
 });
 
-const relationship = (page: Page, text: string) => c4Canvas(page).getByTestId("c4-relationship").filter({ has: page.getByTestId("relationship-text").filter({ hasText: new RegExp(`^${text}$`) }) });
+const relationship = (page: Page, text: string) => c4Canvas(page).getByTestId("c4-relationship").filter({ has: page.getByTestId("relationship-text").filter({ hasText: exactly(text) }) });
 
 test("a Dynamic relationship dragged onto another is reordered, and its end handle moves its end, each in one Undo step", async ({ page }) => {
   await openNew(page, "dynamic");

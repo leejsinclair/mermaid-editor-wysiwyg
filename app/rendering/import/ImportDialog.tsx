@@ -33,6 +33,7 @@ function refusalText(refused: Extract<Outcome, { kind: "refused" }>): string {
     case "kindUndetected":
       return en.importMermaid.refusedKindUndetected;
     case "kindsMixed":
+      // eslint-disable-next-line security/detect-object-injection -- numeric index or typed key, never user text
       return fill(en.importMermaid.refusedKindsMixed, { kinds: (refused.kinds ?? []).map((kind) => en.start.kinds[kind]).join(", ") });
     case "notValid":
       return en.importMermaid.refusedNotValid;

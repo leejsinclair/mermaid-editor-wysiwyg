@@ -1,3 +1,5 @@
+import { loadMermaid } from "./mermaidRuntime";
+
 // The shared drawing of Mermaid source as an SVG picture (contracts/import-dialog.md, Preview; the flowchart preview uses it too).
 
 export type Drawn = { readonly svg: string } | { readonly error: string };
@@ -19,8 +21,7 @@ export async function drawWithMermaid(source: string): Promise<Drawn> {
   scratch.style.cssText = "position:absolute;left:-10000px;top:0;visibility:hidden";
   document.body.append(scratch);
   try {
-    const { default: mermaid } = await import("mermaid");
-    mermaid.initialize({ startOnLoad: false, securityLevel: "strict" });
+    const mermaid = await loadMermaid();
     drawings += 1;
     const { svg } = await mermaid.render(`preview-${String(drawings)}`, source, scratch);
     return { svg };

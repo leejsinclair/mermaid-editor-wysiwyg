@@ -38,7 +38,7 @@ for (const kind of ["Context", "Container", "Component", "Dynamic", "Deployment"
 
     await page.getByRole("dialog", { name: "Choose a C4 kind" }).getByRole("button", { name: kind, exact: true }).click();
 
-    await expect(page).toHaveURL(new RegExp(`#/new/c4/${kind.toLowerCase()}$`));
+    await expect(page).toHaveURL((url) => url.hash === `#/new/c4/${kind.toLowerCase()}`);
     const header = page.getByRole("banner");
     await expect(header.getByText(`C4 ${kind} diagram`, { exact: true })).toBeVisible();
     await expect(page.getByRole("combobox", { name: /type|kind/i })).toHaveCount(0);

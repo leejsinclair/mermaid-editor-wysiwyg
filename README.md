@@ -9,7 +9,22 @@ no server.
 ## Use it
 
 Open the [live demo](https://leejsinclair.github.io/mermaid-editor-wysiwyg/) in a current Chromium-based browser or
-Firefox on a desktop. Nothing needs installing, and nothing you draw leaves your browser unless you save it to a file.
+Firefox on a desktop, or in Chrome on Android or Safari on iOS. Nothing needs installing, and nothing you draw leaves
+your browser unless you save it to a file.
+
+## Appearance
+
+The editor has two appearances, chosen with the **Blueprint Studio** and **Light** buttons in the header. Blueprint
+Studio, the default, has navy surfaces, a cyan drafting grid, ivory text and amber notices. Light is a plain light
+version of the same layout. The choice is remembered in your browser, changes only how the editor looks, and is never
+saved in a diagram, a file or the copied Mermaid source. Mermaid's own preview and import pictures follow it too.
+
+## On a phone or in a narrow window
+
+Below 900 px wide the toolbox and Properties move into a **Tools** panel above the canvas, and below 600 px the document
+actions are under **More actions**. Everything the desktop layout offers is still there. On a touch screen, drag on
+empty canvas to pan, pinch to zoom, and double-tap an item to rename it. Phone support is checked in emulation of
+Android Chrome and iOS Safari, not on real devices.
 
 ## Start a diagram
 

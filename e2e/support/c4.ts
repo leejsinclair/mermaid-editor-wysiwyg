@@ -1,4 +1,5 @@
 import { expect, type Locator, type Page } from "@playwright/test";
+import { exactly, startingWith } from "./regexp";
 import { dragBetween, relabel } from "./sequence";
 
 export { dragBetween, relabel };
@@ -16,7 +17,7 @@ export const toolboxButton = (page: Page, name: string): Locator => page.getByRo
 
 /** The element, boundary or node on the canvas with this label (the text drawn, not its type). */
 export const itemLabelled = (page: Page, label: string): Locator =>
-  canvas(page).locator('[data-testid="c4-element"], [data-testid="c4-boundary"], [data-testid="c4-node"]').filter({ has: page.getByTestId("item-label").filter({ hasText: new RegExp(`^${label}$`) }) });
+  canvas(page).locator('[data-testid="c4-element"], [data-testid="c4-boundary"], [data-testid="c4-node"]').filter({ has: page.getByTestId("item-label").filter({ hasText: exactly(label) }) });
 
 /**
  * The connection handles of an element or node. They are drawn above the relationships, so they are not inside the item's own
@@ -54,7 +55,7 @@ export async function addItem(page: Page, type: string, label: string): Promise<
   await toolboxButton(page, type).click();
   const items = canvas(page).locator('[data-testid="c4-element"], [data-testid="c4-boundary"], [data-testid="c4-node"]');
   await expect(items).toHaveCount(before + 1);
-  const added = items.filter({ has: page.getByTestId("item-label").filter({ hasText: new RegExp(`^${type}$`) }) }).last();
+  const added = items.filter({ has: page.getByTestId("item-label").filter({ hasText: exactly(type) }) }).last();
   await relabel(page, added, label);
   await expect(itemLabelled(page, label)).toHaveCount(1);
   await page.keyboard.press("Escape");
@@ -64,8 +65,8 @@ export async function addItem(page: Page, type: string, label: string): Promise<
 export async function addRelationship(page: Page, type: "One-way relationship" | "Two-way relationship", from: string, to: string): Promise<void> {
   await toolboxButton(page, type).click();
   const dialog = page.getByRole("dialog", { name: "Add relationship" });
-  await dialog.getByRole("radiogroup", { name: "Source" }).getByRole("radio", { name: new RegExp(`^${from} `) }).check();
-  await dialog.getByRole("radiogroup", { name: "Target" }).getByRole("radio", { name: new RegExp(`^${to} `) }).check();
+  await dialog.getByRole("radiogroup", { name: "Source" }).getByRole("radio", { name: startingWith(`${from} `) }).check();
+  await dialog.getByRole("radiogroup", { name: "Target" }).getByRole("radio", { name: startingWith(`${to} `) }).check();
   await dialog.getByRole("button", { name: "Add relationship" }).click();
   await expect(dialog).toHaveCount(0);
 }

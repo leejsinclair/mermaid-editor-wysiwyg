@@ -75,6 +75,7 @@ export function deleteItem(diagram: SequenceDiagram, itemId: number): SequenceDi
 
 function moveWithin<T extends { readonly id: number }>(items: readonly T[], itemId: number, toIndex: number): readonly T[] | undefined {
   const from = items.findIndex((item) => item.id === itemId);
+  // eslint-disable-next-line security/detect-object-injection -- numeric index or typed key, never user text
   const item = items[from];
   if (item === undefined || from === toIndex) return undefined;
   return insertAt(items.filter((candidate) => candidate !== item), item, toIndex);
@@ -111,6 +112,7 @@ export function changeStyle(diagram: SequenceDiagram, messageId: number, style: 
 
 /** Moves one end of a message to another participant. */
 export function moveEnd(diagram: SequenceDiagram, messageId: number, end: "from" | "to", targetId: number): SequenceDiagram {
+  // eslint-disable-next-line security/detect-object-injection -- numeric index or typed key, never user text
   return updateMessage(diagram, messageId, (message) => (message[end] === targetId ? message : { ...message, [end]: targetId }));
 }
 

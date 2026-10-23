@@ -13,11 +13,12 @@ import { useDoubleActivation } from "../shared/useDoubleActivation";
 import { CanvasHelp } from "../shared/CanvasHelp";
 import { EmptyHint } from "../shared/EmptyHint";
 import { HANDLE_HIT } from "../shared/handleSize";
-import type { ViewHandle } from "../shared/viewport";
+import { useReportZoom, type ViewHandle } from "../shared/viewport";
 import { ConnectionEdge, type ConnectionFlowEdge } from "./ConnectionEdge";
 import { CoveredSides, DropTargets, ShapeNode, type ShapeFlowNode } from "./ShapeNode";
 import { validEnds } from "../shared/interaction";
 import { nearestSides, type Box, type Side } from "./sides";
+import { DraftingGrid } from "./DraftingGrid";
 import { keepOnly, stableFor, type Stable } from "./stable";
 
 const NODE_TYPES = { shape: ShapeNode };
@@ -37,6 +38,8 @@ export interface FlowchartHandle extends ViewHandle {
 
 interface FlowchartCanvasProps {
   readonly handleRef?: Ref<FlowchartHandle>;
+  /** Called with the zoom now and whenever it changes. */
+  readonly onZoomChange?: (zoom: number) => void;
   readonly diagram: FlowchartDiagram;
   /** The label being edited in place, or none. */
   readonly inlineEdit: InlineEdit | null;
@@ -63,6 +66,9 @@ function itemIdOf(target: EventTarget): number | undefined {
   const id = Number((target as HTMLElement).closest(".react-flow__node, .react-flow__edge")?.getAttribute("data-id"));
   return Number.isInteger(id) ? id : undefined;
 }
+
+/** The line drawn while a connection is being made is in the canvas ink, like the finished ones (spec 007, FR-015). */
+const CONNECTION_LINE = { stroke: "var(--canvas-ink)", strokeWidth: 2 } as const;
 
 /** The distance one arrow key press moves a node. */
 const NUDGE_STEP = 16;
@@ -93,9 +99,10 @@ function coveredSides(content: FlowchartDiagram["content"], dragging: ReadonlyMa
   return covered;
 }
 
-function Canvas({ handleRef, diagram, inlineEdit, onStartEdit, onAddNode, armed, onAddConnection, onMoveNode, onNudgeNode, onFocusLeave, onSelect, selection, cancelDragSignal, onMoveEnd }: FlowchartCanvasProps) {
+function Canvas({ handleRef, onZoomChange, diagram, inlineEdit, onStartEdit, onAddNode, armed, onAddConnection, onMoveNode, onNudgeNode, onFocusLeave, onSelect, selection, cancelDragSignal, onMoveEnd }: FlowchartCanvasProps) {
   const { screenToFlowPosition, zoomIn, zoomOut, fitView } = useReactFlow();
   const zoom = useStore((state) => state.transform[2]);
+  useReportZoom(zoom, onZoomChange);
   const doubles = useDoubleActivation(onStartEdit);
   const flow = useStoreApi();
   const helpId = useId();
@@ -363,6 +370,7 @@ function Canvas({ handleRef, diagram, inlineEdit, onStartEdit, onAddNode, armed,
       nodeClickDistance={CLICK_SLOP}
       connectionDragThreshold={CLICK_SLOP}
       connectionMode={ConnectionMode.Loose}
+      connectionLineStyle={CONNECTION_LINE}
       reconnectRadius={HANDLE_HIT / 2 / zoom}
       connectionRadius={HANDLE_HIT / zoom}
       onConnectStart={() => {
@@ -391,7 +399,9 @@ function Canvas({ handleRef, diagram, inlineEdit, onStartEdit, onAddNode, armed,
         if (to !== undefined) onMoveEnd(Number(edge.id), end, to);
       }}
       autoPanOnNodeDrag={false}
-    />
+    >
+      <DraftingGrid zoom={zoom} />
+    </ReactFlow>
     </DropTargets>
     </CoveredSides>
     <CanvasHelp id={helpId} text={en.canvasHelp.flowchart} />

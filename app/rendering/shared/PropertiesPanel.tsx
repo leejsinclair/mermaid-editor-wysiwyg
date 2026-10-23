@@ -33,6 +33,8 @@ interface PropertiesPanelProps {
   readonly onDraft: (text: string, field?: LabelField) => void;
   readonly onConfirm: () => void;
   readonly onCancel: () => void;
+  /** Fills the width it is given (a panel above the canvas) instead of standing as a column beside it. */
+  readonly fullWidth?: boolean;
   /** A control was used without the selection it needs: explain what is needed. */
   readonly onNeed: (thing: keyof typeof en.properties.things) => void;
   readonly onChangeType: (change: TypeChange) => void;
@@ -94,7 +96,7 @@ export function PropertiesPanel(props: Readonly<PropertiesPanelProps>) {
   const any: readonly SelectionKind[] = ["node", "connection", "participant", "message", "boundary"];
 
   return (
-    <Box component="section" aria-label={en.properties.region} sx={{ width: 280, p: 2, borderLeft: 1, borderColor: "divider" }}>
+    <Box component="section" aria-label={en.properties.region} sx={{ width: props.fullWidth === true ? "100%" : 280, boxSizing: "border-box", p: 2, ...(props.fullWidth === true ? {} : { borderLeft: 1 }), borderColor: "divider", bgcolor: "background.paper" }}>
       {props.title && <TitleField {...props.title} />}
       <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, mb: 2 }}>
         <Button size="small" variant="outlined" onClick={() => {

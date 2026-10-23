@@ -44,6 +44,7 @@ const oneOf = <T extends string>(value: unknown, allowed: readonly T[]): T | und
   allowed.find((candidate) => candidate === value);
 
 type ItemKind = keyof typeof en.problems.items;
+// eslint-disable-next-line security/detect-object-injection -- numeric index or typed key, never user text
 const describe = (kind: ItemKind, id: number): string => fill(en.problems.items[kind], { id: String(id) });
 
 /** Ids must be positive safe integers, unique in the diagram and below the counter. */
@@ -52,6 +53,7 @@ class Ids {
   constructor(private readonly nextId: number) {}
 
   claim(raw: unknown, kind: ItemKind): number {
+    // eslint-disable-next-line security/detect-object-injection -- numeric index or typed key, never user text
     const label = typeof raw === "number" ? describe(kind, raw) : en.problems.items[kind].replace(" {id}", "");
     if (typeof raw !== "number" || !Number.isSafeInteger(raw) || raw < 1) return fail(fill(en.problems.badId, { item: label }));
     if (this.seen.has(raw)) return fail(fill(en.problems.duplicateId, { item: label }));
@@ -86,6 +88,7 @@ function choice<T extends string>(item: Obj, key: string, allowed: readonly T[],
 function endOf(item: Obj, key: string, valid: ReadonlySet<number>, kind: ItemKind, id: number, target: keyof typeof en.problems.targets): number {
   const value = get(item, key);
   if (typeof value === "number" && valid.has(value)) return value;
+  // eslint-disable-next-line security/detect-object-injection -- numeric index or typed key, never user text
   return fail(fill(en.problems.dangling, { item: describe(kind, id), target: en.problems.targets[target] }));
 }
 

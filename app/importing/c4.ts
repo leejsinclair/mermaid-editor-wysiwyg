@@ -67,6 +67,7 @@ function splitArgs(text: string): string[] {
 
 /** The nearest element type the kind offers: Component, then Container, then System, then Person, keeping the suffix. */
 export function nearestOffered(type: ElementType, kind: C4Kind): ElementType {
+  // eslint-disable-next-line security/detect-object-injection -- numeric index or typed key, never user text
   const offered = new Set<string>(ELEMENT_TYPES_BY_KIND[kind]);
   const [family = "", ...rest] = type.split("-");
   const up: ReadonlyMap<string, string> = new Map([
@@ -210,11 +211,13 @@ export function readC4(text: string, kind: C4Kind): ReadC4 {
   for (const raw of text.split(/\r?\n/)) reader.line(raw.trim());
   // A Dynamic diagram's relationships are in the order of their numbers; the numbers themselves are not stored.
   const order = reader.relationships.map((_, index) => index);
+  // eslint-disable-next-line security/detect-object-injection -- numeric index or typed key, never user text
   if (kind === "dynamic") order.sort((a, b) => (reader.numbers[a] ?? a + 1) - (reader.numbers[b] ?? b + 1) || a - b);
   return {
     kind,
     title: reader.title,
     tree: reader.tree,
+    // eslint-disable-next-line security/detect-object-injection -- numeric index or typed key, never user text
     relationships: order.map((index) => reader.relationships[index]).filter((item): item is Relationship => item !== undefined),
     nextId: reader.nextId,
   };

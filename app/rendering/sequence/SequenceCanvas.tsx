@@ -1,7 +1,9 @@
-import { useCallback, useId, useMemo, useRef, useState, type MouseEvent, type Ref } from "react";
+import { memo, useCallback, useEffect, useId, useMemo, useRef, useState, type MouseEvent, type Ref } from "react";
 import { CanvasHelp } from "../shared/CanvasHelp";
 import { EmptyHint } from "../shared/EmptyHint";
-import { useSvgViewport, type ViewHandle } from "../shared/viewport";
+import { gridBackground } from "../shared/gridStyle";
+import { useTouchPan } from "../shared/touchPan";
+import { useReportZoom, useSvgViewport, type ViewHandle } from "../shared/viewport";
 import { MESSAGE_STYLE_NAMES, ROLE_NAMES } from "../../model/sequence/catalogue";
 import type { SequenceDiagram } from "../../model/types";
 import { en } from "../../text/en";
@@ -26,6 +28,8 @@ const EDITOR_WIDTH = 160;
 
 interface SequenceCanvasProps {
   readonly handleRef?: Ref<ViewHandle>;
+  /** Called with the zoom now and whenever it changes. */
+  readonly onZoomChange?: (zoom: number) => void;
   readonly diagram: SequenceDiagram;
   /** The label being edited in place, or none. */
   readonly inlineEdit: InlineEdit | null;
@@ -44,30 +48,32 @@ interface SequenceCanvasProps {
 type Begin = (what: DragKind) => (event: { clientX: number; clientY: number; button: number }) => void;
 
 /** Makes a drawn item reachable from the keyboard: it takes focus and Enter or Space selects it. */
-function selectable<E extends { stopPropagation: () => void }>(select: () => void, activate?: (event: E) => boolean, edit?: () => void) {
+function selectable<E extends { stopPropagation: () => void }>(id: number, select: (id: number) => void, activate?: (id: number, event: E) => boolean, edit?: (id: number) => void) {
   return {
     role: "button",
     tabIndex: 0,
     onClick: (event: E) => {
       event.stopPropagation();
-      if (activate?.(event) !== true) select();
+      if (activate?.(id, event) !== true) select(id);
     },
     onKeyDown: (event: { key: string; preventDefault: () => void }) => {
       if (event.key === "Enter" || event.key === " ") {
         event.preventDefault();
         // Enter on an item that is already selected opens its label for editing.
-        if (event.key === "Enter" && edit) edit();
-        else select();
+        if (event.key === "Enter" && edit) edit(id);
+        else select(id);
       }
     },
   };
 }
 
-function ParticipantView({ lifeline, chosen, hovered, target, height, zoom, helpId, onSelect, onEdit, onHover, onHint, begin, edit, activate }: Readonly<{ lifeline: Lifeline; chosen: boolean; hovered: boolean; helpId: string; target: "valid" | "drop" | undefined; height: number; zoom: number; onHover: (hovered: boolean) => void; onHint: (hinted: boolean) => void; onSelect: () => void; onEdit: () => void; begin: Begin; edit: InlineEdit | undefined; activate: (event: MouseEvent<SVGGElement>) => boolean }>) {
+const ParticipantView = memo(function ParticipantView({ lifeline, chosen, hovered, target, height, zoom, helpId, onSelect, onEdit, onHover, onHint, begin, edit, activate }: Readonly<{ lifeline: Lifeline; chosen: boolean; hovered: boolean; helpId: string; target: "valid" | "drop" | undefined; height: number; zoom: number; onHover: (id: number, hovered: boolean) => void; onHint: (id: number, hinted: boolean) => void; onSelect: (id: number) => void; onEdit: (id: number) => void; begin: Begin; edit: InlineEdit | undefined; activate: (id: number, event: MouseEvent<SVGGElement>) => boolean }>) {
   const roleName = ROLE_NAMES.get(lifeline.role) ?? lifeline.role;
   const name = fill(en.sequence.participantName, { role: roleName, label: lifeline.label });
   const x = lifeline.x;
   const width = chosen ? 3 : 1.5;
+  /** The outline is the ink, and the selection colour once chosen. */
+  const outline = chosen ? "var(--selection)" : "currentColor";
   return (
     <g
       data-testid="participant"
@@ -77,15 +83,15 @@ function ParticipantView({ lifeline, chosen, hovered, target, height, zoom, help
       aria-label={name}
       aria-describedby={helpId}
       aria-pressed={edit ? undefined : chosen}
-      {...selectable(onSelect, activate, chosen ? onEdit : undefined)}
+      {...selectable(lifeline.id, onSelect, activate, chosen ? onEdit : undefined)}
       // While its label is typed the item holds a text field, so it is a group rather than a button.
       role={edit ? "group" : "button"}
       style={{ outline: "none" }}
       onPointerEnter={() => {
-        onHover(true);
+        onHover(lifeline.id, true);
       }}
       onPointerLeave={() => {
-        onHover(false);
+        onHover(lifeline.id, false);
       }}
     >
       <circle data-handle-dot data-visible={chosen || hovered} cx={x} cy={HEADER_HEIGHT + 4} r={HANDLE_DOT / 2 / zoom} fill="currentColor" fillOpacity={0.6} pointerEvents="none" />
@@ -97,10 +103,10 @@ function ParticipantView({ lifeline, chosen, hovered, target, height, zoom, help
         aria-label={en.canvasHelp.lifeline}
         data-visible={chosen || hovered}
         onPointerEnter={() => {
-          onHint(true);
+          onHint(lifeline.id, true);
         }}
         onPointerLeave={() => {
-          onHint(false);
+          onHint(lifeline.id, false);
         }}
         x={x - HANDLE_HIT / zoom / 2}
         y={HEADER_HEIGHT - 20}
@@ -117,11 +123,11 @@ function ParticipantView({ lifeline, chosen, hovered, target, height, zoom, help
           <path
             d={`M${String(x)} 10 m-8 0 a8 8 0 1 0 16 0 a8 8 0 1 0 -16 0 M${String(x)} 18 v14 M${String(x - 12)} 24 h24 M${String(x)} 32 l-10 14 M${String(x)} 32 l10 14`}
             fill="none"
-            stroke="currentColor"
+            stroke={outline}
             strokeWidth={width}
           />
         ) : (
-          <rect x={x - HEADER_WIDTH / 2} y={10} width={HEADER_WIDTH} height={40} rx={4} fill="transparent" stroke="currentColor" strokeWidth={width} />
+          <rect x={x - HEADER_WIDTH / 2} y={10} width={HEADER_WIDTH} height={40} rx={4} fill="var(--node-fill)" stroke={outline} strokeWidth={width} />
         )}
         {edit ? (
           <foreignObject overflow="visible" x={x - HEADER_WIDTH / 2 + 4} y={lifeline.role === "actor" ? 48 : 14} width={HEADER_WIDTH - 8} height={30}>
@@ -133,7 +139,7 @@ function ParticipantView({ lifeline, chosen, hovered, target, height, zoom, help
       </g>
     </g>
   );
-}
+});
 
 function EndHandle({ end, x, y, begin, id, zoom }: Readonly<{ end: "from" | "to"; x: number; y: number; begin: Begin; id: number; zoom: number }>) {
   const hit = HANDLE_HIT / zoom;
@@ -169,8 +175,8 @@ function MessageLabel({ row, name, edit }: Readonly<{ row: MessageRow; name: str
   return <MultilineText text={row.text} x={x} y={row.loop ? row.y + 4 : row.y - 8} textAnchor={row.loop ? "start" : "middle"} fill="currentColor" fontSize={13} data-testid="message-text" />;
 }
 
-function MessageView({ row, band, reach, chosen, ends, names, onSelect, onEdit, begin, edit, activate }: Readonly<{ row: MessageRow; band: number; reach: number; chosen: boolean; ends: { from: number; to: number }; names: { from: string; to: string }; onSelect: () => void; onEdit: () => void; begin: Begin; edit: InlineEdit | undefined; activate: (event: MouseEvent<SVGGElement>) => boolean }>) {
-  const name = fill(en.sequence.messageName, { type: MESSAGE_STYLE_NAMES.get(row.style) ?? row.style, ...names, text: row.text });
+const MessageView = memo(function MessageView({ row, band, reach, chosen, from, to, fromName, toName, onSelect, onEdit, begin, edit, activate }: Readonly<{ row: MessageRow; band: number; reach: number; chosen: boolean; from: number; to: number; fromName: string; toName: string; onSelect: (id: number) => void; onEdit: (id: number) => void; begin: Begin; edit: InlineEdit | undefined; activate: (id: number, event: MouseEvent<SVGGElement>) => boolean }>) {
+  const name = fill(en.sequence.messageName, { type: MESSAGE_STYLE_NAMES.get(row.style) ?? row.style, from: fromName, to: toName, text: row.text });
   const drawing = MESSAGE_DRAWING.get(row.style) ?? { dashed: false, ending: "arrow" as const };
   const path = row.loop
     ? `M${String(row.fromX)} ${String(row.y - LOOP_HEIGHT / 2)} h${String(LOOP_WIDTH)} v${String(LOOP_HEIGHT)} h${String(-LOOP_WIDTH)}`
@@ -181,11 +187,11 @@ function MessageView({ row, band, reach, chosen, ends, names, onSelect, onEdit, 
       data-zone="line"
       data-id={row.id}
       data-style={row.style}
-      data-from={ends.from}
-      data-to={ends.to}
+      data-from={from}
+      data-to={to}
       aria-label={name}
       aria-pressed={edit ? undefined : chosen}
-      {...selectable(onSelect, activate, chosen ? onEdit : undefined)}
+      {...selectable(row.id, onSelect, activate, chosen ? onEdit : undefined)}
       // While its label is typed the item holds a text field, so it is a group rather than a button.
       role={edit ? "group" : "button"}
       style={{ cursor: "pointer", outline: "none" }}
@@ -193,11 +199,11 @@ function MessageView({ row, band, reach, chosen, ends, names, onSelect, onEdit, 
     >
       <rect x={Math.min(row.fromX, row.toX) - reach} y={row.y - band} width={Math.abs(row.toX - row.fromX) + 2 * reach + (row.loop ? LOOP_WIDTH : 0)} height={2 * band} fill="transparent" />
       <path d={path} stroke="transparent" strokeWidth={18} fill="none" />
-      <path d={path} fill="none" stroke="currentColor" strokeWidth={chosen ? 3 : 1.5} strokeDasharray={drawing.dashed ? "6 4" : undefined} markerEnd={`url(#seq-${drawing.ending})`} />
+      <path d={path} fill="none" stroke={chosen ? "var(--selection)" : "currentColor"} strokeWidth={chosen ? 3 : 1.5} strokeDasharray={drawing.dashed ? "6 4" : undefined} markerEnd={`url(#seq-${drawing.ending})`} />
       <MessageLabel row={row} name={name} edit={edit} />
     </g>
   );
-}
+});
 
 /** What a finished drag asks for, by the kind of drag it was. */
 function dropped(layout: SequenceLayout, diagram: SequenceDiagram, end: DragEnd<DragKind>, strip: number, props: Pick<SequenceCanvasProps, "onReorder" | "onCreateMessage" | "onMoveEnd">): void {
@@ -215,7 +221,7 @@ function dropped(layout: SequenceLayout, diagram: SequenceDiagram, end: DragEnd<
 }
 
 /** Lifelines left to right and messages top to bottom, drawn from the pure layout (research R3, FR-029). */
-export function SequenceCanvas({ handleRef, diagram, inlineEdit, onStartEdit, selection, onSelect, onReorder, onCreateMessage, onMoveEnd }: Readonly<SequenceCanvasProps>) {
+export function SequenceCanvas({ handleRef, onZoomChange, diagram, inlineEdit, onStartEdit, selection, onSelect, onReorder, onCreateMessage, onMoveEnd }: Readonly<SequenceCanvasProps>) {
   const svg = useRef<SVGSVGElement>(null);
   const helpId = useId();
   // The participant under the pointer, whose handle is shown with that of the selected participant.
@@ -226,16 +232,38 @@ export function SequenceCanvas({ handleRef, diagram, inlineEdit, onStartEdit, se
   const names = useMemo(() => new Map(diagram.content.participants.map((participant) => [participant.id, participant.label])), [diagram.content.participants]);
   const messages = useMemo(() => new Map(diagram.content.messages.map((message) => [message.id, message])), [diagram.content.messages]);
   const scroller = useRef<HTMLDivElement>(null);
-  const zoom = useSvgViewport(handleRef, layout, scroller);
+  const { zoom, zoomTo } = useSvgViewport(handleRef, layout, scroller);
+  useTouchPan(scroller, zoom, zoomTo);
+  useReportZoom(zoom, onZoomChange);
   const onDrop = useCallback((end: DragEnd<DragKind>) => {
     dropped(layout, diagram, end, HANDLE_HIT / zoom, { onReorder, onCreateMessage, onMoveEnd });
   }, [layout, diagram, zoom, onReorder, onCreateMessage, onMoveEnd]);
   const { begin: beginDrag, current } = useDrag<DragKind>(svg, scroller, onDrop, zoom);
   const doubles = useDoubleActivation(onStartEdit);
-  const begin: Begin = (what) => (event) => {
-    doubles.pressed(event);
-    beginDrag(what)(event);
-  };
+  // The handlers the items are given never change, so an item is drawn again only when what it shows does: a hover then draws the
+  // two participants it concerns, not every participant and message. They reach the newest callbacks through a ref.
+  const latest = useRef({ onSelect, onStartEdit, beginDrag, doubles });
+  useEffect(() => {
+    latest.current = { onSelect, onStartEdit, beginDrag, doubles };
+  });
+  const begin = useCallback<Begin>((what) => (event) => {
+    latest.current.doubles.pressed(event);
+    latest.current.beginDrag(what)(event);
+  }, []);
+  const selectItem = useCallback((id: number) => {
+    latest.current.onSelect(id);
+  }, []);
+  const editItem = useCallback((id: number) => {
+    latest.current.onStartEdit(id);
+  }, []);
+  const hoverItem = useCallback((id: number, over: boolean) => {
+    setHovered(over ? id : null);
+  }, []);
+  const hintItem = useCallback((id: number, over: boolean) => {
+    setHintFor(over ? id : null);
+  }, []);
+  const activateParticipant = useCallback((id: number, event: MouseEvent<SVGGElement>) => event.target instanceof Element && event.target.closest("[data-zone='body']") !== null && latest.current.doubles.released(id, event), []);
+  const activateMessage = useCallback((id: number, event: MouseEvent<SVGGElement>) => latest.current.doubles.released(id, event), []);
   const creatingFrom = current?.what.kind === "create" ? current.what.fromId : undefined;
   const creating = layout.lifelines.find((lifeline) => lifeline.id === creatingFrom);
   // While a message is drawn every participant is a valid end and the one under the pointer is where it will land.
@@ -253,7 +281,7 @@ export function SequenceCanvas({ handleRef, diagram, inlineEdit, onStartEdit, se
     <div
       ref={scroller}
       role="presentation"
-      style={{ width: "100%", height: "100%", overflow: "auto", position: "relative" }}
+      style={{ width: "100%", height: "100%", overflow: "auto", position: "relative", touchAction: "none", ...gridBackground(zoom) }}
       onClick={() => {
         onSelect(null);
       }}
@@ -278,21 +306,13 @@ export function SequenceCanvas({ handleRef, diagram, inlineEdit, onStartEdit, se
             target={drawing ? targetMark(validIds.has(lifeline.id), dropOn === lifeline.id) : undefined}
             height={layout.height}
             zoom={zoom}
-            onSelect={() => {
-              onSelect(lifeline.id);
-            }}
-            onEdit={() => {
-              onStartEdit(lifeline.id);
-            }}
-            onHover={(over) => {
-              setHovered(over ? lifeline.id : null);
-            }}
-            onHint={(over) => {
-              setHintFor(over ? lifeline.id : null);
-            }}
+            onSelect={selectItem}
+            onEdit={editItem}
+            onHover={hoverItem}
+            onHint={hintItem}
             begin={begin}
             edit={inlineEdit?.itemId === lifeline.id ? inlineEdit : undefined}
-            activate={(event) => event.target instanceof Element && event.target.closest("[data-zone='body']") !== null && doubles.released(lifeline.id, event)}
+            activate={activateParticipant}
           />
         ))}
         {layout.rows.map((row) => {
@@ -304,17 +324,15 @@ export function SequenceCanvas({ handleRef, diagram, inlineEdit, onStartEdit, se
               band={rowBand}
               reach={HANDLE_HIT / 2 / zoom}
               chosen={row.id === selection}
-              ends={{ from: message?.from ?? 0, to: message?.to ?? 0 }}
-              names={{ from: names.get(message?.from ?? 0) ?? "", to: names.get(message?.to ?? 0) ?? "" }}
-              onSelect={() => {
-                onSelect(row.id);
-              }}
-              onEdit={() => {
-                onStartEdit(row.id);
-              }}
+              from={message?.from ?? 0}
+              to={message?.to ?? 0}
+              fromName={names.get(message?.from ?? 0) ?? ""}
+              toName={names.get(message?.to ?? 0) ?? ""}
+              onSelect={selectItem}
+              onEdit={editItem}
               begin={begin}
               edit={inlineEdit?.itemId === row.id ? inlineEdit : undefined}
-              activate={(event) => doubles.released(row.id, event)}
+              activate={activateMessage}
             />
           );
         })}

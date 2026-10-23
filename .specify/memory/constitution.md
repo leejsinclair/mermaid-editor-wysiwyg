@@ -51,6 +51,8 @@ actually occurred. Controls MUST NOT be offered for unsupported actions.
 
 - Language is TypeScript in strict mode; `any` requires a comment stating why.
 - The deliverable is a browser web app with no server component.
+- Supported browsers are current stable Chromium-based browsers and Firefox on desktop, Chrome on Android and Safari on
+  iOS. Desktop Safari is unsupported. Support for a browser MUST be verified by automated tests before release.
 - Supported diagram types are Mermaid flowchart, sequence diagram and C4 diagram (Context, Container,
   Component, Dynamic, Deployment). Another diagram type MAY be added only after its elements,
   relationships, editing operations and validation rules are explicitly specified and tested, and
@@ -83,4 +85,8 @@ principle or materially expanded guidance, PATCH for clarifications. Every plan,
 review MUST check compliance with these principles, and any departure MUST be justified in the
 plan's complexity record. Runtime guidance lives in `CLAUDE.md` and `.crews/directives.md`.
 
-**Version**: 1.3.0 | **Ratified**: 2026-10-18 | **Last Amended**: 2026-10-20
+**Version**: 1.4.0 | **Ratified**: 2026-10-18 | **Last Amended**: 2026-10-22
+
+Migration note (1.4.0, MINOR: supported browsers named, mobile added; approved by the Business Analyst, Lee Sinclair,
+2026-10-22): 002 FR-021's exclusion of mobile browsers is superseded; features before 007 were verified on desktop only,
+and feature 007-blueprint-redesign adds the mobile verification (ADR 0002).

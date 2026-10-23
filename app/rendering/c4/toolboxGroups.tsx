@@ -38,12 +38,14 @@ const RelationshipIcon = ({ twoWay }: Readonly<{ twoWay: boolean }>) => (
 
 /** The elements, boundaries or Deployment nodes, and relationships the kind offers; nothing else (FR-031). */
 export function c4Toolbox(kind: C4Kind): readonly ToolboxGroup[] {
+  // eslint-disable-next-line security/detect-object-injection -- numeric index or typed key, never user text
   const boundaries = BOUNDARY_TYPES_BY_KIND[kind];
   const containers: ToolboxGroup =
     kind === "deployment"
       ? { label: en.c4.groups.nodes, items: [{ id: NODE_ID, name: DEPLOYMENT_NODE_NAME, icon: <ContainerIcon dashed={false} /> }] }
       : { label: en.c4.groups.boundaries, items: boundaries.map((type) => ({ id: `${BOUNDARY_PREFIX}${type}`, name: BOUNDARY_NAMES.get(type) ?? type, icon: <ContainerIcon dashed /> })) };
   return [
+    // eslint-disable-next-line security/detect-object-injection -- numeric index or typed key, never user text
     { label: en.c4.groups.elements, items: ELEMENT_TYPES_BY_KIND[kind].map((type) => ({ id: type, name: ELEMENT_TYPE_NAMES.get(type) ?? type, icon: <ElementIcon type={type} /> })) },
     containers,
     { label: en.c4.groups.relationships, items: DIRECTIONS.map((direction) => ({ id: `${RELATIONSHIP_PREFIX}${direction}`, name: DIRECTION_NAMES.get(direction) ?? direction, icon: <RelationshipIcon twoWay={direction === "two-way"} /> })) },

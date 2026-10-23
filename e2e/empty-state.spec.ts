@@ -20,7 +20,7 @@ async function expectEmptyState(page: Page, header: RegExp) {
   await expect(page.getByRole("button", { name: /Mermaid source/ })).toContainText("Valid");
   await page.getByRole("button", { name: /Mermaid source/ }).click();
   // An empty C4 diagram's panel also shows its notice after the header.
-  await expect(page.getByRole("region", { name: /Mermaid source/ })).toHaveText(new RegExp(header.source.replace("$", "")));
+  await expect(page.getByRole("region", { name: /Mermaid source/ })).toContainText(header.source.slice(1, -1));
   const messages = page.getByRole("status", { name: "Messages" });
   await page.getByRole("button", { name: "Copy Source" }).click();
   await expect(messages).toContainText("Source copied.");

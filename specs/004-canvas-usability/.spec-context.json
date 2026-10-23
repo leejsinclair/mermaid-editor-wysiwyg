@@ -1,0 +1,17 @@
+{
+  "workflow": "speckit",
+  "specName": "Canvas Usability",
+  "branch": "",
+  "currentStep": "specify",
+  "status": "completed",
+  "history": [
+    {
+      "step": "specify",
+      "substep": null,
+      "kind": "complete",
+      "by": "extension",
+      "at": "2026-10-20T22:38:30.344Z"
+    }
+  ],
+  "telemetryInstanceId": "053a514c-ae47-4825-a2fd-46c95702ff24"
+}

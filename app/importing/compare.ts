@@ -118,13 +118,18 @@ export function compareLines(original: string, generated: string): CompareResult
   const flush = (): void => {
     const count = Math.max(removed.length, added.length);
     for (let k = 0; k < count; k += 1) {
+      // eslint-disable-next-line security/detect-object-injection -- numeric index or typed key, never user text
       const i = removed[k];
+      // eslint-disable-next-line security/detect-object-injection -- numeric index or typed key, never user text
       const j = added[k];
       if (i !== undefined && j !== undefined) {
+        // eslint-disable-next-line security/detect-object-injection -- numeric index or typed key, never user text
         out.push({ kind: "changed", original: a[i], generated: b[j], originalLine: i + 1, generatedLine: j + 1 });
       } else if (i !== undefined) {
+        // eslint-disable-next-line security/detect-object-injection -- numeric index or typed key, never user text
         out.push({ kind: "removed", original: a[i], originalLine: i + 1 });
       } else if (j !== undefined) {
+        // eslint-disable-next-line security/detect-object-injection -- numeric index or typed key, never user text
         out.push({ kind: "added", generated: b[j], generatedLine: j + 1 });
       }
     }
