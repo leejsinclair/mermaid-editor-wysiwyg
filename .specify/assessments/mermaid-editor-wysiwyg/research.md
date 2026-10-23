@@ -4,12 +4,12 @@
 - **Created**: 2026-10-21
 - **Evidence confidence (overall)**: low
 
-Method: read `intake.md`, `setup.md` and the repo's specs and git history; ran three web searches. No web pages were fetched, so external claims rest on search-result snippets only. No user interviews, usage data or tickets exist in the repo. Revised 2026-10-21 with the technical lead's answers from `.speckit-companion/report-answers/idea-mermaid-editor-wysiwyg-research.md`, which resolve the "who requested this" question and what "token efficiency" means (LLM consumption of diagrams as text; the saving itself is still unmeasured).
+Method: read `intake.md`, `setup.md` and the repo's specs and git history; ran three web searches. No web pages were fetched, so external claims rest on search-result snippets only. No user interviews, usage data or tickets exist in the repo. Revised 2026-10-21 with the technical lead's statements. Their one recorded written answer (kept verbatim in Appendix A, because the original file is git-ignored) confirms that the purpose is LLM and code-assistant use. The requester and cognitive-load statements were given in the session and are not in that file. The saving itself is still unmeasured.
 
 ## Users & Demand
 
-- **Requester and trigger.** The technical lead requested the app. Their stated purpose is to reduce the cognitive load for developers and business analysts, while taking advantage of the token efficiency of Mermaid diagrams — [source: technical lead's answer, `.speckit-companion/report-answers/idea-mermaid-editor-wysiwyg-research.md`; stated, not independently verified] (confidence: high that this is the stated motivation; low that the benefit is real)
-- The requester is also the sponsor of the work, so this is a stakeholder-driven need. It is not demand observed from the target personas — [source: same answer; inference from it] (confidence: medium)
+- **Requester and trigger.** The technical lead requested the app. Their stated purpose is to reduce the cognitive load for developers and business analysts, while taking advantage of the token efficiency of Mermaid diagrams — [source: technical lead's statement in session, 2026-10-21; only the LLM purpose is in the written answer, Appendix A; stated, not independently verified] (confidence: high that this is the stated motivation; low that the benefit is real)
+- The requester is also the sponsor of the work, so this is a stakeholder-driven need. It is not demand observed from the target personas — [source: same statement; inference from it] (confidence: medium)
 - Non-engineers can find Mermaid syntax a barrier. One G2 reviewer says the syntax has a learning curve "especially for non-engineers" and that this limits adoption beyond engineering — [source: g2.com review, via search snippet; not fetched] (confidence: low; a single anecdote)
 - An Atlassian Community article says Confluence Mermaid apps focus on rendering rather than helping people create diagrams, and that mastering the syntax "can be a big challenge" — [source: community.atlassian.com, via search snippet; not fetched] (confidence: low; vendor-authored)
 - Sources that disagree: the Mermaid project says non-programmers can create diagrams through the Mermaid Live Editor, and a Theodo review calls the syntax intuitive — [source: search snippets] (confidence: low)
@@ -33,22 +33,23 @@ Method: read `intake.md`, `setup.md` and the repo's specs and git history; ran t
 - A G2 reviewer says auto-layout can be messy on large diagrams, which suggests value in manual positioning — [source: g2.com review, via search snippet] (confidence: low)
 - Cost of doing nothing: users keep hand-writing syntax. For an individual developer this is small, since the syntax is described as quick to learn — [source: Theodo snippet; ASSUMPTION about cost] (confidence: low)
 
-- Token efficiency is part of the stated rationale. The technical lead confirms it means giving diagrams to LLMs as text, and says that capturing product knowledge for code assistants and LLMs generally is important to the business. A text-based Mermaid diagram is meant to be cheaper and easier for an LLM to consume than an image or a verbose diagram format — [source: technical lead's answer, `.speckit-companion/report-answers/idea-mermaid-editor-wysiwyg-research.md`; stated, not independently verified] (confidence: high that this is the intent; low that Mermaid beats other text formats)
+- Token efficiency is part of the stated rationale. The technical lead's written answer (Appendix A) confirms the LLM purpose and says that capturing product knowledge for code assistants and LLMs generally is important to the business; that giving diagrams to LLMs as text is the mechanism is the reading made here. A text-based Mermaid diagram is meant to be cheaper and easier for an LLM to consume than an image or a verbose diagram format — [source: technical lead's written answer, Appendix A; stated, not independently verified] (confidence: high that LLM use is the intent; low that Mermaid beats other text formats)
 - The user states that the saving is large when Mermaid is compared with XML-based diagram formats such as BPMN. This is a stated claim, with no figures or sample diagrams attached — [source: user statement in session, 2026-10-21; stated, not independently verified] (confidence: medium that the direction is right, since XML is verbose and Mermaid is terse; low on the size)
 - No measurement of the saving is recorded in the repo or in the answers, and no source was searched for one. The size of the saving, and how Mermaid compares with other text formats, remains unmeasured — [source: ASSUMPTION] (confidence: low)
-- The LLM and code-assistant purpose points to a different primary consumer than the personas in `setup.md`. The editor's output (Mermaid text) is consumed by LLMs, while its input is people drawing diagrams. Whether this changes who the users are is a question for define, not decided here — [source: technical lead's answer; inference] (confidence: medium)
+- The LLM and code-assistant purpose points to a different primary consumer than the personas in `setup.md`. The editor's output (Mermaid text) is consumed by LLMs, while its input is people drawing diagrams. Whether this changes who the users are is a question for define, not decided here — [source: technical lead's written answer, Appendix A; inference] (confidence: medium)
 
 ## Data & Constraints
 
 - Scope as recorded: flowchart first. Sequence and C4 appear later (feature 005 imports flowchart, sequence and C4). The visual model is the sole source of truth, and direct source editing stays excluded — [source: `setup.md`, `specs/005-new-from-mermaid/spec.md`] (confidence: high)
 - Delivery: a client-only React 19 SPA published to GitHub Pages, with no server or cloud storage. Diagrams live in browser storage, which is per profile, typically a few MB, unencrypted, and lost if browser data is cleared — [source: `CLAUDE.md`, `specs/002-visual-diagram-editor/spec.md` line 371] (confidence: high)
 - Size of existing build: about 8.8k lines of TypeScript under `app/` (rough `wc` of `app/**/*.ts`; shell glob may miss deeper directories) — [source: local `wc`] (confidence: low)
-- No usage analytics, volume figures, compliance requirements or accessibility targets are recorded. Intake already flagged accessibility, browsers and clipboard APIs as unknown — [source: `intake.md`] (confidence: high that they are absent)
+- No usage analytics or volume figures are recorded, and no compliance requirements beyond those below — [source: repo review] (confidence: high that they are absent)
+- Established requirements, already decided in `specs/002-visual-diagram-editor/spec.md` (the intake listed accessibility, browsers and clipboard behaviour as unknown, which is now out of date): FR-019 keyboard operation and a non-drag alternative for every drag; FR-020 WCAG 2.2 AA; FR-021 supported browsers (current Chromium-based browsers and Firefox on desktop, later extended to Chrome on Android and Safari on iOS by feature 007 and constitution 1.4.0); FR-014 clipboard copy confirmed only after success, with failures explained. These are specified requirements, not evidence that the implementation meets them — [source: `specs/002-visual-diagram-editor/spec.md`] (confidence: high that they are specified)
 
 ## Evidence Against the Idea
 
-- No evidence of validated demand from the personas. The need comes from the technical lead, who requested the app and wrote its specs; no interviews, tickets or usage data from developers or business analysts exist — [source: repo review; technical lead's answer] (confidence: high)
-- The cognitive-load and token-efficiency benefits are asserted, not measured. Nothing compares the editor's workflow with hand-written Mermaid on effort or token cost — [source: technical lead's answer; ASSUMPTION] (confidence: low)
+- No evidence of validated demand from the personas. The need comes from the technical lead, who requested the app and wrote its specs; no interviews, tickets or usage data from developers or business analysts exist — [source: repo review; technical lead's statements] (confidence: high)
+- The cognitive-load and token-efficiency benefits are asserted, not measured. Nothing compares the editor's workflow with hand-written Mermaid on effort or token cost — [source: technical lead's statements; ASSUMPTION] (confidence: low)
 - The Mermaid project and its commercial arm already ship a Live Editor and a Visual Editor. Third-party Obsidian plugins also cover drag-and-drop. A free standalone editor would compete on convenience only — [source: search snippets, see Prior Art] (confidence: low)
 - Mermaid is widely described as quick to learn, which weakens the premise that users cannot write the syntax — [source: Theodo, Mermaid project snippets] (confidence: low)
 - The product design (read-only source, no source editing) removes the round-trip that Mermaid Chart's visual editor reportedly offers (code and visual views kept in sync). This may reduce appeal for developers, the persona most likely to use Mermaid — [source: pulse2.com snippet vs `setup.md` exclusions; ASSUMPTION about appeal] (confidence: low)
@@ -64,7 +65,7 @@ Method: read `intake.md`, `setup.md` and the repo's specs and git history; ran t
 - [NEEDS CLARIFICATION: Which current Mermaid Chart Visual Editor features exist (diagram types, drag-and-drop, free tier)? The search snippets conflict and no primary source was read.]
 - [NEEDS CLARIFICATION: Is this a personal or learning project, an internal tool, or a public product? The answer decides how much demand evidence is needed.]
 - [NEEDS CLARIFICATION: Is any usage data available since publication to GitHub Pages?]
-- [NEEDS CLARIFICATION: Do any of the Intake first-glance unknowns (shapes, subgraphs, accessibility, browsers) need research? They were not researched here.]
+- [NEEDS CLARIFICATION: Do the remaining intake unknowns (shapes and subgraphs) need research? Accessibility, browsers and clipboard behaviour are already specified (see Data & Constraints), so the open question is whether the implementation meets them, not what they are.]
 
 ## Sources
 
@@ -75,4 +76,14 @@ Method: read `intake.md`, `setup.md` and the repo's specs and git history; ran t
 - community.obsidian.md and obsidianstats.com, Mermaid Flow and Mermaid GUI Editor (host: various, policy: search-result only, not fetched; hosts not on allowlist)
 - awesome.ecosyste.ms, ngx-mermaid-canvas (host: awesome.ecosyste.ms, policy: search-result only, not fetched; host not on allowlist)
 - theodo.com, "mermaid-js" blip (host: theodo.com, policy: search-result only, not fetched; host not on allowlist)
-- Internal: `.speckit-companion/report-answers/idea-mermaid-editor-wysiwyg-research.md` (technical lead's answer), `setup.md`, `CLAUDE.md`, `specs/002-visual-diagram-editor/spec.md`, `specs/005-new-from-mermaid/spec.md`, `git log`
+- Internal: technical lead's written answer (Appendix A; the original `.speckit-companion/report-answers/idea-mermaid-editor-wysiwyg-research.md` is git-ignored), `setup.md`, `CLAUDE.md`, `specs/002-visual-diagram-editor/spec.md`, `specs/005-new-from-mermaid/spec.md`, `git log`
+
+## Appendix A: Technical lead's written answer
+
+Copied verbatim from `.speckit-companion/report-answers/idea-mermaid-editor-wysiwyg-research.md` (git-ignored, so not in the checkout), written 2026-10-21.
+
+> ## Question
+> What does "token efficiency" mean here (for example, passing diagrams to LLMs as text rather than images), and is there any measurement of the saving?
+>
+> ## Answer
+> Yes for LLMs. the idea of capturing product knowledge to provide code assistants and LLMs generally is important to the business
