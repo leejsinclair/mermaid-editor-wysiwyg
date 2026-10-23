@@ -89,6 +89,8 @@ export function reducer(state: EditorState, action: EditorAction): EditorState {
     case "confirmName":
       return confirmDraft(state, "name");
     case "select":
+      // Choosing what is already chosen, with no draft open, changes nothing: the same state keeps the editor from drawing again (a pan of the empty canvas does this).
+      if (action.itemId === state.selection && state.draft === null) return state;
       // Selecting something else ends a run of merged moves (FR-019).
       return { ...state, history: action.itemId === state.selection ? state.history : seal(state.history), selection: action.itemId, draft: null };
     case "seal":

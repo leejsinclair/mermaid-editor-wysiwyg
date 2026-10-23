@@ -8,9 +8,9 @@ export type ConnectionFlowEdge = Edge<{ connection: Connection; name: string; ed
 /** The width of the editor on a line, which has no box of its own to fill. */
 const EDITOR_WIDTH = 160;
 
-const INK = "#222";
+const INK = "var(--canvas-ink)";
 /** The colour and extra width that mark the selected connection; the width is the cue that does not rely on colour. */
-const CHOSEN = "#1565c0";
+const CHOSEN = "var(--selection)";
 const CHOSEN_EXTRA_WIDTH = 2;
 
 /** A path out of the bottom of a node and back into its top, for a connection from a node to itself. */
@@ -69,7 +69,7 @@ export function ConnectionEdge(props: Readonly<EdgeProps<ConnectionFlowEdge>>) {
             style={{
               position: "absolute",
               transform: `translate(-50%, -50%) translate(${String(isLoop ? labelX + 90 : labelX)}px, ${String(labelY)}px)`,
-              background: "white",
+              background: "var(--canvas-surface)",
               padding: "0 4px",
               whiteSpace: "pre-wrap",
               pointerEvents: "all",

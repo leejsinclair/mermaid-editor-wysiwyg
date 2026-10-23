@@ -1,6 +1,7 @@
 // Mermaid's readings as plain data (data-model.md, Snapshots): this module is the only one that reads Mermaid's objects.
 
 import type { FlowchartSnapshot, SequenceSnapshot } from "../importing/snapshots";
+import { loadMermaid } from "../rendering/shared/mermaidRuntime";
 
 export type { FlowchartSnapshot, SequenceSnapshot };
 
@@ -39,9 +40,8 @@ const DIRECTIONS: ReadonlyMap<string, FlowchartSnapshot["direction"]> = new Map(
 
 /** Mermaid's own reading of a flowchart source, loaded when first needed so the editor opens without it (research R1). */
 export async function snapshotFlowchart(source: string): Promise<FlowchartSnapshot> {
-  const { default: mermaid } = await import("mermaid");
   // Registers Mermaid's diagram types, which `getDiagramFromText` alone does not.
-  mermaid.initialize({ startOnLoad: false });
+  const mermaid = await loadMermaid();
   // mermaidAPI is deprecated, but `parse` does not expose the parsed database a snapshot needs (research R1).
   // eslint-disable-next-line sonarjs/deprecation, @typescript-eslint/no-deprecated
   const diagram = await mermaid.mermaidAPI.getDiagramFromText(source);
@@ -83,8 +83,7 @@ interface SequenceDb {
 
 /** Mermaid's own reading of a sequence source, as plain data (research R1). */
 export async function snapshotSequence(source: string): Promise<SequenceSnapshot> {
-  const { default: mermaid } = await import("mermaid");
-  mermaid.initialize({ startOnLoad: false });
+  const mermaid = await loadMermaid();
   // eslint-disable-next-line sonarjs/deprecation, @typescript-eslint/no-deprecated
   const diagram = await mermaid.mermaidAPI.getDiagramFromText(source);
   const db = diagram.db as unknown as SequenceDb;

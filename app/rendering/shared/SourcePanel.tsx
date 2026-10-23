@@ -1,7 +1,8 @@
 import { Accordion, AccordionDetails, AccordionSummary, Typography } from "@mui/material";
 import type { Notice } from "../../generation/generate";
 import { en } from "../../text/en";
-import { fill } from "../../text/fill";
+import { HighlightedSource } from "./HighlightedSource";
+import { statusText, statusTone, toneColour, type SourcePanelStatus } from "./sourceStatus";
 
 function ExpandIcon() {
   return (
@@ -9,26 +10,6 @@ function ExpandIcon() {
       <path d="M7 10l5 5 5-5z" fill="currentColor" />
     </svg>
   );
-}
-
-/** Where the source stands: being checked, accepted by Mermaid, rejected, or accepted but for a notice. */
-export type SourcePanelStatus =
-  | { readonly kind: "checking" }
-  | { readonly kind: "valid" }
-  | { readonly kind: "invalid"; readonly reason: string }
-  | { readonly kind: "notice"; readonly notices: readonly Notice[] };
-
-function statusText(status: SourcePanelStatus): string {
-  switch (status.kind) {
-    case "checking":
-      return en.sourceCheck.checking;
-    case "valid":
-      return en.sourceCheck.valid;
-    case "invalid":
-      return fill(en.sourceCheck.invalid, { reason: status.reason });
-    case "notice":
-      return en.sourceCheck.notice;
-  }
 }
 
 interface SourcePanelProps {
@@ -43,12 +24,12 @@ export function SourcePanel({ source, status, notices }: SourcePanelProps) {
     <Accordion disableGutters>
       <AccordionSummary expandIcon={<ExpandIcon />} aria-controls="mermaid-source-content" id="mermaid-source-header">
         <Typography component="span">{en.editor.source}</Typography>
-        <Typography component="span" color="text.secondary" sx={{ ml: 2 }}>
+        <Typography component="span" sx={{ ml: 2, color: toneColour(statusTone(status)) }}>
           {statusText(status)}
         </Typography>
       </AccordionSummary>
       <AccordionDetails id="mermaid-source-content">
-        <pre style={{ margin: 0, whiteSpace: "pre-wrap" }}>{source}</pre>
+        <HighlightedSource source={source} />
         {notices.map((notice) => (
           <Typography key={notice.code + notice.text} variant="body2" role="note">
             {notice.text}

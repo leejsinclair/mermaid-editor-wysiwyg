@@ -85,7 +85,7 @@ export function ShapeNode({ data, selected }: Readonly<NodeProps<ShapeFlowNode>>
     >
       <div data-target-ring style={{ position: "absolute", inset: -7, borderRadius: 6 }} />
       <div data-hover-outline style={{ position: "absolute", inset: -4, border: "1px dashed currentColor", borderRadius: 4 }} />
-      <svg width={W} height={H} aria-hidden="true" focusable="false" fill="white" stroke={selected ? "#1565c0" : "currentColor"} strokeWidth={selected ? 4 : 2} style={{ position: "absolute", inset: 0 }}>
+      <svg width={W} height={H} aria-hidden="true" focusable="false" fill="var(--node-fill)" stroke={selected ? "var(--selection)" : "currentColor"} strokeWidth={selected ? 4 : 2} style={{ position: "absolute", inset: 0 }}>
         {OUTLINES.get(data.node.shape)}
       </svg>
       <div

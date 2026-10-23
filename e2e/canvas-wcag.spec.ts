@@ -2,6 +2,7 @@ import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
 import { handlesOf } from "./support/c4";
 import { openEditor, openPair, VIEWS, type OpenedItem, type View } from "./support/items";
+import { eachAppearance } from "./support/appearance";
 
 // VO-042 (FR-022, SC-008): each view, with handles visible, with a line being drawn and with the inline editor open, shows no WCAG 2.2
 // AA violation; the hover outline, the handle dots and the target marks each have at least 3:1 contrast with what they sit on; and the
@@ -100,53 +101,55 @@ async function handleAndTarget(page: Page, view: View, pair: readonly [OpenedIte
   return { from: { x: box.x + box.width / 2, y: view === "sequence" ? box.y + 24 : box.y + box.height / 2 }, to: await centreOf(second.item) };
 }
 
-for (const view of VIEWS) {
-  test(`a ${view} diagram has no violations with its handles visible, with a line being drawn and with the editor open`, async ({ page }) => {
-    const pair = await openPair(page, view);
-    await pair[0].item.focus();
-    await page.keyboard.press("Enter");
-    await page.mouse.move(2, 2);
-    await expectNoViolations(page);
+eachAppearance(() => {
+  for (const view of VIEWS) {
+    test(`a ${view} diagram has no violations with its handles visible, with a line being drawn and with the editor open`, async ({ page }) => {
+      const pair = await openPair(page, view);
+      await pair[0].item.focus();
+      await page.keyboard.press("Enter");
+      await page.mouse.move(2, 2);
+      await expectNoViolations(page);
 
-    const { from, to } = await handleAndTarget(page, view, pair);
-    await startLine(page, from, to);
-    await expectNoViolations(page);
-    await page.mouse.up();
+      const { from, to } = await handleAndTarget(page, view, pair);
+      await startLine(page, from, to);
+      await expectNoViolations(page);
+      await page.mouse.up();
 
-    await page.keyboard.press("Escape");
-    await openEditor(pair[1]);
-    await expectNoViolations(page);
-  });
-
-  test(`in a ${view} diagram the hover outline, the handle dots and the target marks have at least 3:1 contrast, and the drop target differs by more than colour`, async ({ page }) => {
-    const pair = await openPair(page, view);
-    const [first, second] = pair;
-    await page.keyboard.press("Escape");
-    await page.mouse.move(2, 2);
-
-    // The hover outline, with the pointer resting on the first item's body.
-    const body = await first.item.locator('[data-zone="body"]').first().boundingBox();
-    if (!body) throw new Error("The body must be on screen");
-    await page.mouse.move(body.x + 14, body.y + 14);
-    const outline = first.item.locator("[data-hover-outline]").first();
-    expect(await outline.evaluate(contrastInPage, { paint: view === "flowchart" ? "border" : "stroke" })).toBeGreaterThanOrEqual(3);
-
-    // The handle dot, shown while the item is hovered.
-    expect(await dotContrast(page, view, first)).toBeGreaterThanOrEqual(3);
-
-    // The marks of a line being drawn: a thin dashed ring on a valid end, a thick solid ring on the drop target.
-    const { from, to } = await handleAndTarget(page, view, pair);
-    await startLine(page, from, to);
-    const ring = (item: OpenedItem) => item.item.locator("[data-target-ring]").first();
-    const ringPaint: Paint = view === "flowchart" ? "border" : "stroke";
-    expect(await ring(first).evaluate(contrastInPage, { paint: ringPaint })).toBeGreaterThanOrEqual(3);
-    expect(await ring(second).evaluate(contrastInPage, { paint: ringPaint })).toBeGreaterThanOrEqual(3);
-    const shape = (item: OpenedItem) => ring(item).evaluate((element) => {
-      const style = getComputedStyle(element);
-      return { width: Number.parseFloat(style.strokeWidth) || Number.parseFloat(style.borderTopWidth), dashed: style.borderTopStyle === "dashed" || (style.strokeDasharray !== "none" && style.strokeDasharray !== "") };
+      await page.keyboard.press("Escape");
+      await openEditor(pair[1]);
+      await expectNoViolations(page);
     });
-    const [valid, drop] = [await shape(first), await shape(second)];
-    expect(drop.width !== valid.width || drop.dashed !== valid.dashed).toBe(true);
-    await page.mouse.up();
-  });
-}
+
+    test(`in a ${view} diagram the hover outline, the handle dots and the target marks have at least 3:1 contrast, and the drop target differs by more than colour`, async ({ page }) => {
+      const pair = await openPair(page, view);
+      const [first, second] = pair;
+      await page.keyboard.press("Escape");
+      await page.mouse.move(2, 2);
+
+      // The hover outline, with the pointer resting on the first item's body.
+      const body = await first.item.locator('[data-zone="body"]').first().boundingBox();
+      if (!body) throw new Error("The body must be on screen");
+      await page.mouse.move(body.x + 14, body.y + 14);
+      const outline = first.item.locator("[data-hover-outline]").first();
+      expect(await outline.evaluate(contrastInPage, { paint: view === "flowchart" ? "border" : "stroke" })).toBeGreaterThanOrEqual(3);
+
+      // The handle dot, shown while the item is hovered.
+      expect(await dotContrast(page, view, first)).toBeGreaterThanOrEqual(3);
+
+      // The marks of a line being drawn: a thin dashed ring on a valid end, a thick solid ring on the drop target.
+      const { from, to } = await handleAndTarget(page, view, pair);
+      await startLine(page, from, to);
+      const ring = (item: OpenedItem) => item.item.locator("[data-target-ring]").first();
+      const ringPaint: Paint = view === "flowchart" ? "border" : "stroke";
+      expect(await ring(first).evaluate(contrastInPage, { paint: ringPaint })).toBeGreaterThanOrEqual(3);
+      expect(await ring(second).evaluate(contrastInPage, { paint: ringPaint })).toBeGreaterThanOrEqual(3);
+      const shape = (item: OpenedItem) => ring(item).evaluate((element) => {
+        const style = getComputedStyle(element);
+        return { width: Number.parseFloat(style.strokeWidth) || Number.parseFloat(style.borderTopWidth), dashed: style.borderTopStyle === "dashed" || (style.strokeDasharray !== "none" && style.strokeDasharray !== "") };
+      });
+      const [valid, drop] = [await shape(first), await shape(second)];
+      expect(drop.width !== valid.width || drop.dashed !== valid.dashed).toBe(true);
+      await page.mouse.up();
+    });
+  }
+});

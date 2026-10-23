@@ -111,3 +111,15 @@ rect[data-zone="connect"]:hover {
   stroke-width: 3px;
   stroke-dasharray: none;
 }
+
+/*
+ * The flowchart canvas library takes its surface and its attribution from the appearance (spec 007): the canvas is the
+ * appearance's canvas surface, and the attribution link sits on the panel surface so its muted text keeps its contrast.
+ */
+.react-flow {
+  --xy-background-color: var(--canvas-surface);
+}
+
+[class~="react-flow__attribution"] {
+  background: var(--panel);
+}

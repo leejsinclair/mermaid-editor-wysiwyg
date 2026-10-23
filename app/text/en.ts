@@ -34,6 +34,15 @@ export const en = {
     movedBody: "Another tab is now editing this diagram, so this tab has stopped. What you changed here was saved before that, apart from any label you were still typing.",
     takeBack: "Take it back",
   },
+  appearance: {
+    label: "Appearance",
+    blueprint: "Blueprint Studio",
+    light: "Light",
+    notSaved: "Your appearance choice could not be saved for next time.",
+  },
+  appName: "Mermaid diagram editor",
+  workspace: { tools: "Tools" },
+  statusBar: { region: "Editor status", zoom: "Zoom {percent}%" },
   file: {
     open: "Open file…",
     openRegion: "Open a saved file",
@@ -50,6 +59,7 @@ export const en = {
     zoomIn: "Zoom in",
     zoomOut: "Zoom out",
     fit: "Fit to view",
+    moreActions: "More actions",
     region: "Diagram actions",
     layoutNote: "Node positions are kept in the editor only. Mermaid arranges the copied diagram its own way.",
   },

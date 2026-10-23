@@ -1,9 +1,9 @@
+import { loadMermaid } from "../rendering/shared/mermaidRuntime";
 import type { ParseOutcome } from "./sourceCheck";
 
 /** Mermaid's own parser, loaded the first time it is needed so the editor opens without it (research R7). */
 export async function parseWithMermaid(source: string): Promise<ParseOutcome> {
-  const { default: mermaid } = await import("mermaid");
-  mermaid.initialize({ startOnLoad: false });
+  const mermaid = await loadMermaid();
   try {
     await mermaid.parse(source);
     return { ok: true };
@@ -34,8 +34,7 @@ function strippedLineCount(lines: readonly string[]): number {
 
 /** Mermaid's parser with the error's line (document lines, front matter included) and column (research R4). */
 export async function parseLocated(source: string): Promise<LocatedOutcome> {
-  const { default: mermaid } = await import("mermaid");
-  mermaid.initialize({ startOnLoad: false });
+  const mermaid = await loadMermaid();
   try {
     await mermaid.parse(source);
     return { ok: true };

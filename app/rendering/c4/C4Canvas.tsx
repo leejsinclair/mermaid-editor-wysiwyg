@@ -1,7 +1,9 @@
-import { useCallback, useId, useMemo, useRef, useState, type CSSProperties, type MouseEvent, type Ref } from "react";
+import { memo, useCallback, useEffect, useId, useMemo, useRef, useState, type CSSProperties, type MouseEvent, type Ref } from "react";
 import { CanvasHelp } from "../shared/CanvasHelp";
 import { EmptyHint } from "../shared/EmptyHint";
-import { useSvgViewport, type ViewHandle } from "../shared/viewport";
+import { gridBackground } from "../shared/gridStyle";
+import { useTouchPan } from "../shared/touchPan";
+import { useReportZoom, useSvgViewport, type ViewHandle } from "../shared/viewport";
 import { BOUNDARY_NAMES, DEPLOYMENT_NODE_NAME, DIRECTION_NAMES, ELEMENT_TYPE_NAMES } from "../../model/c4/catalogue";
 import { findItem } from "../../model/c4/tree";
 import type { C4Diagram, C4Item, Relationship } from "../../model/types";
@@ -26,6 +28,8 @@ type Begin = (what: C4Drag) => (event: { clientX: number; clientY: number; butto
 
 interface C4CanvasProps {
   readonly handleRef?: Ref<ViewHandle>;
+  /** Called with the zoom now and whenever it changes. */
+  readonly onZoomChange?: (zoom: number) => void;
   readonly diagram: C4Diagram;
   /** The label being edited in place, or none. */
   readonly inlineEdit: InlineEdit | null;
@@ -44,20 +48,20 @@ interface C4CanvasProps {
 }
 
 /** Makes a drawn item reachable from the keyboard: it takes focus and Enter or Space selects it. */
-function selectable<E extends { stopPropagation: () => void }>(select: () => void, activate?: (event: E) => boolean, edit?: () => void) {
+function selectable<E extends { stopPropagation: () => void }>(id: number, select: (id: number) => void, activate?: (id: number, event: E) => boolean, edit?: (id: number) => void) {
   return {
     role: "button",
     tabIndex: 0,
     onClick: (event: E) => {
       event.stopPropagation();
-      if (activate?.(event) !== true) select();
+      if (activate?.(id, event) !== true) select(id);
     },
     onKeyDown: (event: { key: string; preventDefault: () => void }) => {
       if (event.key === "Enter" || event.key === " ") {
         event.preventDefault();
         // Enter on an item that is already selected opens its label for editing.
-        if (event.key === "Enter" && edit) edit();
-        else select();
+        if (event.key === "Enter" && edit) edit(id);
+        else select(id);
       }
     },
   };
@@ -85,9 +89,10 @@ function details(item: C4Item): readonly { readonly name: string; readonly text:
   return lines.filter((line) => line.text !== "");
 }
 
-const fillOpacity = (container: boolean, external: boolean): number => {
-  if (container) return 0;
-  return external ? 0.25 : 0.1;
+/** A boundary is open; an element is the node fill, and an external one the raised panel colour so it still stands apart. */
+const fillOf = (container: boolean, external: boolean): string => {
+  if (container) return "transparent";
+  return external ? "var(--panel-raised)" : "var(--node-fill)";
 };
 
 /** Where the middle of a side of a box is. */
@@ -98,7 +103,7 @@ function sidePoint(box: C4Box, side: HandleSide): { x: number; y: number } {
 }
 
 /** A connection handle on one side of an element or node: dragging from it draws a relationship. */
-function SideHandle({ box, side, itemId, covered, visible, zoom, begin, onHover }: Readonly<{ box: C4Box; side: HandleSide; itemId: number; covered: boolean; visible: boolean; zoom: number; begin: Begin; onHover: (hovered: boolean) => void }>) {
+const SideHandle = memo(function SideHandle({ box, side, itemId, covered, visible, zoom, begin, onHover }: Readonly<{ box: C4Box; side: HandleSide; itemId: number; covered: boolean; visible: boolean; zoom: number; begin: Begin; onHover: (id: number, hovered: boolean) => void }>) {
   const { x, y } = sidePoint(box, side);
   // 28 px to hit and 16 px to see on screen, however far the drawing is zoomed.
   const hit = HANDLE_HIT / zoom;
@@ -112,10 +117,10 @@ function SideHandle({ box, side, itemId, covered, visible, zoom, begin, onHover 
       data-covered={covered}
       data-visible={visible}
       onPointerEnter={() => {
-        onHover(true);
+        onHover(itemId, true);
       }}
       onPointerLeave={() => {
-        onHover(false);
+        onHover(itemId, false);
       }}
       style={{ cursor: "crosshair" }}
       onPointerDown={(event) => {
@@ -127,7 +132,7 @@ function SideHandle({ box, side, itemId, covered, visible, zoom, begin, onHover 
       <circle data-handle-dot data-visible={visible} cx={x} cy={y} r={HANDLE_DOT / 2 / zoom} fill="currentColor" fillOpacity={0.6} pointerEvents="none" style={{ "--hover-r": `${String(HANDLE_DOT * 0.75 / zoom)}px` } as CSSProperties} />
     </g>
   );
-}
+});
 
 /** An item's label, or the editor on it, and the lines under it. */
 function ItemText({ box, item, name, edit }: Readonly<{ box: C4Box; item: C4Item; name: string; edit: InlineEdit | undefined }>) {
@@ -158,7 +163,7 @@ function ItemText({ box, item, name, edit }: Readonly<{ box: C4Box; item: C4Item
   );
 }
 
-function ItemView({ box, item, chosen, target, helpId, onSelect, onEdit, onHover, begin, edit, activate }: Readonly<{ box: C4Box; item: C4Item; chosen: boolean; helpId: string; target: "valid" | "drop" | undefined; onSelect: () => void; onEdit: () => void; onHover: (hovered: boolean) => void; begin: Begin; edit: InlineEdit | undefined; activate: (event: MouseEvent<SVGGElement>) => boolean }>) {
+const ItemView = memo(function ItemView({ box, item, chosen, target, helpId, onSelect, onEdit, onHover, begin, edit, activate }: Readonly<{ box: C4Box; item: C4Item; chosen: boolean; helpId: string; target: "valid" | "drop" | undefined; onSelect: (id: number) => void; onEdit: (id: number) => void; onHover: (id: number, hovered: boolean) => void; begin: Begin; edit: InlineEdit | undefined; activate: (id: number, event: MouseEvent<SVGGElement>) => boolean }>) {
   const container = item.item !== "element";
   const name = fill(en.c4.itemName, { type: typeNameOf(item), label: item.label });
   const external = item.item === "element" && item.elementType.endsWith("-ext");
@@ -170,7 +175,7 @@ function ItemView({ box, item, chosen, target, helpId, onSelect, onEdit, onHover
       aria-label={name}
       aria-describedby={helpId}
       aria-pressed={edit ? undefined : chosen}
-      {...selectable(onSelect, activate, chosen ? onEdit : undefined)}
+      {...selectable(item.id, onSelect, activate, chosen ? onEdit : undefined)}
       // While its label is typed the item holds a text field, so it is a group rather than a button.
       role={edit ? "group" : "button"}
       style={{ outline: "none" }}
@@ -179,10 +184,10 @@ function ItemView({ box, item, chosen, target, helpId, onSelect, onEdit, onHover
         data-zone="body"
         onPointerDown={begin({ kind: "move", id: item.id })}
         onPointerEnter={() => {
-          onHover(true);
+          onHover(item.id, true);
         }}
         onPointerLeave={() => {
-          onHover(false);
+          onHover(item.id, false);
         }}
       >
       <rect data-target-ring x={box.x - 7} y={box.y - 7} width={box.width + 14} height={box.height + 14} rx={9} fill="none" stroke="currentColor" />
@@ -193,9 +198,8 @@ function ItemView({ box, item, chosen, target, helpId, onSelect, onEdit, onHover
         width={box.width}
         height={box.height}
         rx={6}
-        fill={container ? "transparent" : "currentColor"}
-        fillOpacity={fillOpacity(container, external)}
-        stroke="currentColor"
+        fill={fillOf(container, external)}
+        stroke={chosen ? "var(--selection)" : "currentColor"}
         strokeWidth={chosen ? 3 : 1.5}
         strokeDasharray={item.item === "boundary" ? "8 5" : undefined}
       />
@@ -203,7 +207,7 @@ function ItemView({ box, item, chosen, target, helpId, onSelect, onEdit, onHover
       </g>
     </g>
   );
-}
+});
 
 /** Where the line from the middle of `from` towards `to` leaves `from`'s outline. */
 function edgePoint(from: C4Box, to: C4Box): { x: number; y: number } {
@@ -216,8 +220,8 @@ function edgePoint(from: C4Box, to: C4Box): { x: number; y: number } {
   return { x: cx + dx * scale, y: cy + dy * scale };
 }
 
-function RelationshipView({ relationship, source, target, names, chosen, number, onSelect, onEdit, begin, pressed, edit, activate }: Readonly<{ relationship: Relationship; source: C4Box; target: C4Box; names: { from: string; to: string }; chosen: boolean; number: number | undefined; onSelect: () => void; onEdit: () => void; begin: Begin; pressed: (event: { clientX: number; clientY: number }) => void; edit: InlineEdit | undefined; activate: (event: MouseEvent<SVGGElement>) => boolean }>) {
-  const name = fill(en.c4.relationshipName, { kind: DIRECTION_NAMES.get(relationship.direction) ?? relationship.direction, ...names, label: relationship.label });
+const RelationshipView = memo(function RelationshipView({ relationship, source, target, fromName, toName, chosen, number, onSelect, onEdit, begin, pressed, edit, activate }: Readonly<{ relationship: Relationship; source: C4Box; target: C4Box; fromName: string; toName: string; chosen: boolean; number: number | undefined; onSelect: (id: number) => void; onEdit: (id: number) => void; begin: Begin; pressed: (event: { clientX: number; clientY: number }) => void; edit: InlineEdit | undefined; activate: (id: number, event: MouseEvent<SVGGElement>) => boolean }>) {
+  const name = fill(en.c4.relationshipName, { kind: DIRECTION_NAMES.get(relationship.direction) ?? relationship.direction, from: fromName, to: toName, label: relationship.label });
   const from = source;
   const to = target;
   const start = edgePoint(source, target);
@@ -236,7 +240,7 @@ function RelationshipView({ relationship, source, target, names, chosen, number,
       data-number={number}
       aria-label={name}
       aria-pressed={edit ? undefined : chosen}
-      {...selectable(onSelect, activate, chosen ? onEdit : undefined)}
+      {...selectable(relationship.id, onSelect, activate, chosen ? onEdit : undefined)}
       // While its label is typed the item holds a text field, so it is a group rather than a button.
       role={edit ? "group" : "button"}
       style={{ cursor: "pointer", outline: "none" }}
@@ -246,7 +250,7 @@ function RelationshipView({ relationship, source, target, names, chosen, number,
       }}
     >
       <path d={path} stroke="transparent" strokeWidth={18} fill="none" />
-      <path d={path} fill="none" stroke="currentColor" strokeWidth={chosen ? 3 : 1.5} markerEnd="url(#c4-arrow)" markerStart={twoWay ? "url(#c4-arrow)" : undefined} />
+      <path d={path} fill="none" stroke={chosen ? "var(--selection)" : "currentColor"} strokeWidth={chosen ? 3 : 1.5} markerEnd="url(#c4-arrow)" markerStart={twoWay ? "url(#c4-arrow)" : undefined} />
       {number !== undefined && (
         <g data-testid="relationship-number">
           <circle cx={start.x} cy={start.y} r={11} fill="currentColor" fillOpacity={0.15} stroke="currentColor" />
@@ -264,7 +268,7 @@ function RelationshipView({ relationship, source, target, names, chosen, number,
       )}
     </g>
   );
-}
+});
 
 function EndHandle({ end, x, y, begin, id, zoom }: Readonly<{ end: "from" | "to"; x: number; y: number; begin: Begin; id: number; zoom: number }>) {
   const hit = HANDLE_HIT / zoom;
@@ -352,7 +356,7 @@ function relationshipIndexAt(boxes: readonly C4Box[], relationships: readonly Re
 }
 
 /** Elements, boundaries and nodes in the order and nesting Mermaid arranges them, with relationships between (research R3, FR-038). */
-export function C4Canvas({ handleRef, diagram, inlineEdit, onStartEdit, selection, onSelect, onCreateRelationship, onMoveEnd, onMoveToParent, onReorder }: Readonly<C4CanvasProps>) {
+export function C4Canvas({ handleRef, onZoomChange, diagram, inlineEdit, onStartEdit, selection, onSelect, onCreateRelationship, onMoveEnd, onMoveToParent, onReorder }: Readonly<C4CanvasProps>) {
   const svg = useRef<SVGSVGElement>(null);
   const helpId = useId();
   // The item under the pointer, whose handles are shown with those of the selected item.
@@ -361,7 +365,9 @@ export function C4Canvas({ handleRef, diagram, inlineEdit, onStartEdit, selectio
   const layout = useMemo(() => c4Layout(content), [content]);
   const boxes = useMemo(() => new Map(layout.boxes.map((box) => [box.id, box])), [layout]);
   const scroller = useRef<HTMLDivElement>(null);
-  const zoom = useSvgViewport(handleRef, layout, scroller);
+  const { zoom, zoomTo } = useSvgViewport(handleRef, layout, scroller);
+  useTouchPan(scroller, zoom, zoomTo);
+  useReportZoom(zoom, onZoomChange);
   // How far from a handle's middle a press or a release still counts as on it, in the drawing's own units.
   const reach = HANDLE_HIT / 2 / zoom;
   const chosen = content.relationships.find((relationship) => relationship.id === selection);
@@ -398,10 +404,29 @@ export function C4Canvas({ handleRef, diagram, inlineEdit, onStartEdit, selectio
   );
   const { begin: beginDrag, current } = useDrag<C4Drag>(svg, scroller, onDrop, zoom);
   const doubles = useDoubleActivation(onStartEdit);
-  const begin: Begin = (what) => (event) => {
-    doubles.pressed(event);
-    beginDrag(what)(event);
-  };
+  // The handlers the items are given never change, so an item is drawn again only when what it shows does: a hover then draws the
+  // items it concerns, not every item and relationship. They reach the newest callbacks through a ref.
+  const latest = useRef({ onSelect, onStartEdit, beginDrag, doubles });
+  useEffect(() => {
+    latest.current = { onSelect, onStartEdit, beginDrag, doubles };
+  });
+  const begin = useCallback<Begin>((what) => (event) => {
+    latest.current.doubles.pressed(event);
+    latest.current.beginDrag(what)(event);
+  }, []);
+  const selectItem = useCallback((id: number) => {
+    latest.current.onSelect(id);
+  }, []);
+  const editItem = useCallback((id: number) => {
+    latest.current.onStartEdit(id);
+  }, []);
+  const hoverItem = useCallback((id: number, over: boolean) => {
+    setHovered(over ? id : null);
+  }, []);
+  const activate = useCallback((id: number, event: MouseEvent<SVGGElement>) => latest.current.doubles.released(id, event), []);
+  const pressed = useCallback((event: { clientX: number; clientY: number }) => {
+    latest.current.doubles.pressed(event);
+  }, []);
   const creatingFrom = current?.what.kind === "create" ? boxes.get(current.what.fromId) : undefined;
   // While a relationship is drawn every element and node is a valid end (never a boundary) and the one under the pointer is where it will land.
   const drawing = creatingFrom !== undefined;
@@ -413,7 +438,7 @@ export function C4Canvas({ handleRef, diagram, inlineEdit, onStartEdit, selectio
     <div
       ref={scroller}
       role="presentation"
-      style={{ width: "100%", height: "100%", overflow: "auto", position: "relative" }}
+      style={{ width: "100%", height: "100%", overflow: "auto", position: "relative", touchAction: "none", ...gridBackground(zoom) }}
       onClick={() => {
         onSelect(null);
       }}
@@ -439,7 +464,7 @@ export function C4Canvas({ handleRef, diagram, inlineEdit, onStartEdit, selectio
         </defs>
         {layout.boxes.map((box) => {
           const item = findItem(content.tree, box.id);
-          return item && <ItemView key={box.id} box={box} item={item} helpId={helpId} chosen={box.id === selection} onSelect={() => { onSelect(box.id); }} target={drawing ? targetMark(validIds.has(box.id), dropOn === box.id) : undefined} onEdit={() => { onStartEdit(box.id); }} onHover={(over) => { setHovered(over ? box.id : null); }} begin={begin} edit={inlineEdit?.itemId === box.id ? inlineEdit : undefined} activate={(event) => doubles.released(box.id, event)} />;
+          return item && <ItemView key={box.id} box={box} item={item} helpId={helpId} chosen={box.id === selection} onSelect={selectItem} target={drawing ? targetMark(validIds.has(box.id), dropOn === box.id) : undefined} onEdit={editItem} onHover={hoverItem} begin={begin} edit={inlineEdit?.itemId === box.id ? inlineEdit : undefined} activate={activate} />;
         })}
         {content.relationships.map((relationship, position) => {
           const from = boxes.get(relationship.from);
@@ -451,19 +476,16 @@ export function C4Canvas({ handleRef, diagram, inlineEdit, onStartEdit, selectio
               relationship={relationship}
               source={from}
               target={to}
-              names={{ from: findItem(content.tree, relationship.from)?.label ?? "", to: findItem(content.tree, relationship.to)?.label ?? "" }}
+              fromName={findItem(content.tree, relationship.from)?.label ?? ""}
+              toName={findItem(content.tree, relationship.to)?.label ?? ""}
               chosen={relationship.id === selection}
               number={diagram.kind === "dynamic" ? position + 1 : undefined}
-              onSelect={() => {
-                onSelect(relationship.id);
-              }}
-              onEdit={() => {
-                onStartEdit(relationship.id);
-              }}
+              onSelect={selectItem}
+              onEdit={editItem}
               begin={begin}
-              pressed={doubles.pressed}
+              pressed={pressed}
               edit={inlineEdit?.itemId === relationship.id ? inlineEdit : undefined}
-              activate={(event) => doubles.released(relationship.id, event)}
+              activate={activate}
             />
           );
         })}
@@ -471,7 +493,7 @@ export function C4Canvas({ handleRef, diagram, inlineEdit, onStartEdit, selectio
           const item = findItem(content.tree, box.id);
           // The handles are drawn above the lines, so a line crossing an item never takes a press meant for a handle.
           // An element or node too small on screen to hold handles shows none.
-          return item && item.item !== "boundary" && handlesFit(box, zoom) && SIDES.map((side) => <SideHandle key={`${String(box.id)}-${side}`} box={box} side={side} itemId={box.id} covered={coveredSides.has(`${String(box.id)}-${side}`)} visible={hovered === box.id || selection === box.id} zoom={zoom} begin={begin} onHover={(over) => { setHovered(over ? box.id : null); }} />);
+          return item && item.item !== "boundary" && handlesFit(box, zoom) && SIDES.map((side) => <SideHandle key={`${String(box.id)}-${side}`} box={box} side={side} itemId={box.id} covered={coveredSides.has(`${String(box.id)}-${side}`)} visible={hovered === box.id || selection === box.id} zoom={zoom} begin={begin} onHover={hoverItem} />);
         })}
         {chosen && chosenFrom && chosenTo && (
           <g>

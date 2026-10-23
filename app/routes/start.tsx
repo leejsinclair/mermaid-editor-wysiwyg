@@ -1,9 +1,11 @@
-import { Box, Button, Container, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, List, ListItem, Typography } from "@mui/material";
+import { alpha, Box, Button, Container, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, List, ListItem, Typography } from "@mui/material";
 import { useCallback, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { createImported, importFile, listDiagrams, onLibraryChanged, lockedDiagramIds, removeDiagram, type LibraryEntry } from "../editor/library";
 import type { C4Kind, DiagramType } from "../model/types";
-import { Feedback, type FeedbackMessage } from "../rendering/shared/Feedback";
+import { Feedback, withAppearanceNotice, type FeedbackMessage } from "../rendering/shared/Feedback";
+import { Panel } from "../rendering/shared/Panel";
+import { useAppearance } from "../rendering/theme/appearanceContext";
 import { C4KindDialog } from "../rendering/shared/C4KindDialog";
 import { ImportDialog } from "../rendering/import/ImportDialog";
 import { readTextFile } from "../rendering/import/readFile";
@@ -90,6 +92,7 @@ export default function Start() {
   const [dragging, setDragging] = useState(false);
   const [incoming, setIncoming] = useState<{ readonly at: number; readonly text?: string; readonly problem?: string } | undefined>();
   const [refusal, setRefusal] = useState<FeedbackMessage | null>(null);
+  const { kept } = useAppearance();
   const openChosen = async (file: File) => {
     const imported = await importFile(file);
     if (imported.ok) void navigate(`/d/${imported.id}`);
@@ -139,7 +142,7 @@ export default function Start() {
       {dragging && (
         <Box
           data-testid="drop-overlay"
-          sx={{ position: "fixed", inset: 0, zIndex: 1300, display: "flex", alignItems: "center", justifyContent: "center", bgcolor: "rgba(0, 0, 0, 0.4)", color: "common.white" }}
+          sx={{ position: "fixed", inset: 0, zIndex: 1300, display: "flex", alignItems: "center", justifyContent: "center", bgcolor: (theme) => alpha(theme.palette.background.default, 0.8), color: "text.primary" }}
         >
           <Typography variant="h5">{en.importMermaid.dropHint}</Typography>
         </Box>
@@ -148,7 +151,7 @@ export default function Start() {
         {en.start.heading}
       </Typography>
       <Box sx={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
-        <Box component="section" aria-labelledby="new-diagram-heading">
+        <Panel aria-labelledby="new-diagram-heading">
           <Typography variant="h6" component="h2" id="new-diagram-heading" gutterBottom>
             {en.start.newDiagram}
           </Typography>
@@ -165,8 +168,8 @@ export default function Start() {
               </Button>
             ))}
           </Box>
-        </Box>
-        <Box component="section" aria-labelledby="import-diagram-heading">
+        </Panel>
+        <Panel aria-labelledby="import-diagram-heading">
           <Typography variant="h6" component="h2" id="import-diagram-heading" gutterBottom>
             {en.importMermaid.heading}
           </Typography>
@@ -178,7 +181,7 @@ export default function Start() {
           >
             {en.importMermaid.start}
           </Button>
-        </Box>
+        </Panel>
       </Box>
       <ImportDialog
         deps={importDeps}
@@ -198,8 +201,8 @@ export default function Start() {
           )
         }
       />
-      <Feedback feedback={refusal} />
-      <Box component="section" aria-label={en.file.openRegion} sx={{ mt: 2 }}>
+      <Feedback feedback={withAppearanceNotice(refusal, kept)} />
+      <Panel aria-label={en.file.openRegion} mt={2}>
         <Button variant="outlined" component="label">
           {en.file.open}
           <input
@@ -212,8 +215,8 @@ export default function Start() {
             }}
           />
         </Button>
-      </Box>
-      <Box component="section" aria-labelledby="saved-heading" sx={{ mt: 4 }}>
+      </Panel>
+      <Panel aria-labelledby="saved-heading" mt={4}>
         <Typography variant="h6" component="h2" id="saved-heading" gutterBottom>
           {en.library.heading}
         </Typography>
@@ -235,7 +238,7 @@ export default function Start() {
         <Typography variant="body2" color="text.secondary">
           {en.library.note}
         </Typography>
-      </Box>
+      </Panel>
       <Dialog open={deleting !== undefined} onClose={() => { setDeleting(undefined); }} aria-labelledby="delete-title">
         <DialogTitle id="delete-title">{en.library.deleteTitle}</DialogTitle>
         <DialogContent>
