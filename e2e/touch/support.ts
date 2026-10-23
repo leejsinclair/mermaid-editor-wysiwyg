@@ -50,6 +50,8 @@ export async function doubleTap(page: Page, target: Locator): Promise<void> {
 /** Fingers on the screen: put them down, move them, lift them, together or one at a time. Create one with `Touches.attach`. */
 /** A finger takes a moment between coming up and going down again; Chromium loses a touch that begins sooner than this after one ended. */
 const LIFT_TO_TOUCH_MS = 150;
+/** A finger moves once per frame; events sent faster are merged by a busy browser, and a pinch of merged events is not recognised. */
+const FRAME_MS = 16;
 /** How long a dragged finger rests before it lifts. */
 const DRAG_REST_MS = 80;
 
@@ -117,6 +119,7 @@ export class Touches {
       });
       this.active = this.active.map((finger) => now.find((moved) => moved.id === finger.id) ?? finger);
       await this.send("move", now);
+      await new Promise((done) => setTimeout(done, FRAME_MS));
     }
   }
 
@@ -129,6 +132,7 @@ export class Touches {
       const moved = { id, x: from.x + (to.x - from.x) * share, y: from.y + (to.y - from.y) * share };
       this.active = this.active.map((finger) => (finger.id === id ? moved : finger));
       await this.send("move", [moved]);
+      await new Promise((done) => setTimeout(done, FRAME_MS));
     }
   }
 
