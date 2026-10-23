@@ -4,7 +4,7 @@
 
 ## Summary
 
-_Generated from the tables below on 2026-10-22T21:21:04Z._
+_Generated from the tables below on 2026-10-23T13:15:30Z._
 
 | Obligation | Requirements | Status | Tests | Latest result |
 |------------|--------------|--------|-------|---------------|
@@ -110,7 +110,7 @@ Counts: verified 42, deferred 3, manual checks 3 open
 
 **Item changes**: BX-01 on BI-016, alters behaviour (approved by Lee Sinclair); BX-02 on BI-036, alters behaviour (approved by Lee Sinclair); BX-03 on BI-036, alters behaviour (approved by Lee Sinclair).
 
-**Pre-existing failures**: none.
+**Pre-existing failures**: #165 e2e: diagnose CI pinch failure.
 
 ## Baseline
 
@@ -118,6 +118,7 @@ Counts: verified 42, deferred 3, manual checks 3 open
 |-----|---------|--------|-----------------------|
 | 1 | unit-all | pass | - |
 | 2 | e2e-all | pass | - |
+| 165 | e2e | fail | diagnose CI pinch failure |
 
 ## Test execution records
 
@@ -286,6 +287,10 @@ Counts: verified 42, deferred 3, manual checks 3 open
 | 161 | 2026-10-22T21:19:07Z | - | - | checkpoint | e2e-all | - | fail | no | environment | - | - | Final checkpoint; 12 mobile-ios tests cannot launch WebKit (libraries missing); firefox-timing sequence timing failed under load straight after the suite and passed on rerun (#163); 1212 others passed | 7ea023 |
 | 162 | 2026-10-22T21:20:05Z | T100 | VO-045 | refactor | e2e-timing | redesign-performance | fail | no | unreliable | e2e/redesign-performance.spec.ts | 75d4af | chromium-timing flowchart timing missed its 10% limit on a loaded machine; the same suite passed in #158 and #163 with nothing changed | 8c5c73 |
 | 163 | 2026-10-22T21:20:59Z | T100 | VO-045 | refactor | e2e-timing | redesign-performance | pass | yes | - | e2e/redesign-performance.spec.ts | 75d4af | - | 8bbd54 |
+| 164 | 2026-10-23T12:56:07Z | - | - | checkpoint | e2e | --project=mobile-android e2e/touch/gestures.spec.ts:29 --retries=0 | fail | no | unclassified | - | - | command scope is not broad; diagnose CI pinch failure | 3a280c |
+| 165 | 2026-10-23T12:56:14Z | - | - | baseline | e2e | e2e/touch/gestures.spec.ts:29 --retries=0 | fail | yes | unclassified | - | - | diagnose CI pinch failure | c87d2d |
+| 166 | 2026-10-23T13:03:06Z | - | - | checkpoint | unit-all | - | pass | yes | - | - | - | recheck after CI fixes | 46d490 |
+| 167 | 2026-10-23T13:15:30Z | - | - | checkpoint | e2e-all | - | pass | yes | - | - | - | recheck after CI fixes | 884924 |
 
 ## Exceptions
 

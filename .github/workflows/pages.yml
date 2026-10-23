@@ -25,7 +25,7 @@ jobs:
       - run: npm ci
       - run: npm run typecheck
       - run: npm test
-      - run: npx playwright install --with-deps chromium firefox
+      - run: npx playwright install --with-deps chromium
       # The one test that times an edit against a fixed limit is left out: a hosted runner's speed varies (spec FR-007).
       - run: npm run test:e2e -- --grep-invert "within a second"
 

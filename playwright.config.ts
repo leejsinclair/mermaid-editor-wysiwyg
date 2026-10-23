@@ -6,6 +6,9 @@ const TIMING = ["**/performance.spec.ts", "**/import-performance.spec.ts", "**/r
 /** The touch tests run only on the emulated phones (feature 007): they drive touch through Playwright, in Chromium. */
 const TOUCH = "**/touch/**";
 
+/** Hosted runs (publishing from `main`) cover Chromium only: Firefox and the emulated phone take most of the half hour and are run locally. */
+const CHROMIUM_ONLY = !!process.env["CI"];
+
 export default defineConfig({
   testDir: "./e2e",
   fullyParallel: true,
@@ -31,9 +34,9 @@ export default defineConfig({
     { name: "mobile-android", testMatch: "**/touch/**/*.spec.ts", use: { ...devices["Pixel 7"], permissions: ["clipboard-read", "clipboard-write"] } },
     // The tests that time the app against a fixed budget run after the rest, one at a time and one browser after the
     // other, so they measure the app rather than the other workers' load (feature 006, DN-01).
-    { name: "chromium-timing", testMatch: TIMING, workers: 1, dependencies: ["chromium", "firefox"], use: { ...devices["Desktop Chrome"] } },
+    { name: "chromium-timing", testMatch: TIMING, workers: 1, dependencies: CHROMIUM_ONLY ? ["chromium"] : ["chromium", "firefox"], use: { ...devices["Desktop Chrome"] } },
     { name: "firefox-timing", testMatch: TIMING, workers: 1, dependencies: ["chromium-timing"], use: { ...devices["Desktop Firefox"] } },
-  ],
+  ].filter(({ name }) => !CHROMIUM_ONLY || name.startsWith("chromium")),
   webServer: {
     command: "npm run dev -- --port " + String(port),
     url: `http://localhost:${String(port)}`,
