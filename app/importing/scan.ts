@@ -248,10 +248,12 @@ function c4LineEntries(line: string, number: number, kind: C4Kind, declared: Rea
   const hint = HINT_RELATIONSHIP.exec(line);
   const relationship = RELATIONSHIP.exec(line);
   if (style) return [{ line: number, category: "dropped", construct: style[1] ?? "", reason: REASONS.c4Style }];
+  // eslint-disable-next-line security/detect-object-injection -- numeric index or typed key, never user text
   if (elementType !== undefined && !ELEMENT_TYPES_BY_KIND[kind].includes(elementType)) {
     const family = nearestOffered(elementType, kind).split("-")[0] ?? "";
     return [{ line: number, category: "approximated", construct: macro, reason: REASONS.c4NotOffered, becomes: FAMILY_NAMES.get(family) ?? `a ${family}` }];
   }
+  // eslint-disable-next-line security/detect-object-injection -- numeric index or typed key, never user text
   if (BOUNDARY_MACROS.has(macro) && BOUNDARY_TYPES_BY_KIND[kind].length === 0) {
     return [{ line: number, category: "dropped", construct: macro, reason: REASONS.c4Boundary }];
   }

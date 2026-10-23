@@ -1,10 +1,11 @@
 import { expect, test, type Page } from "@playwright/test";
+import { exactly } from "./support/regexp";
 import { addItem, addRelationship, canvas, dragBetween, itemLabelled, openNew, relabel, sourceLines } from "./support/c4";
 
 // VO-052 (FR-033, FR-034): in a Dynamic diagram a relationship reordered by dragging and by Move up / Move down from
 // the keyboard shows numbers on the canvas and in the source that follow the new order, and one Undo restores each.
 
-const relationship = (page: Page, text: string) => canvas(page).getByTestId("c4-relationship").filter({ has: page.getByTestId("relationship-text").filter({ hasText: new RegExp(`^${text}$`) }) });
+const relationship = (page: Page, text: string) => canvas(page).getByTestId("c4-relationship").filter({ has: page.getByTestId("relationship-text").filter({ hasText: exactly(text) }) });
 
 /** The relationships' numbers as drawn, in the order of their numbers: "1:one", "2:two" and so on. */
 async function numbered(page: Page): Promise<string[]> {

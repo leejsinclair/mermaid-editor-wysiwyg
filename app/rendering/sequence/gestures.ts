@@ -8,6 +8,7 @@ export function insertIndexAt(y: number, rows: readonly number[]): number {
 /** The height of the gap that insertion index `index` is: halfway between the rows either side, or half a row beyond the first or last. */
 export function insertionY(index: number, rows: readonly number[]): number {
   const before = rows[index - 1];
+  // eslint-disable-next-line security/detect-object-injection -- numeric index or typed key, never user text
   const after = rows[index];
   if (before !== undefined && after !== undefined) return (before + after) / 2;
   if (after !== undefined) return after - ROW_SPACING / 2;

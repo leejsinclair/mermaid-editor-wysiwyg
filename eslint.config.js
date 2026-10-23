@@ -140,4 +140,12 @@ export default tseslint.config(
     languageOptions: { globals: { ...globals.node } },
     rules: { "security/detect-non-literal-fs-filename": "off" },
   },
+  {
+    // Tests and fixtures read fixed paths and index with typed keys; no untrusted input reaches them.
+    files: ["**/*.test.{ts,tsx}", "app/testing/**", "e2e/**"],
+    rules: {
+      "security/detect-non-literal-fs-filename": "off",
+      "security/detect-object-injection": "off",
+    },
+  },
 );

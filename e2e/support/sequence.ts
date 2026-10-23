@@ -1,11 +1,12 @@
 import { expect, type Locator, type Page } from "@playwright/test";
+import { exactly, startingWith } from "./regexp";
 
 /** The canvas of a sequence diagram. */
 export const canvas = (page: Page): Locator => page.getByRole("region", { name: "Diagram canvas" });
 
 /** The participant or actor with exactly this label. */
 export const participantLabelled = (page: Page, label: string): Locator =>
-  canvas(page).getByTestId("participant").filter({ hasText: new RegExp(`^${label}$`) });
+  canvas(page).getByTestId("participant").filter({ hasText: exactly(label) });
 
 /** The participant at this position from the left, starting at 0. */
 export const participantAt = (page: Page, index: number): Locator => canvas(page).getByTestId("participant").nth(index);
@@ -47,7 +48,7 @@ export async function relabel(page: Page, item: Locator, text: string): Promise<
 export async function addParticipants(page: Page, ...named: readonly (readonly [role: "Participant" | "Actor", name: string])[]): Promise<void> {
   for (const [role, name] of named) {
     await page.getByRole("region", { name: "Toolbox" }).getByRole("button", { name: role, exact: true }).click();
-    const added = canvas(page).getByTestId("participant").filter({ hasText: new RegExp(`^${role}$`) });
+    const added = canvas(page).getByTestId("participant").filter({ hasText: exactly(role) });
     await expect(added).toHaveCount(1);
     await relabel(page, added.first(), name);
     await expect(participantLabelled(page, name)).toHaveCount(1);
@@ -59,8 +60,8 @@ export async function addParticipants(page: Page, ...named: readonly (readonly [
 export async function addMessage(page: Page, type: string, from: string, to: string): Promise<void> {
   await page.getByRole("region", { name: "Toolbox" }).getByRole("button", { name: type, exact: true }).click();
   const dialog = page.getByRole("dialog", { name: "Add message" });
-  await dialog.getByRole("radiogroup", { name: "Sender" }).getByRole("radio", { name: new RegExp(`^${from} `) }).check();
-  await dialog.getByRole("radiogroup", { name: "Receiver" }).getByRole("radio", { name: new RegExp(`^${to} `) }).check();
+  await dialog.getByRole("radiogroup", { name: "Sender" }).getByRole("radio", { name: startingWith(`${from} `) }).check();
+  await dialog.getByRole("radiogroup", { name: "Receiver" }).getByRole("radio", { name: startingWith(`${to} `) }).check();
   await dialog.getByRole("button", { name: "Add message" }).click();
   await expect(dialog).toHaveCount(0);
 }

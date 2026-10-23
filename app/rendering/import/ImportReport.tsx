@@ -31,6 +31,7 @@ export function ImportReport({ entries, onSelect }: { readonly entries: readonly
           return (
             <Box key={category} sx={{ mb: 1 }}>
               <Typography variant="subtitle2" component="h3">
+                {/* eslint-disable-next-line security/detect-object-injection -- category is a typed key */}
                 {en.importMermaid.groups[category]}
               </Typography>
               {group.map((entry) => (

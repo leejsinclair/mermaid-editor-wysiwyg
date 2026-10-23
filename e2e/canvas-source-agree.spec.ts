@@ -165,7 +165,8 @@ function c4FromSource(source: string) {
       things.push(`${declared[1] ?? ""}${declared[2] ?? ""} ${declared[3] ?? ""}`);
       continue;
     }
-    const related = /^(?:Rel|BiRel|RelIndex)\((?:\d+, )?(e\d+), (e\d+), "([^"]*)"/.exec(line);
+    // eslint-disable-next-line security/detect-unsafe-regex -- fixed macro names, bounded digits, one fixture line
+    const related = /^(?:Rel|BiRel|RelIndex)\((?:\d{1,6}, )?(e\d+), (e\d+), "([^"]*)"/.exec(line);
     if (related) links.push(`${labels.get(related[1] ?? "") ?? "?"} -> ${labels.get(related[2] ?? "") ?? "?"}: ${related[3] ?? ""}`);
   }
   return { things: sorted(things), links: sorted(links) };

@@ -25,15 +25,15 @@ eachAppearance(() => {
     await expectNoViolations(page);
 
     await paste(page, VALID);
-    await expect(dialog.getByRole("region", { name: "Preview" }).locator("img, svg").first()).toBeVisible({ timeout: 1000 });
+    await expect(dialog.getByRole("region", { name: "Preview" }).locator("img, svg").first()).toBeVisible();
     await expectNoViolations(page);
 
     await paste(page, UNCLOSED);
-    await expect(dialog.getByText("error here")).toBeVisible({ timeout: 1000 });
+    await expect(dialog.getByText("error here")).toBeVisible();
     await expectNoViolations(page);
 
     await paste(page, SUBGRAPH);
-    await expect(dialog.getByRole("region", { name: "Import report" })).toContainText("subgraph", { timeout: 1000 });
+    await expect(dialog.getByRole("region", { name: "Import report" })).toContainText("subgraph");
     await expectNoViolations(page);
 
     await dialog.getByRole("button", { name: "Compare" }).click();

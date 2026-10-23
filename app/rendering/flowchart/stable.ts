@@ -7,6 +7,7 @@ export type Stable<T> = Map<string, { readonly key: readonly unknown[]; readonly
  */
 export function stableFor<T>(cache: Stable<T>, id: string, key: readonly unknown[], make: () => T): T {
   const cached = cache.get(id);
+  // eslint-disable-next-line security/detect-object-injection -- numeric index or typed key, never user text
   if (cached?.key.length === key.length && cached.key.every((fact, index) => Object.is(fact, key[index]))) return cached.value;
   const value = make();
   cache.set(id, { key, value });

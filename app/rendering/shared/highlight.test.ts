@@ -1,5 +1,5 @@
 // @vitest-environment node
-/* eslint-disable security/detect-non-literal-fs-filename -- every path is a fixed directory joined with a name read from it */
+ 
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";

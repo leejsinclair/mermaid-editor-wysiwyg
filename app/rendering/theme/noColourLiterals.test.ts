@@ -1,4 +1,4 @@
-/* eslint-disable security/detect-non-literal-fs-filename -- every path is the app folder joined with a name read from it */
+ 
 import { readdirSync, readFileSync } from "node:fs";
 import { join, relative } from "node:path";
 import { describe, expect, it } from "vitest";
