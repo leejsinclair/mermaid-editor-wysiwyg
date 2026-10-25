@@ -25,6 +25,17 @@ describe("unsafeToLeave", () => {
     expect(unsafeToLeave({ ...opened, draft: opened.draft && { ...opened.draft, text: "Half typed" } }, "saved")).toBe(true);
   });
 
+  it("is unsafe with a C4 description or technology typed over, even when it matches the label", () => {
+    const c4 = reducer({ ...fresh, history: createHistory(newDiagram("d2", "c4", "container")) }, { type: "commit", operation: { op: "addElement", elementType: "container" } });
+    const present = c4.history.present;
+    const element = present.type === "c4" ? present.content.tree[0] : undefined;
+    const itemId = element?.id ?? 0;
+    const label = element && "label" in element ? element.label : "";
+    for (const field of ["description", "technology"] as const) {
+      expect(unsafeToLeave({ ...c4, draft: { itemId, text: label, field, origin: "panel" } }, "saved")).toBe(true);
+    }
+  });
+
   it("is unsafe with a half-typed name even when saved", () => {
     expect(unsafeToLeave({ ...edited, nameDraft: "Half" }, "saved")).toBe(true);
   });

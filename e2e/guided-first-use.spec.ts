@@ -150,4 +150,29 @@ test.describe("connecting two shapes", () => {
     await page.keyboard.press("Escape");
     await expect(nodes(page).first()).not.toHaveClass(/selected/);
   });
+
+  test("Escape during a drawn line cancels the line and the armed connection together, and a second Escape clears the selection", async ({ page }) => {
+    await openBlank(page);
+    const canvas = canvasOf(page);
+    await toolbox(page, "Rectangle").click();
+    await editor(page).press("Escape");
+    await expect(nodes(page).first()).toHaveClass(/selected/);
+    await toolbox(page, "Solid arrow").click();
+
+    const handle = await nodes(page).first().locator('[data-side="bottom"]').boundingBox();
+    if (!handle) throw new Error("The handle must be visible");
+    await page.mouse.move(handle.x + 3, handle.y + 3);
+    await page.mouse.down();
+    await page.mouse.move(handle.x + 120, handle.y + 160, { steps: 10 });
+    await page.keyboard.press("Escape");
+    await page.mouse.up();
+
+    await expect(toolbox(page, "Solid arrow")).toHaveAttribute("aria-pressed", "false");
+    await expect(canvas.getByText("Choose the source item, then the destination. Press Escape to cancel.")).toHaveCount(0);
+    await expect(canvas.locator(".react-flow__edge")).toHaveCount(0);
+    await expect(nodes(page).first()).toHaveClass(/selected/);
+
+    await page.keyboard.press("Escape");
+    await expect(nodes(page).first()).not.toHaveClass(/selected/);
+  });
 });

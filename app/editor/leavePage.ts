@@ -1,14 +1,17 @@
 import { useEffect } from "react";
 import type { EditorState } from "./reducer";
-import { describeSelection } from "./selection";
+import { describeSelection, extraFieldsOf } from "./selection";
 import { hasUnsavedChange, type SaveStatus } from "./saveStatus";
 
 export { hasUnsavedChange };
 
-/** True where a label has been typed over and not confirmed; a label editor opened and left as it was holds nothing to lose. */
+/** True where a label, description or technology has been typed over and not confirmed; an editor left as it was holds nothing to lose. */
 function halfTyped(state: EditorState): boolean {
   const { draft } = state;
-  return draft !== null && draft.text !== describeSelection(state.history.present, draft.itemId).label;
+  if (draft === null) return false;
+  const diagram = state.history.present;
+  const original = draft.field === "description" || draft.field === "technology" ? extraFieldsOf(diagram, draft.itemId).find(({ field }) => field === draft.field)?.value : describeSelection(diagram, draft.itemId).label;
+  return draft.text !== original;
 }
 
 /** True where leaving the page would lose work: saving has failed or is under way, or a label is half typed (FR-044). */

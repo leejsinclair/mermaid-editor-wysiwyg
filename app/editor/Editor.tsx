@@ -80,6 +80,9 @@ export function Editor({ initial, stored = false, onFirstSaved, locked = false }
   useEffect(() => {
     if (locked) dispatchAction({ type: "release" });
   }, [locked]);
+  const cancelConnection = useCallback(() => {
+    dispatch({ type: "cancelConnection" });
+  }, [dispatch]);
   const diagram = state.history.present;
   const selection = describeSelection(diagram, state.selection);
   const { kind: selectionKind, label: selectedLabel, typeOptions, targets } = selection;
@@ -445,6 +448,7 @@ export function Editor({ initial, stored = false, onFirstSaved, locked = false }
                 dispatch({ type: "select", itemId });
               }}
               armed={state.armed}
+              onCancelConnection={cancelConnection}
               onAddConnection={(from, to, line, ending) => {
                 dispatch({ type: "commit", operation: { op: "addConnection", from, to, line, ending } });
               }}

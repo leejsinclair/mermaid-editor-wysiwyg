@@ -43,3 +43,13 @@ describe("cancel connection", () => {
     expect(step(connecting, cancelConnection).selection).toBe(nodeId);
   });
 });
+
+describe("confirm a restored label", () => {
+  it("clears the blank-label message once the original label is typed back and confirmed", () => {
+    const blank = step(selected, { type: "startInlineEdit" }, { type: "draft", itemId: nodeId, text: "   ", origin: "canvas" }, { type: "confirmLabel" });
+    expect(blank.feedback).not.toBeNull();
+    const restored = step(blank, { type: "draft", itemId: nodeId, text: original, origin: "canvas" }, { type: "confirmLabel" });
+    expect(restored.draft).toBeNull();
+    expect(restored.feedback).toBeNull();
+  });
+});

@@ -72,8 +72,8 @@ function confirmDraft(state: EditorState, kind: "label" | "name", keepOpen = fal
   if (!state.draft) return state;
   const { itemId, text } = state.draft;
   const field = state.draft.field ?? labelFieldOf(state.history.present, itemId);
-  // A label left as it was commits nothing: no undo step, and the diagram is not drawn again.
-  if ((field === "label" || field === "text") && text === describeSelection(state.history.present, itemId).label) return { ...state, draft: null };
+  // A label left as it was commits nothing: no undo step, and the diagram is not drawn again. A blank-label message from an earlier try no longer applies.
+  if ((field === "label" || field === "text") && text === describeSelection(state.history.present, itemId).label) return { ...state, draft: null, feedback: null };
   const { history, outcome } = commit(state.history, { op: "setLabel", itemId, field, text });
   if (keepOpen && isBlankRejection(outcome)) return { ...state, feedback: rejectionFeedback(outcome) };
   return { ...state, history, draft: null, feedback: rejectionFeedback(outcome) };

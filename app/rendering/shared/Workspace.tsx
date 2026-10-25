@@ -1,5 +1,5 @@
 import { Box, Button } from "@mui/material";
-import { useState, type ReactNode } from "react";
+import { Fragment, useState, type ReactNode } from "react";
 import { en } from "../../text/en";
 import { useLayout } from "./useLayout";
 
@@ -23,6 +23,8 @@ interface WorkspaceProps {
 export function Workspace({ toolbox, properties, selected, children }: WorkspaceProps) {
   const layout = useLayout();
   const [open, setOpen] = useState(false);
+  // Keyed, so putting the properties first moves them rather than rebuilding them: an unconfirmed C4 title survives.
+  const panels = [<Fragment key="properties">{properties}</Fragment>, <Fragment key="toolbox">{toolbox}</Fragment>];
   if (layout === "wide") {
     return (
       <Box sx={{ display: "flex", flex: 1, minHeight: 480 }}>
@@ -49,8 +51,7 @@ export function Workspace({ toolbox, properties, selected, children }: Workspace
       </Box>
       {open && (
         <Box component="section" id="tools-panel" aria-label={en.workspace.tools} sx={{ maxHeight: "45vh", overflow: "auto", borderBottom: 1, borderColor: "divider" }}>
-          {selected ? properties : toolbox}
-          {selected ? toolbox : properties}
+          {selected ? panels : [...panels].reverse()}
         </Box>
       )}
       <Box sx={{ display: "flex", flex: 1, minHeight: "55vh", minWidth: 0 }}>{children}</Box>
