@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 # Claude Code PostToolUse hook (Edit|Write|MultiEdit): lint the file that was just written.
 # Exit 2 with the linter output on stderr, which Claude Code feeds back to the agent to fix.
-# Applies to the interactive session and to crew agents alike (both read .claude/settings.json).
 set -uo pipefail
 
 root="${CLAUDE_PROJECT_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)}"
@@ -14,9 +13,9 @@ rel="${file#"$root"/}"
 # Tooling not installed yet (fresh clone before npm install): do not block work.
 [ -x node_modules/.bin/eslint ] || exit 0
 
-# Generated, vendored and Spec Kit/crew-owned paths are not linted.
+# Generated, vendored and Spec Kit-owned paths are not linted.
 case "$rel" in
-  node_modules/*|build/*|.react-router/*|playwright-report/*|test-results/*|.git/*|.specify/*|.crews/*|.claude/*|tools/*|package-lock.json) exit 0 ;;
+  node_modules/*|build/*|.react-router/*|playwright-report/*|test-results/*|.git/*|.specify/*|.claude/*|tools/*|package-lock.json) exit 0 ;;
 esac
 
 bin="node_modules/.bin"

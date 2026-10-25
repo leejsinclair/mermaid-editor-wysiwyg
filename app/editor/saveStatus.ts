@@ -1,8 +1,18 @@
+import { canUndo } from "../history/history";
 import type { Diagram } from "../model/types";
 import { StorageUnavailableError } from "../persistence/store";
+import type { EditorState } from "./reducer";
 
 /** `new` has had no committed change yet; `not-saved` and `unavailable` mean a write failed (data-model.md, Session state). */
 export type SaveStatus = "new" | "saving" | "saved" | "not-saved" | "unavailable";
+
+/**
+ * True where a committed change has no completed write behind it: saving is under way or has failed, or the status is
+ * still `new` although a change exists (as after a reload). Derived on each render, never stored (data-model.md).
+ */
+export function hasUnsavedChange(state: EditorState, saveStatus: SaveStatus): boolean {
+  return saveStatus !== "saved" && (saveStatus !== "new" || canUndo(state.history));
+}
 
 interface SaverDependencies {
   readonly write: (diagram: Diagram) => Promise<void>;

@@ -8,6 +8,11 @@ Canonical terms for this project. The business rules and acceptance criteria are
   Blueprint Studio is the default appearance and Light the other. Blueprint Studio names an appearance, not the
   application, which is called "Mermaid diagram editor". _Avoid_: theme, skin, mode (Mermaid uses "theme" for
   its own drawing options).
+- **Mermaid source**: the text generated from a diagram. It is read-only in the editor and is never edited directly. _Avoid_: code, export text.
+- **Copy Source**: the action that places the Mermaid source on the clipboard. _Avoid_: Copy Mermaid, export.
+- **Copy for Markdown**: the action that places the Mermaid source on the clipboard as a Markdown code block. _Avoid_: Copy Source for Markdown.
+- **Save file**: the action that writes the editable diagram to a file the user keeps. _Avoid_: Export, Download, Save (on its own).
+- **Saved diagram**: a diagram kept in this browser's storage. _Avoid_: saved file, which means a file from Save file.
 
 ## Domain boundaries
 

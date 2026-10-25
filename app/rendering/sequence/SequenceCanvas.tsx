@@ -1,5 +1,5 @@
 import { memo, useCallback, useEffect, useId, useMemo, useRef, useState, type MouseEvent, type Ref } from "react";
-import { CanvasHelp } from "../shared/CanvasHelp";
+import { CanvasHelp, CanvasPrompt } from "../shared/CanvasHelp";
 import { EmptyHint } from "../shared/EmptyHint";
 import { gridBackground } from "../shared/gridStyle";
 import { useTouchPan } from "../shared/touchPan";
@@ -8,6 +8,7 @@ import { MESSAGE_STYLE_NAMES, ROLE_NAMES } from "../../model/sequence/catalogue"
 import type { SequenceDiagram } from "../../model/types";
 import { en } from "../../text/en";
 import { fill } from "../../text/fill";
+import { typeWording } from "../../text/typeWording";
 import { HEADER_HEIGHT, ROW_SPACING, sequenceLayout, type Lifeline, type MessageRow, type SequenceLayout } from "../layout/sequenceLayout";
 import { HEADER_WIDTH, insertIndexAt, insertionY, messageIndexAt, participantAt, participantIndexAt, useDrag, type DragEnd, type DragKind } from "./gestures";
 import { MESSAGE_DRAWING, MessageMarkers } from "./messageDrawing";
@@ -220,6 +221,14 @@ function dropped(layout: SequenceLayout, diagram: SequenceDiagram, end: DragEnd<
   }
 }
 
+const WORDING = typeWording("sequence");
+
+/** The prompt for what the canvas is waiting for: a label being typed, or the receiving end of a message being drawn. */
+function promptFor(editing: boolean, drawing: boolean): string | null {
+  if (editing) return en.canvasHelp.labelEditing;
+  return drawing ? WORDING.connectDestination : null;
+}
+
 /** Lifelines left to right and messages top to bottom, drawn from the pure layout (research R3, FR-029). */
 export function SequenceCanvas({ handleRef, onZoomChange, diagram, inlineEdit, onStartEdit, selection, onSelect, onReorder, onCreateMessage, onMoveEnd }: Readonly<SequenceCanvasProps>) {
   const svg = useRef<SVGSVGElement>(null);
@@ -287,7 +296,8 @@ export function SequenceCanvas({ handleRef, onZoomChange, diagram, inlineEdit, o
       }}
     >
       <CanvasHelp id={helpId} text={en.canvasHelp.sequence} />
-      {diagram.content.participants.length === 0 && <EmptyHint />}
+      {diagram.content.participants.length === 0 && <EmptyHint lines={WORDING.steps} />}
+      <CanvasPrompt text={promptFor(inlineEdit !== null, drawing)} />
       <svg
         ref={svg}
         width={layout.width * zoom}

@@ -1,6 +1,10 @@
 // The controls (role and accessible name) each diagram type's editor offered before the Blueprint Studio redesign, with nothing
 // selected and with an item selected, recorded from the code at the commit before the redesign (feature 006) through the
 // accessibility tree. Both the control inventory test and the narrow layout test hold the editor to them.
+// Spec 008 (FR-014): the Properties panel offers an element action only when it applies to the selection, so the lists
+// with nothing selected hold no element action, the lists with an item selected hold only that item's actions, and
+// "Change end…" is now "Change endpoints", offered for a selected connection only. Sequence and C4 diagrams now have the
+// preview toggle too (spec 008, Clarifications 2026-10-24).
 
 export interface Inventory {
   readonly nothing: readonly string[];
@@ -40,12 +44,6 @@ export const BEFORE: Readonly<Record<string, Inventory>> = {
       "button:Thick line",
       "button:Thick two-way arrow",
       "link:React Flow attribution",
-      "button:Rename",
-      "button:Change type",
-      "button:Connect…",
-      "button:Change end…",
-      "button:Reverse",
-      "button:Delete",
       "button:Mermaid source",
     ],
     selected: [
@@ -82,8 +80,6 @@ export const BEFORE: Readonly<Record<string, Inventory>> = {
       "button:Rename",
       "button:Change type",
       "button:Connect…",
-      "button:Change end…",
-      "button:Reverse",
       "button:Delete",
       "textbox:Label",
       "button:Mermaid source",
@@ -101,6 +97,7 @@ export const BEFORE: Readonly<Record<string, Inventory>> = {
       "button:Zoom in",
       "button:Zoom out",
       "button:Fit to view",
+      "button:Preview as Mermaid draws it",
       "button:Participant",
       "button:Actor",
       "button:Solid arrow",
@@ -111,14 +108,6 @@ export const BEFORE: Readonly<Record<string, Inventory>> = {
       "button:Dashed cross",
       "button:Solid async arrow",
       "button:Dashed async arrow",
-      "button:Rename",
-      "button:Change type",
-      "button:Connect…",
-      "button:Change end…",
-      "button:Reverse",
-      "button:Move up",
-      "button:Move down",
-      "button:Delete",
       "button:Mermaid source",
     ],
     selected: [
@@ -132,6 +121,7 @@ export const BEFORE: Readonly<Record<string, Inventory>> = {
       "button:Zoom in",
       "button:Zoom out",
       "button:Fit to view",
+      "button:Preview as Mermaid draws it",
       "button:Participant",
       "button:Actor",
       "button:Solid arrow",
@@ -145,8 +135,6 @@ export const BEFORE: Readonly<Record<string, Inventory>> = {
       "button:Rename",
       "button:Change type",
       "button:Connect…",
-      "button:Change end…",
-      "button:Reverse",
       "button:Move up",
       "button:Move down",
       "button:Delete",
@@ -166,6 +154,7 @@ export const BEFORE: Readonly<Record<string, Inventory>> = {
       "button:Zoom in",
       "button:Zoom out",
       "button:Fit to view",
+      "button:Preview as Mermaid draws it",
       "button:Person",
       "button:External person",
       "button:System",
@@ -180,13 +169,6 @@ export const BEFORE: Readonly<Record<string, Inventory>> = {
       "button:One-way relationship",
       "button:Two-way relationship",
       "textbox:Title",
-      "button:Rename",
-      "button:Change type",
-      "button:Connect…",
-      "button:Change end…",
-      "button:Reverse",
-      "button:Move to…",
-      "button:Delete",
       "button:Mermaid source",
     ],
     selected: [
@@ -200,6 +182,7 @@ export const BEFORE: Readonly<Record<string, Inventory>> = {
       "button:Zoom in",
       "button:Zoom out",
       "button:Fit to view",
+      "button:Preview as Mermaid draws it",
       "button:Person",
       "button:External person",
       "button:System",
@@ -217,8 +200,6 @@ export const BEFORE: Readonly<Record<string, Inventory>> = {
       "button:Rename",
       "button:Change type",
       "button:Connect…",
-      "button:Change end…",
-      "button:Reverse",
       "button:Move to…",
       "button:Delete",
       "textbox:Label",

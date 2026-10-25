@@ -216,9 +216,9 @@ for (const view of VIEWS) {
   });
 }
 
-// VO-007 (FR-004, FR-021, US1-AS7, SC-007): blank or spaces-only text, committed by Enter and by clicking outside, is
-// rejected: the editor closes, the previous label stays, no history entry is added, and the explanation is the Properties
-// panel's, announced in the live region.
+// VO-007 (FR-004, FR-021, US1-AS7, SC-007; spec 008, FR-005): blank or spaces-only text is refused and the previous label
+// stays, with no history entry. Confirmed by Enter, the editor stays open for correcting; left by clicking outside, it closes.
+// Either way the explanation is the Properties panel's own, announced in the live region.
 const messages = (page: Page) => page.getByRole("status", { name: "Messages" });
 
 for (const kind of ITEM_KINDS) {
@@ -229,14 +229,17 @@ for (const kind of ITEM_KINDS) {
       const editor = await openEditor(opened);
       await editor.fill(blank);
 
-      if (how === "Enter") await editor.press("Enter");
-      else await page.getByRole("region", { name: "Diagram canvas" }).click({ position: { x: 4, y: 4 } });
+      if (how === "Enter") {
+        await editor.press("Enter");
+        await expect(page.getByTestId("inline-label-editor")).toBeVisible();
+        await editor.press("Escape");
+      } else await page.getByRole("region", { name: "Diagram canvas" }).click({ position: { x: 4, y: 4 } });
 
       await expect(page.getByTestId("inline-label-editor")).toHaveCount(0);
       expect(await drawnLabel(opened)).toBe(opened.text);
       expect(await sourceOf(page)).toBe(sourceBefore);
       const announced = await messages(page).textContent();
-      expect(announced).toContain("A label needs at least one visible character.");
+      expect(announced).toContain("A label cannot be empty.");
       // The same sentence the Properties panel gives for the same blank text.
       await opened.body.click({ position: { x: 14, y: 14 } });
       await panelLabel(page).fill("   ");

@@ -13,7 +13,7 @@ interface TargetDialogProps {
   readonly onClose: () => void;
 }
 
-/** Lists the allowed targets of Connect… and Change end…; choosing one completes the action. */
+/** Lists the allowed targets of Connect… and Change endpoints; choosing one completes the action. */
 export function TargetDialog({ title, targets, chooseEnd, onChoose, onClose }: TargetDialogProps) {
   const [end, setEnd] = useState<"from" | "to">("to");
   return (

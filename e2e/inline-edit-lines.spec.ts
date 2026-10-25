@@ -92,8 +92,12 @@ for (const view of ["sequence", "c4"] as const) {
       await expect(editor).toBeVisible();
       await editor.fill("   ");
 
-      if (how === "Enter") await editor.press("Enter");
-      else await page.getByRole("region", { name: "Diagram canvas" }).click({ position: { x: 4, y: 4 } });
+      if (how === "Enter") {
+        // Confirmed blank, the editor stays open for correcting (spec 008, FR-005).
+        await editor.press("Enter");
+        await expect(editor).toBeVisible();
+        await editor.press("Escape");
+      } else await page.getByRole("region", { name: "Diagram canvas" }).click({ position: { x: 4, y: 4 } });
 
       await expect(editor).toHaveCount(0);
       await expect(line.label).toHaveText(line.text);

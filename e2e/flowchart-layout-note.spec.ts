@@ -7,11 +7,9 @@ test("a flowchart says that node positions stay in the editor and Mermaid arrang
 }) => {
   await page.goto("#/new/flowchart");
 
-  await expect(
-    page
-      .getByRole("toolbar")
-      .getByText("Node positions are kept in the editor only. Mermaid arranges the copied diagram its own way."),
-  ).toBeVisible();
+  await expect(page.getByRole("toolbar").getByRole("button", { name: "Copy Source", exact: true })).toHaveAccessibleDescription(
+    "Node positions are kept in the editor only. Mermaid arranges the copied diagram its own way.",
+  );
 });
 
 test("a sequence diagram shows no such statement, because its layout is fixed by order", async ({ page }) => {

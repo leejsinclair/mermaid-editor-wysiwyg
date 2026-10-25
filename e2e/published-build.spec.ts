@@ -21,16 +21,11 @@ const CONTENT_TYPES = new Map([
 
 // One build for the whole file, in a folder of its own so it cannot race the other build-output test.
 test.describe.configure({ mode: "serial" });
-test.beforeEach(({ browserName }) => {
-  // Skipped outside Chromium on purpose: the one build is made by the Chromium run alone.
-  test.skip(browserName !== "chromium", "The build is made once, by the Chromium run");
-});
 
 let out = "";
 const servers: Server[] = [];
 
-test.beforeAll(({ browserName }) => {
-  if (browserName !== "chromium") return;
+test.beforeAll(() => {
   test.setTimeout(240_000);
   out = mkdtempSync(join(tmpdir(), "published-build-"));
   // BUILD_OUT_DIR names the folder the build writes to (vite.config.ts), so this build cannot race the one in static-offline.

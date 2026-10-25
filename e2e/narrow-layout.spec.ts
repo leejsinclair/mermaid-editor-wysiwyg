@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
+import { addItem, itemLabelled, openNew, select } from "./support/c4";
 
 // VO-033 (FR-010, US5-AS1): at 800 × 900 and at 360 × 740 a labelled "Tools" control opens the toolbox and properties and the
 // "Mermaid source" disclosure opens the source view; with both closed the canvas covers at least half the window's width and half
@@ -42,3 +43,39 @@ for (const size of SIZES) {
     await expect(page.getByRole("region", { name: /Mermaid source/ })).toBeVisible();
   });
 }
+
+// Spec 008, VO-020 and VO-050 (FR-034, US6-AS2, EC-10): at 360 px, with an element selected on the canvas, the Tools panel opens
+// on that element's properties and actions, with no sideways page scroll.
+test("at 360 × 740 a selected element's properties and actions are in view when Tools opens", async ({ page }) => {
+  await page.setViewportSize({ width: 360, height: 740 });
+  await openFlowchart(page);
+  const tools = page.getByRole("button", { name: "Tools", exact: true });
+  await tools.click();
+  await page.getByRole("region", { name: "Toolbox" }).getByRole("button", { name: "Rectangle", exact: true }).click();
+  await page.getByTestId("inline-label-editor").press("Enter");
+  await tools.click();
+
+  await page.locator(".react-flow__node").first().click();
+  await tools.click();
+
+  const properties = page.getByRole("region", { name: "Properties" });
+  await expect(properties.getByText("Selected: Rectangle node", { exact: true })).toBeInViewport();
+  await expect(properties.getByRole("button", { name: "Delete", exact: true })).toBeInViewport();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), "the page scrolls sideways").toBe(true);
+});
+
+// Spec 008, EC-10: at 360 px the Tools panel puts the selection's properties first. Moving them must not rebuild the panel,
+// so a C4 title typed and not yet confirmed is still there after an element is selected.
+test("at 360 × 740 an unconfirmed C4 title survives selecting an element while Tools is open", async ({ page }) => {
+  await page.setViewportSize({ width: 360, height: 740 });
+  await openNew(page, "context");
+  await page.getByRole("button", { name: "Tools", exact: true }).click();
+  await addItem(page, "Person", "Customer");
+
+  const title = page.getByRole("region", { name: "Properties" }).getByRole("textbox", { name: "Title", exact: true });
+  await title.fill("Half-typed title");
+  await select(page, itemLabelled(page, "Customer"));
+
+  await expect(page.getByRole("region", { name: "Properties" }).getByText("Selected: Person", { exact: false })).toBeVisible();
+  await expect(title).toHaveValue("Half-typed title");
+});

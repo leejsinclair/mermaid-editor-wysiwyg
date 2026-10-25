@@ -367,12 +367,3 @@ Speckit: [Speckit](https://github.com/github/spec-kit)
 * [TDD integrated](https://github.com/leejsinclair/speckit-tdd-integrated)
 * [Spec Viewer and Kanban Board](https://github.com/leejsinclair/rich-specification-viewer)
 * [Claude Mod - Mini Kanban](https://github.com/leejsinclair/speckit-mod-micro-kanban)
-
-## Crews
-
-Setup and configure [crews](https://github.com/reutisr/crews)
-
-* Technical lead
-* Developer
-* QA
-* Business Analyst - primary user

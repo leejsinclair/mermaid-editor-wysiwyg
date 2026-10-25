@@ -10,7 +10,7 @@ import { fill } from "../../text/fill";
 import { TOOLBOX_DRAG_TYPE } from "../shared/dnd";
 import type { InlineEdit } from "../shared/InlineLabelEditor";
 import { useDoubleActivation } from "../shared/useDoubleActivation";
-import { CanvasHelp } from "../shared/CanvasHelp";
+import { CanvasHelp, CanvasPrompt } from "../shared/CanvasHelp";
 import { EmptyHint } from "../shared/EmptyHint";
 import { HANDLE_HIT } from "../shared/handleSize";
 import { useReportZoom, type ViewHandle } from "../shared/viewport";
@@ -48,8 +48,12 @@ interface FlowchartCanvasProps {
   readonly onAddNode: (shape: FlowchartShape, position: Position) => void;
   /** The connection type armed in the toolbox; a plain solid arrow when none is. */
   readonly armed: { readonly line: LineStyle; readonly ending: Ending } | null;
+  /** Escape cancelled a line being drawn: the armed connection type ends with it (spec 008, EC-02). */
+  readonly onCancelConnection: () => void;
   readonly onAddConnection: (from: number, to: number, line: LineStyle, ending: Ending) => void;
   readonly selection: number | null;
+  /** What the next Escape cancels, for the prompts that name it; the prompts are filled by T019. */
+  readonly cancelTarget?: "label" | "connection" | "selection" | null;
   /** A changed value cancels any drag in progress (Undo and Redo). */
   readonly cancelDragSignal: number;
   readonly onMoveEnd: (linkId: number, end: "from" | "to", targetId: number) => void;
@@ -99,7 +103,14 @@ function coveredSides(content: FlowchartDiagram["content"], dragging: ReadonlyMa
   return covered;
 }
 
-function Canvas({ handleRef, onZoomChange, diagram, inlineEdit, onStartEdit, onAddNode, armed, onAddConnection, onMoveNode, onNudgeNode, onFocusLeave, onSelect, selection, cancelDragSignal, onMoveEnd }: FlowchartCanvasProps) {
+/** What the canvas is waiting for, in words: a label being edited, a line being drawn, or a connection type chosen and no line begun. */
+function promptFor(editing: boolean, drawing: boolean, armed: boolean): string | null {
+  if (editing) return en.canvasHelp.labelEditing;
+  if (drawing) return en.canvasHelp.connectDestination;
+  return armed ? en.canvasHelp.connectSource : null;
+}
+
+function Canvas({ handleRef, onZoomChange, diagram, inlineEdit, onStartEdit, onAddNode, armed, onCancelConnection, onAddConnection, onMoveNode, onNudgeNode, onFocusLeave, onSelect, selection, cancelDragSignal, onMoveEnd }: FlowchartCanvasProps) {
   const { screenToFlowPosition, zoomIn, zoomOut, fitView } = useReactFlow();
   const zoom = useStore((state) => state.transform[2]);
   useReportZoom(zoom, onZoomChange);
@@ -108,7 +119,7 @@ function Canvas({ handleRef, onZoomChange, diagram, inlineEdit, onStartEdit, onA
   const helpId = useId();
   const rfId = flow.getState().rfId;
   // Whether a line is being drawn from a handle, and whether Escape has cancelled it: a line cancelled stays cancelled
-  // however the pointer is then let go.
+  // however the pointer is then let go, and letting go over the empty canvas does not clear the selection. The next press starts afresh.
   const connecting = useRef(false);
   const connectionCancelled = useRef(false);
   const reconnecting = useRef(false);
@@ -132,20 +143,28 @@ function Canvas({ handleRef, onZoomChange, diagram, inlineEdit, onStartEdit, onA
     setDrag(NO_DRAG);
   };
   useEffect(() => {
+    // Escape ends a drag or a line being drawn and is marked handled, so the editor's own Escape does not also act on this press:
+    // a line being drawn takes the armed connection type with it, and the selection stays for the next Escape. Nor does the
+    // press reach the focused node, whose own Escape would drop its highlight.
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key !== "Escape") return;
+      if (dragToken.current !== 0 || connecting.current) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
       dragToken.current = 0;
       setDrag(NO_DRAG);
       if (connecting.current) {
         connectionCancelled.current = true;
         flow.getState().cancelConnection();
+        onCancelConnection();
       }
     };
-    window.addEventListener("keydown", onKeyDown);
+    window.addEventListener("keydown", onKeyDown, true);
     return () => {
-      window.removeEventListener("keydown", onKeyDown);
+      window.removeEventListener("keydown", onKeyDown, true);
     };
-  }, [flow]);
+  }, [flow, onCancelConnection]);
 
   useImperativeHandle(handleRef, () => ({
     zoomIn: () => void zoomIn(),
@@ -178,6 +197,10 @@ function Canvas({ handleRef, onZoomChange, diagram, inlineEdit, onStartEdit, onA
           // The nominal footprint, so a node is never unmeasured (and hidden) for a frame after it is re-created.
           width: NODE_WIDTH,
           height: NODE_HEIGHT,
+          // Every shape has this footprint and the same side handles. Without `measured`, React Flow drops a node's handle
+          // bounds each time the node object is rebuilt, and a re-measure lost in a quick run of changes (adding a shape and
+          // opening its label) leaves the node's connections undrawn.
+          measured: { width: NODE_WIDTH, height: NODE_HEIGHT },
           position,
           data: { node, name, ...(edit && { edit }) },
           selected,
@@ -191,6 +214,7 @@ function Canvas({ handleRef, onZoomChange, diagram, inlineEdit, onStartEdit, onA
 
   // While a line is drawn from a handle, every node is a valid end.
   const drawing = useConnection((connection) => connection.inProgress);
+  const promptText = promptFor(inlineEdit !== null, drawing, armed !== null);
   const dropTargets = useMemo(() => (drawing ? new Set(validEnds(diagram)) : null), [drawing, diagram]);
   const covered = useMemo(() => coveredSides(diagram.content, dragging, selection), [diagram.content, dragging, selection]);
 
@@ -295,9 +319,15 @@ function Canvas({ handleRef, onZoomChange, diagram, inlineEdit, onStartEdit, onA
       onKeyDown={onKeyDown}
       onPointerDownCapture={(event) => {
         press.current = { x: event.clientX, y: event.clientY };
+        connectionCancelled.current = false;
         doubles.pressed(event);
       }}
       onClickCapture={(event) => {
+        // The click that lets go of a cancelled line is not a click on what lies under the pointer.
+        if (connectionCancelled.current) {
+          event.stopPropagation();
+          return;
+        }
         if (!(event.target instanceof Element)) return;
         const label = event.target.closest("[data-testid='connection-label']");
         if (!label) return;
@@ -405,7 +435,8 @@ function Canvas({ handleRef, onZoomChange, diagram, inlineEdit, onStartEdit, onA
     </DropTargets>
     </CoveredSides>
     <CanvasHelp id={helpId} text={en.canvasHelp.flowchart} />
-    {diagram.content.nodes.length === 0 && <EmptyHint />}
+    {diagram.content.nodes.length === 0 && <EmptyHint lines={Object.values(en.canvasHelp.gettingStarted)} />}
+    <CanvasPrompt text={promptText} />
     </div>
   );
 }

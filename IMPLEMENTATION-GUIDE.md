@@ -1,7 +1,7 @@
 # Implementation guide
 
 Steps for you, the Business Analyst, to take the project from set-up to a working editor.
-Interactive steps (you answer questions) are marked **[you]**. Crew steps run unattended and are marked **[crew]**.
+Interactive steps (you answer questions) are marked **[you]**.
 
 Everything is run from the project root, `/home/lee/projects/mermaid-editor-wysiwyg`.
 
@@ -31,12 +31,12 @@ Revisit those pins when the plugins catch up.
 
 **Lint hook.** `scripts/hooks/lint-edited.sh` runs after every Edit, Write or MultiEdit (registered in `.claude/settings.json`).
 It lints the file just written with the right tool and, on failure, returns the output to the agent to fix.
-This applies to your session and to the crew's agents. Markdown in `specs/` and `setup.md` skip markdownlint, but their Mermaid blocks are still validated.
+Markdown in `specs/` and `setup.md` skip markdownlint, but their Mermaid blocks are still validated.
 `npm run lint` runs every linter over the whole project.
 
 ## 1. Constitution **[you]**
 
-Run `/speckit-constitution`. It is still the empty template, and the crew's directives point at it.
+Run `/speckit-constitution`. It is still the empty template.
 
 Give it the decisions that are not in `setup.md`, in particular:
 
@@ -86,33 +86,9 @@ Check that the plan keeps the five layers separate (model, validation, Mermaid g
 
 Commit.
 
-## 5. Pre-implementation review **[crew]**
-
-```bash
-scripts/crew.sh review
-```
-
-The business-analyst and tech-lead agents review spec, plan and tasks in parallel (read-only). Their reports and an aggregate are in `.crews/output/review-<feature>/`.
-Act on anything critical. Answer every `## Open Questions` item in the spec's Clarifications through `/speckit-clarify`, not by editing the file.
-
-## 6. Implement, one phase at a time
+## 5. Implement, one phase at a time
 
 Work phase by phase, as the phases appear in `tasks.md`. Start with scaffolding and the visual model, then generation, then the rest.
-
-Either route works, and the TDD hook gates `[X]` marks in both:
-
-**A. Crew [crew]**
-
-```bash
-scripts/crew.sh implement "Phase 1: Setup"
-```
-
-Runs qa, developer, tech-lead and business-analyst in sequence, with up to 3 rounds, until both reviewers say `Verdict: Ready to merge`.
-The micro-kanban bar will not show here (it is for `/speckit-implement` only); use the viewer's board instead: <http://localhost:8000/specs/002-visual-diagram-editor/kanban>
-(start the viewer first with `python3 tools/specview.py`; if port 8000 is taken it uses the next free port up to 8019, so use the URL it prints).
-Add `CREWS_MOCK=true` to dry-run.
-
-**B. Interactive [you]**
 
 ```text
 /speckit-implement
@@ -120,19 +96,17 @@ Add `CREWS_MOCK=true` to dry-run.
 
 Runs all tasks through Red, Green, Refactor with the micro-kanban above the prompt.
 Use this for risky phases (undo/redo, delete semantics, label escaping) so you can watch.
+The TDD hook gates `[X]` marks.
 
 After each phase:
 
 1. Read `tests/tdd-evidence.md` (or run `tdd_check.py status`). Every behaviour needs a failing run then a passing run.
-2. Read the crew's reports in `.crews/output/implement-<feature>/round-N/`, in particular `## Critical Issues`, `## Open Questions` and any `## New Decisions` (appended to `.crews/decisions.md`).
-3. Run the app and exercise the acceptance criteria by hand.
-4. Commit. The crew never commits.
+2. Run the app and exercise the acceptance criteria by hand.
+3. Commit.
 
-If a crew run stops with "max rounds exhausted", read the last tech-lead and business-analyst output, fix the cause (spec, plan or task), and re-run with a narrower scope.
+## 6. Close out **[you]**
 
-## 7. Close out **[you]**
-
-1. `/speckit-converge` compares the finished code with the spec, plan and tasks and appends any unbuilt work to `tasks.md`. Run it, then implement what it adds (step 6).
+1. `/speckit-converge` compares the finished code with the spec, plan and tasks and appends any unbuilt work to `tasks.md`. Run it, then implement what it adds (step 5).
 2. Walk through AC1–AC17 in `setup.md` against the running editor, then check the Definition of Done:
    - Mermaid generation and label escaping covered by automated tests
    - generated output validated against the flowchart grammar
@@ -146,7 +120,5 @@ If a crew run stops with "max rounds exhausted", read the last tech-lead and bus
 
 - **Never hand-edit** `tests/tdd-evidence.md`, and don't edit `tasks.md` from a shell to tick tasks. The hook can't see shell edits, and the compliance check will flag them.
 - **Don't weaken a test** to get a pass. A changed behaviour item needs a recorded expectation change and your approval.
-- **Crew agents don't ask you questions.** Anything they cannot decide appears under `## Open Questions`; check for it after every run.
-- **Fresh feature, fresh crew run.** `scripts/crew.sh` reads `.specify/feature.json`, which `/speckit-specify` sets. If you switch features, check it points where you expect.
 - **Later diagram types** (sequence, class, and so on) are new features: repeat steps 2–7, and define their elements, rules and tests first, as `setup.md` requires.
-- The generated task files (`tasks/`) and crew output (`.crews/output/`) are git-ignored.
+- The generated task files (`tasks/`) are git-ignored.

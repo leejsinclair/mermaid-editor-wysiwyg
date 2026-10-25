@@ -116,7 +116,18 @@ export function muiThemeOptions(appearance: Appearance): ThemeOptions {
           root: { color: text.text, borderColor: borders.borderStrong, "&.Mui-selected": { color: text.text, backgroundColor: surfaces.panelRaised } },
         },
       },
-      MuiButton: { styleOverrides: { root: { "&:active": { backgroundColor: alpha(accent.accent, 0.24) } } } },
+      // Each state of a button differs in more than colour (spec 008, FR-046): hovered underlines the label, pressed (a toggle that
+      // is on, or the button held down) draws an inner ring, and unavailable dashes the border; focus keeps the ring above.
+      MuiButton: {
+        styleOverrides: {
+          root: {
+            "&:hover": { textDecoration: "underline" },
+            "&:active, &[aria-pressed=\"true\"]": { boxShadow: `inset 0 0 0 ${shape.focusWidth} currentColor` },
+            "&:active": { backgroundColor: alpha(accent.accent, 0.24) },
+            "&.Mui-disabled, &[aria-disabled=\"true\"]": { borderStyle: "dashed", textDecoration: "none" },
+          },
+        },
+      },
       MuiAlert: {
         styleOverrides: {
           root: {

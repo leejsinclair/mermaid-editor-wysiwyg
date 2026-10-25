@@ -16,17 +16,10 @@ const TYPES = ["flowchart", "sequence", "C4"] as const;
 // One build and one server for the whole file, so the sessions run one after the other in a single worker.
 test.describe.configure({ mode: "serial" });
 
-// The build writes to one folder, so it is made once, by the Chromium run; what it checks does not depend on the browser.
-test.beforeEach(({ browserName }) => {
-  // Skipped outside Chromium on purpose: the one build above is made by the Chromium run alone.
-  test.skip(browserName !== "chromium", "The build is made once, by the Chromium run");
-});
-
 let server: Server | undefined;
 let origin = "";
 
-test.beforeAll(async ({ browserName }) => {
-  if (browserName !== "chromium") return;
+test.beforeAll(async () => {
   test.setTimeout(240_000);
   execFileSync(process.execPath, [join(process.cwd(), "node_modules", "vite", "bin", "vite.js"), "build"], { stdio: "ignore" });
   server = createServer((request, response) => {

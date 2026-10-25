@@ -9,21 +9,7 @@ import { measure, openFixture, SCENARIOS, type Medians, type Scenario } from "./
 
 const BASELINE = "e2e/fixtures/redesign-timing.json";
 const TOLERANCE = 1.1;
-/**
- * One frame at 60 Hz. In Firefox an action may take this much more than the tolerance allows when it is scrolling a sequence or C4
- * diagram (the canvas scrolls inside itself instead of widening the page, which costs a frame) or when its baseline median is under
- * 100 ms (a few frames, so a run differs by one): spec 007 Clarifications, SC-007, approved by Lee Sinclair. Chromium has none.
- */
-const FRAME_MS = 1000 / 60;
-const SHORT_MS = 100;
-
-/** What a median may be, given the baseline it is compared with. */
-function allowedFor(browserName: string, scenario: Scenario, action: string, was: number): number {
-  const scrolls = action === "pan" && scenario !== "flowchart";
-  const frame = browserName === "firefox" && (scrolls || was < SHORT_MS) ? FRAME_MS : 0;
-  return was * TOLERANCE + frame;
-}
-/** Twenty drags of a 100-node flowchart take over half a minute in Firefox: the default test timeout is far too short. */
+/** Twenty drags of a 100-node flowchart take close to half a minute: the default test timeout is too short. */
 const TEST_TIMEOUT_MS = 300_000;
 
 interface Recorded extends Medians {
@@ -61,8 +47,7 @@ for (const scenario of SCENARIOS) {
       ["zoom", now.zoom, before.zoom],
     ];
     for (const [action, took, was] of pairs) {
-      const allowed = allowedFor(browserName, scenario, action, was);
-      expect(took, `${action} median ${String(took)} ms against the baseline ${String(was)} ms`).toBeLessThanOrEqual(allowed);
+      expect(took, `${action} median ${String(took)} ms against the baseline ${String(was)} ms`).toBeLessThanOrEqual(was * TOLERANCE);
     }
   });
 }

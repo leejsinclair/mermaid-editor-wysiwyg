@@ -1,8 +1,8 @@
 import { expect, type Locator, type Page } from "@playwright/test";
 import { exactly, startingWith } from "./regexp";
-import { dragBetween, relabel } from "./sequence";
+import { dragBetween, nameNewItem, relabel } from "./sequence";
 
-export { dragBetween, relabel };
+export { dragBetween, nameNewItem, relabel };
 
 export type Kind = "context" | "container" | "component" | "dynamic" | "deployment";
 
@@ -49,14 +49,16 @@ export async function sourceLines(page: Page): Promise<string[]> {
   return text.split("\n").map((line) => line.trim()).filter((line) => line !== "" && !/^C4\w+$/.test(line));
 }
 
-/** Adds one element, boundary or node with the toolbox, then gives it a label. Returns once the label is drawn. */
+/**
+ * Adds one element, boundary or node with the toolbox and names it in the label editor that opens on it, then clears the
+ * selection. Returns once the label is drawn.
+ */
 export async function addItem(page: Page, type: string, label: string): Promise<void> {
   const before = await canvas(page).locator('[data-testid="c4-element"], [data-testid="c4-boundary"], [data-testid="c4-node"]').count();
   await toolboxButton(page, type).click();
   const items = canvas(page).locator('[data-testid="c4-element"], [data-testid="c4-boundary"], [data-testid="c4-node"]');
   await expect(items).toHaveCount(before + 1);
-  const added = items.filter({ has: page.getByTestId("item-label").filter({ hasText: exactly(type) }) }).last();
-  await relabel(page, added, label);
+  await nameNewItem(page, label);
   await expect(itemLabelled(page, label)).toHaveCount(1);
   await page.keyboard.press("Escape");
 }

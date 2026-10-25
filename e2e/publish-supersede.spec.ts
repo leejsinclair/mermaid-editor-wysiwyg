@@ -4,11 +4,6 @@ import { job, readWorkflow, topLevel } from "./support/workflow";
 // VO-007 (FR-010, EC-06): runs share one concurrency group and a newer run supersedes an older one; the site is replaced
 // by a single uploaded artifact built from the revision that passed the checks.
 
-test.beforeEach(({ browserName }) => {
-  // Skipped outside Chromium on purpose: the workflow is read as text, so the browser makes no difference.
-  test.skip(browserName !== "chromium", "The workflow is read as text; one browser is enough");
-});
-
 test("every run belongs to one concurrency group and a newer run cancels an older one", () => {
   const concurrency = topLevel(readWorkflow(), "concurrency");
 

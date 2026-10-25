@@ -2,6 +2,7 @@ import { commit, redo, seal, undo, type History } from "../history/history";
 import { liftNotice } from "../model/c4/apply";
 import type { LabelField, Operation } from "../model/operations";
 import type { Ending, LineStyle } from "../model/types";
+import { en } from "../text/en";
 import { rejectionMessage } from "../validation/messages";
 import { describeSelection, labelFieldOf } from "./selection";
 import type { CommitOutcome } from "../validation/reasons";
@@ -38,10 +39,13 @@ export type EditorAction =
   | { readonly type: "undo" }
   | { readonly type: "redo" }
   | { readonly type: "arm"; readonly connection: EditorState["armed"] }
+  | { readonly type: "cancelConnection" }
   | { readonly type: "feedback"; readonly feedback: FeedbackMessage | null };
 
 function rejectionFeedback(outcome: CommitOutcome): FeedbackMessage | null {
-  return !outcome.committed && outcome.rejection ? { tone: "error", message: rejectionMessage(outcome.rejection) } : null;
+  if (outcome.committed || !outcome.rejection) return null;
+  // A blank label says so in the editor's own words (FR-005); blank message text keeps its own sentence.
+  return { tone: "error", message: outcome.rejection.reason === "blankLabel" ? en.editor.labelEmpty : rejectionMessage(outcome.rejection) };
 }
 
 function stepHistory(state: EditorState, action: { readonly type: "undo" | "redo" }): EditorState {
@@ -52,7 +56,14 @@ function stepHistory(state: EditorState, action: { readonly type: "undo" | "redo
 }
 
 /** Commits what is being typed, if anything. A rejection keeps the previous text and says why. */
-function confirmDraft(state: EditorState, kind: "label" | "name"): EditorState {
+/** True where a label was refused for having no visible character. */
+function isBlankRejection(outcome: CommitOutcome): boolean {
+  const reason = outcome.committed ? undefined : outcome.rejection?.reason;
+  return reason === "blankLabel" || reason === "blankMessage" || reason === "blankRelationshipLabel";
+}
+
+/** Confirms the draft. A label with no visible character stays open for correcting when `keepOpen` is set, and the previous label is kept (FR-005). */
+function confirmDraft(state: EditorState, kind: "label" | "name", keepOpen = false): EditorState {
   if (kind === "name") {
     if (state.nameDraft === null) return state;
     const { history, outcome } = commit(state.history, { op: "renameDiagram", name: state.nameDraft });
@@ -61,7 +72,10 @@ function confirmDraft(state: EditorState, kind: "label" | "name"): EditorState {
   if (!state.draft) return state;
   const { itemId, text } = state.draft;
   const field = state.draft.field ?? labelFieldOf(state.history.present, itemId);
+  // A label left as it was commits nothing: no undo step, and the diagram is not drawn again. A blank-label message from an earlier try no longer applies.
+  if ((field === "label" || field === "text") && text === describeSelection(state.history.present, itemId).label) return { ...state, draft: null, feedback: null };
   const { history, outcome } = commit(state.history, { op: "setLabel", itemId, field, text });
+  if (keepOpen && isBlankRejection(outcome)) return { ...state, feedback: rejectionFeedback(outcome) };
   return { ...state, history, draft: null, feedback: rejectionFeedback(outcome) };
 }
 
@@ -113,9 +127,11 @@ export function reducer(state: EditorState, action: EditorAction): EditorState {
     case "cancelDraft":
       return { ...state, draft: null };
     case "confirmLabel":
-      return confirmDraft(state, "label");
+      return confirmDraft(state, "label", true);
     case "arm":
       return { ...state, armed: action.connection };
+    case "cancelConnection":
+      return { ...state, armed: null };
     case "feedback":
       return { ...state, feedback: action.feedback };
     case "commit":

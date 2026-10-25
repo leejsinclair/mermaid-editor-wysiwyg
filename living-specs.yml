@@ -1,0 +1,49 @@
+# Living specs for this project.
+# Specs go at <area>/<name>.spec.md, next to the code each one describes.
+# Adopt a code area to add the first capability.
+enabled: true
+layout: colocated
+exempt: ["*.config.*", "*.test.*", "**/migrations/**"]
+capabilities:
+  - name: start-screen
+    match: ["app/routes/**", "app/editor/library.ts", "app/model/newDiagram.ts", "app/rendering/shared/C4KindDialog.tsx"]
+    spec: capabilities/start-screen/start-screen.spec.md
+  - name: mermaid-import
+    match: ["app/importing/**", "app/rendering/import/**", "app/editor/mermaidParser.ts", "app/editor/mermaidSnapshot.ts"]
+    spec: capabilities/mermaid-import/mermaid-import.spec.md
+  - name: flowchart-editing
+    match: ["app/model/flowchart/**", "app/rendering/flowchart/**"]
+    spec: capabilities/flowchart-editing/flowchart-editing.spec.md
+  - name: sequence-editing
+    match: ["app/model/sequence/**", "app/rendering/sequence/**", "app/rendering/layout/sequenceLayout.ts"]
+    spec: capabilities/sequence-editing/sequence-editing.spec.md
+  - name: c4-editing
+    match: ["app/model/c4/**", "app/rendering/c4/**", "app/rendering/layout/c4Layout.ts"]
+    spec: capabilities/c4-editing/c4-editing.spec.md
+  - name: canvas-interaction
+    match: ["app/rendering/shared/dnd.ts", "app/rendering/shared/useDrag.ts", "app/rendering/shared/interaction.ts", "app/rendering/shared/pinch.ts", "app/rendering/shared/touchPan.ts", "app/rendering/shared/viewport.ts", "app/rendering/shared/zoomStore.ts", "app/rendering/shared/useDoubleActivation.ts", "app/editor/keyboard.ts", "app/editor/selection.ts", "app/editor/inlineEdit.ts"]
+    spec: capabilities/canvas-interaction/canvas-interaction.spec.md
+  - name: editor-workspace
+    match: ["app/rendering/shared/Toolbox.tsx", "app/rendering/flowchart/toolboxGroups.tsx", "app/rendering/sequence/toolboxGroups.tsx", "app/rendering/c4/toolboxGroups.tsx", "app/rendering/shared/PropertiesPanel.tsx", "app/rendering/shared/MoveToDialog.tsx", "app/rendering/shared/TargetDialog.tsx", "app/rendering/shared/Feedback.tsx", "app/rendering/shared/MessageDialog.tsx", "app/rendering/shared/StatusBar.tsx", "app/rendering/shared/Workspace.tsx", "app/rendering/shared/Panel.tsx", "app/rendering/shared/MoreActions.tsx", "app/editor/Editor.tsx"]
+    spec: capabilities/editor-workspace/editor-workspace.spec.md
+  - name: mermaid-source
+    match: ["app/generation/**", "app/editor/clipboard.ts", "app/editor/sourceCheck.ts", "app/editor/useSourceCheck.ts", "app/rendering/shared/SourcePanel.tsx", "app/rendering/flowchart/Preview.tsx"]
+    spec: capabilities/mermaid-source/mermaid-source.spec.md
+  - name: mermaid-text-safety
+    match: ["app/generation/escape.ts", "app/importing/decode.ts", "app/importing/scan.ts", "app/rendering/shared/mermaidRuntime.ts", "app/rendering/shared/MermaidPicture.tsx"]
+    spec: capabilities/mermaid-text-safety/mermaid-text-safety.spec.md
+  - name: diagram-files
+    match: ["app/persistence/store.ts", "app/persistence/lock.ts", "app/persistence/fileIo.ts", "app/persistence/fileName.ts", "app/persistence/openFile.ts", "app/persistence/codec.ts", "app/persistence/migrations.ts", "app/editor/saveStatus.ts", "app/editor/leavePage.ts", "app/rendering/shared/LockDialogs.tsx"]
+    spec: capabilities/diagram-files/diagram-files.spec.md
+  - name: appearance
+    match: ["app/rendering/theme/**", "app/persistence/appearance.ts", "app/editor/AppearanceProvider.tsx"]
+    spec: capabilities/appearance/appearance.spec.md
+  - name: undo-redo
+    match: ["app/history/**"]
+    spec: app/history/undo-redo.spec.md
+  - name: diagram-validation
+    match: ["app/validation/**"]
+    spec: app/validation/diagram-validation.spec.md
+  - name: drafting-grid
+    match: ["app/rendering/shared/grid.ts", "app/rendering/shared/gridStyle.ts", "app/rendering/flowchart/DraftingGrid.tsx"]
+    spec: capabilities/drafting-grid/drafting-grid.spec.md

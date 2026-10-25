@@ -1,0 +1,1273 @@
+{
+  "workflow": "companion",
+  "specName": "Mermaid Editor UX and Workflow Clarity",
+  "branch": "main",
+  "currentStep": "implement",
+  "status": "implementing",
+  "history": [
+    {
+      "step": "specify",
+      "substep": null,
+      "kind": "start",
+      "by": "extension",
+      "at": "2026-10-23T23:29:46.947Z"
+    },
+    {
+      "step": "specify",
+      "substep": null,
+      "kind": "complete",
+      "by": "extension",
+      "at": "2026-10-23T23:31:18.281Z"
+    },
+    {
+      "step": "plan",
+      "substep": null,
+      "kind": "start",
+      "by": "extension",
+      "at": "2026-10-23T23:51:35.785Z"
+    },
+    {
+      "step": "plan",
+      "substep": "research",
+      "kind": "complete",
+      "by": "ai",
+      "at": "2026-10-23T23:53:24.972Z"
+    },
+    {
+      "step": "plan",
+      "substep": "design",
+      "kind": "complete",
+      "by": "ai",
+      "at": "2026-10-23T23:53:25.055Z"
+    },
+    {
+      "step": "plan",
+      "substep": null,
+      "kind": "complete",
+      "by": "ai",
+      "at": "2026-10-23T23:53:25.132Z"
+    },
+    {
+      "step": "tasks",
+      "substep": null,
+      "kind": "start",
+      "by": "extension",
+      "at": "2026-10-23T23:53:33.875Z"
+    },
+    {
+      "step": "tasks",
+      "substep": "generate",
+      "kind": "complete",
+      "by": "ai",
+      "at": "2026-10-23T23:54:24.994Z"
+    },
+    {
+      "step": "tasks",
+      "substep": null,
+      "kind": "complete",
+      "by": "ai",
+      "at": "2026-10-23T23:54:25.071Z"
+    },
+    {
+      "step": "analyze",
+      "substep": null,
+      "kind": "start",
+      "by": "extension",
+      "at": "2026-10-23T23:55:50.136Z"
+    },
+    {
+      "step": "analyze",
+      "substep": null,
+      "kind": "complete",
+      "by": "ai",
+      "at": "2026-10-23T23:57:34.386Z"
+    },
+    {
+      "step": "analyze",
+      "substep": null,
+      "kind": "complete",
+      "by": "extension",
+      "at": "2026-10-24T00:21:52.940Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "kind": "start",
+      "by": "extension",
+      "at": "2026-10-24T00:28:31.602Z"
+    },
+    {
+      "step": "analyze",
+      "substep": null,
+      "kind": "complete",
+      "by": "extension",
+      "at": "2026-10-24T00:43:48.791Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T006",
+      "kind": "complete",
+      "by": "ai",
+      "at": "2026-10-24T00:56:22.602Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T009",
+      "kind": "complete",
+      "by": "ai",
+      "at": "2026-10-24T00:56:35.858Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T002",
+      "kind": "complete",
+      "by": "ai",
+      "at": "2026-10-24T00:56:45.147Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T004",
+      "kind": "complete",
+      "by": "ai",
+      "at": "2026-10-24T00:56:45.229Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T007",
+      "kind": "complete",
+      "by": "ai",
+      "at": "2026-10-24T00:57:12.768Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T003",
+      "kind": "complete",
+      "by": "ai",
+      "at": "2026-10-24T00:57:56.489Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T005",
+      "kind": "complete",
+      "by": "ai",
+      "at": "2026-10-24T01:05:31.480Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T008",
+      "kind": "complete",
+      "by": "ai",
+      "at": "2026-10-24T01:05:31.559Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T010",
+      "kind": "complete",
+      "by": "ai",
+      "at": "2026-10-24T01:10:34.853Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T011",
+      "kind": "complete",
+      "by": "ai",
+      "at": "2026-10-24T01:10:34.933Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T012",
+      "kind": "complete",
+      "by": "ai",
+      "at": "2026-10-24T01:10:35.016Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T013",
+      "kind": "complete",
+      "by": "ai",
+      "at": "2026-10-24T01:10:35.099Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T014",
+      "kind": "complete",
+      "by": "ai",
+      "at": "2026-10-24T01:14:23.502Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T015",
+      "kind": "complete",
+      "by": "ai",
+      "at": "2026-10-24T01:14:23.583Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T001",
+      "kind": "complete",
+      "by": "ai",
+      "at": "2026-10-24T01:14:31.953Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T027",
+      "kind": "complete",
+      "by": "ai",
+      "at": "2026-10-24T01:18:46.653Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T028",
+      "kind": "complete",
+      "by": "ai",
+      "at": "2026-10-24T01:18:46.726Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T029",
+      "kind": "complete",
+      "by": "ai",
+      "at": "2026-10-24T01:18:46.794Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T030",
+      "kind": "complete",
+      "by": "ai",
+      "at": "2026-10-24T01:18:46.869Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T031",
+      "kind": "complete",
+      "by": "ai",
+      "at": "2026-10-24T01:18:46.938Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T032",
+      "kind": "complete",
+      "by": "ai",
+      "at": "2026-10-24T01:19:34.572Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T036",
+      "kind": "complete",
+      "by": "ai",
+      "at": "2026-10-24T01:19:57.531Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T037",
+      "kind": "complete",
+      "by": "ai",
+      "at": "2026-10-24T01:19:57.600Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T038",
+      "kind": "complete",
+      "by": "ai",
+      "at": "2026-10-24T01:19:57.676Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T039",
+      "kind": "complete",
+      "by": "ai",
+      "at": "2026-10-24T01:19:57.749Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T040",
+      "kind": "complete",
+      "by": "ai",
+      "at": "2026-10-24T01:19:57.825Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T022",
+      "kind": "complete",
+      "by": "ai",
+      "at": "2026-10-24T06:21:46.537Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T023",
+      "kind": "complete",
+      "by": "ai",
+      "at": "2026-10-24T06:23:52.510Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T024",
+      "kind": "complete",
+      "by": "ai",
+      "at": "2026-10-24T06:25:04.135Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T033",
+      "kind": "complete",
+      "by": "ai",
+      "at": "2026-10-24T06:46:18.487Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T034",
+      "kind": "complete",
+      "by": "ai",
+      "at": "2026-10-24T06:50:14.611Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T050",
+      "kind": "complete",
+      "by": "ai",
+      "at": "2026-10-24T08:25:42.229Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T041",
+      "kind": "complete",
+      "by": "ai",
+      "at": "2026-10-24T08:26:49.568Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T042",
+      "kind": "complete",
+      "by": "ai",
+      "at": "2026-10-24T08:28:22.200Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T043",
+      "kind": "complete",
+      "by": "ai",
+      "at": "2026-10-24T08:29:11.038Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T044",
+      "kind": "complete",
+      "by": "ai",
+      "at": "2026-10-24T08:29:11.361Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T045",
+      "kind": "complete",
+      "by": "ai",
+      "at": "2026-10-24T08:35:06.979Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T046",
+      "kind": "complete",
+      "by": "ai",
+      "at": "2026-10-24T08:35:52.457Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T047",
+      "kind": "complete",
+      "by": "ai",
+      "at": "2026-10-24T08:35:52.769Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T048",
+      "kind": "complete",
+      "by": "ai",
+      "at": "2026-10-24T09:27:29.966Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T049",
+      "kind": "complete",
+      "by": "ai",
+      "at": "2026-10-24T09:27:30.032Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T051",
+      "kind": "complete",
+      "by": "ai",
+      "at": "2026-10-24T09:27:30.100Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T052",
+      "kind": "complete",
+      "by": "ai",
+      "at": "2026-10-24T09:27:30.169Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T053",
+      "kind": "complete",
+      "by": "ai",
+      "at": "2026-10-24T09:27:30.240Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T054",
+      "kind": "complete",
+      "by": "ai",
+      "at": "2026-10-24T09:27:30.311Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T056",
+      "kind": "complete",
+      "by": "ai",
+      "at": "2026-10-24T09:28:03.727Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T057",
+      "kind": "complete",
+      "by": "ai",
+      "at": "2026-10-24T09:28:03.817Z"
+    }
+  ],
+  "telemetryInstanceId": "5772175c-a9be-4e80-a17e-017502bf2bc9",
+  "coverage": {
+    "FR-001": {
+      "title": "Empty canvas shows concise guidance for add, label and connect",
+      "tasks": [
+        "T012",
+        "T013"
+      ]
+    },
+    "FR-002": {
+      "title": "Empty-canvas hint names the three steps, no dismiss control",
+      "tasks": [
+        "T012",
+        "T013"
+      ]
+    },
+    "FR-003": {
+      "title": "Contextual guidance during connection and inline label editing",
+      "tasks": [
+        "T014"
+      ]
+    },
+    "FR-004": {
+      "title": "Added node is selected and its label opens for inline editing",
+      "tasks": [
+        "T012"
+      ]
+    },
+    "FR-005": {
+      "title": "Enter confirms inline label, Escape restores previous label",
+      "tasks": [
+        "T015",
+        "T004",
+        "T005"
+      ]
+    },
+    "FR-006": {
+      "title": "Properties panel edits label and shows inline changes",
+      "tasks": [
+        "T022"
+      ]
+    },
+    "FR-007": {
+      "title": "Connection prompt says choosing source or destination",
+      "tasks": [
+        "T014",
+        "T012"
+      ]
+    },
+    "FR-008": {
+      "title": "Active connection state shown by more than colour"
+    },
+    "FR-009": {
+      "title": "Escape cancels an unfinished connection, stated in prompt",
+      "tasks": [
+        "T002",
+        "T005",
+        "T017"
+      ]
+    },
+    "FR-010": {
+      "title": "Connection direction and endpoints visible after creation"
+    },
+    "FR-011": {
+      "title": "Unselected, hovered, focused and selected states differ beyond colour",
+      "tasks": [
+        "T022",
+        "T044"
+      ]
+    },
+    "FR-012": {
+      "title": "Canvas and properties panel show the same selection",
+      "tasks": [
+        "T020",
+        "T021"
+      ]
+    },
+    "FR-013": {
+      "title": "Selected element type named in properties panel",
+      "tasks": [
+        "T019",
+        "T022"
+      ]
+    },
+    "FR-014": {
+      "title": "Element actions have full labels and appear only when relevant",
+      "tasks": [
+        "T019",
+        "T022"
+      ]
+    },
+    "FR-015": {
+      "title": "Diagram-level actions separate from element-level actions"
+    },
+    "FR-016": {
+      "title": "Unavailable actions disabled and announced as unavailable",
+      "tasks": [
+        "T020",
+        "T022"
+      ]
+    },
+    "FR-017": {
+      "title": "Toolbar grouped as History, Diagram editing, Export and sharing, View",
+      "tasks": [
+        "T024",
+        "T025",
+        "T026",
+        "T028"
+      ]
+    },
+    "FR-018": {
+      "title": "Less frequent actions move to secondary menu, none removed",
+      "tasks": [
+        "T024",
+        "T027"
+      ]
+    },
+    "FR-019": {
+      "title": "Copy Source, Copy for Markdown and Save file are distinct actions",
+      "tasks": [
+        "T034",
+        "T028"
+      ]
+    },
+    "FR-020": {
+      "title": "Preview shows Mermaid generated from current diagram",
+      "tasks": [
+        "T030",
+        "T031"
+      ]
+    },
+    "FR-021": {
+      "title": "Preview refreshes after each edit made while open",
+      "tasks": [
+        "T030"
+      ]
+    },
+    "FR-022": {
+      "title": "Returning from preview keeps diagram, layout and undo history",
+      "tasks": [
+        "T030",
+        "T031"
+      ]
+    },
+    "FR-023": {
+      "title": "Preview and export explain node positions may not be kept",
+      "tasks": [
+        "T030",
+        "T031"
+      ]
+    },
+    "FR-024": {
+      "title": "No claim of exact layout preservation in exported Mermaid"
+    },
+    "FR-025": {
+      "title": "Generated Mermaid source remains inspectable and copyable"
+    },
+    "FR-026": {
+      "title": "Browser-saved, editable file and exported source distinguished in text",
+      "tasks": [
+        "T037",
+        "T034"
+      ]
+    },
+    "FR-027": {
+      "title": "Save used only for saving, Copy only for clipboard",
+      "tasks": [
+        "T034",
+        "T037"
+      ]
+    },
+    "FR-028": {
+      "title": "Unsaved changes shown when they exist",
+      "tasks": [
+        "T033",
+        "T035",
+        "T037"
+      ]
+    },
+    "FR-029": {
+      "title": "Visible message when a save fails",
+      "tasks": [
+        "T034"
+      ]
+    },
+    "FR-030": {
+      "title": "Saved never shown before save succeeds",
+      "tasks": [
+        "T033",
+        "T035"
+      ]
+    },
+    "FR-031": {
+      "title": "Diagram validity shown separately from save status",
+      "tasks": [
+        "T034",
+        "T037"
+      ]
+    },
+    "FR-032": {
+      "title": "Essential edits possible from keyboard without dragging",
+      "tasks": [
+        "T009",
+        "T010",
+        "T039"
+      ]
+    },
+    "FR-033": {
+      "title": "Accessible names, visible focus, WCAG 2.2 AA contrast",
+      "tasks": [
+        "T042",
+        "T043"
+      ]
+    },
+    "FR-034": {
+      "title": "Panels usable at every supported viewport width",
+      "tasks": [
+        "T039",
+        "T040"
+      ]
+    },
+    "FR-035": {
+      "title": "New states work in Blueprint Studio and Light appearances",
+      "tasks": [
+        "T044"
+      ]
+    },
+    "FR-036": {
+      "title": "Existing types, import, export, undo, persistence, shortcuts keep working",
+      "tasks": [
+        "T045"
+      ]
+    },
+    "FR-037": {
+      "title": "No data loss when moving between editing and preview",
+      "tasks": [
+        "T030"
+      ]
+    },
+    "FR-038": {
+      "title": "Mermaid generation semantics unchanged unless a defect is fixed",
+      "tasks": [
+        "T045"
+      ]
+    }
+  },
+  "size": "oversized",
+  "classification": {
+    "projectedFiles": 18,
+    "projectedTasks": 40,
+    "scopeSignal": "none",
+    "verdict": "oversized"
+  },
+  "expectations": [
+    "Replacing Mermaid as the diagram language",
+    "Preserving arbitrary canvas coordinates in exported Mermaid",
+    "New diagram types or new Mermaid syntax",
+    "Visual redesign of the product",
+    "Collaborative editing, accounts or cloud sync",
+    "Unrelated architecture or code-quality refactoring"
+  ],
+  "context": [
+    "area: app/rendering/shared (toolbar, properties panel, preview, save status, guidance)",
+    "area: app/editor (selection, save status, keyboard)",
+    "constraint: setup.md AC2 to AC17 flowchart behaviour preserved",
+    "constraint: Mermaid generation semantics unchanged unless a defect is fixed",
+    "constraint: no new dependencies without a concrete requirement",
+    "constraint: Blueprint Studio and Light appearances both kept"
+  ],
+  "intent": "Make the Mermaid editor clearer for business analysts and developers: guided add-label-connect, clear selection and actions, toolbar grouped by intent, a Mermaid preview, and explicit save and validity status.",
+  "assistant": "claude",
+  "decisions": [
+    {
+      "decision": "Single pure Escape resolver in keyboard.ts: label edit, then connection, then selection",
+      "why": "FR-009 two-step Escape; three listeners currently act on one press",
+      "rejected": "Per-listener flags in FlowchartCanvas and useDrag"
+    },
+    {
+      "decision": "One inline-SVG icon module, icons.tsx",
+      "why": "FR-040 forbids an icon dependency",
+      "rejected": "Icon font or icon package"
+    },
+    {
+      "decision": "Conditional actions disabled with aria-disabled and reason text, element actions shown only when relevant",
+      "why": "FR-014 and FR-016",
+      "rejected": "Always-rendered controls that call onNeed"
+    },
+    {
+      "decision": "Preview scope for sequence and C4 left as an open question, default extend only where a generator exists",
+      "why": "Spec assumptions say shared, code opens preview for flowcharts only",
+      "rejected": "Silent flowchart-only or silent all-types choice"
+    },
+    {
+      "decision": "Properties panel shows only the actions that apply to the selection, with Reverse and Move disabled via aria-disabled plus a visible reason taken from validation",
+      "why": "FR-014, FR-016; reasons come from the same check that refuses the operation",
+      "rejected": "Always-shown buttons that explain a missing selection on click"
+    },
+    {
+      "decision": "Layout-position note stays flowchart-only; sequence and C4 get the preview and Back to editing without it",
+      "why": "BA decision 2026-10-24; their layout comes from order (FR-024)",
+      "rejected": "Note for all three types as T050 was first written"
+    },
+    {
+      "decision": "Narrow Tools panel puts Properties above the toolbox when something is selected",
+      "why": "VO-050: the selected element’s actions were below the fold at 360 px",
+      "rejected": "Scrolling the panel into view on open"
+    },
+    {
+      "decision": "Button states get non-colour cues in the theme: hover underline, pressed inset ring, unavailable dashed border",
+      "why": "FR-046, VO-027, VO-036",
+      "rejected": "Per-component styling"
+    },
+    {
+      "decision": "Firefox dropped from the supported and tested browsers (constitution 3.0.0)",
+      "why": "the Business Analyst asked to drop the Firefox tests; the constitution requires every supported browser to be tested",
+      "rejected": "keeping Firefox supported but untested"
+    }
+  ],
+  "step_summaries": {
+    "plan": {
+      "summary": "Plan, research, data model and UI contract written for oversized feature",
+      "key_finding": "Escape handling is split across three listeners and needs one resolver"
+    },
+    "tasks": {
+      "summary": "60 tasks in 11 phases: Setup, Foundational (5 waves), US1 to US7, Sequence and C4 (9b), Polish; each phase in waves with join points"
+    }
+  },
+  "approach": "Extend the existing editor in place. Put Escape order, save-unsaved derivation, toolbar grouping and icon names in pure app/editor modules, and render them in app/rendering/shared. Add one inline-SVG icon module and no dependency.",
+  "concerns": [
+    {
+      "note": "CRITICAL: constitution Principle V says controls MUST NOT be offered for unsupported actions, but FR-016, US2-AS4 and plan Key Decisions (disabled not hidden) offer disabled controls",
+      "step": "analyze"
+    },
+    {
+      "note": "HIGH: preview scope conflict. Clarification settles all three diagram types, plan Open Question 1 defaults to a narrower scope, research R5 says flowchart only, and T030-T032 cover flowchart only",
+      "step": "analyze"
+    },
+    {
+      "note": "HIGH: sequence and C4 editing UI has no tasks; Phase 3-9 files are flowchart-specific",
+      "step": "analyze"
+    },
+    {
+      "note": "HIGH: task ordering. T010 routes Escape through the resolver in Foundational, but canvas and drag Escape listeners are removed only in T016-T017 (US1), so one press still fires three listeners",
+      "step": "analyze"
+    },
+    {
+      "note": "HIGH: T030 tests the explanation beside Copy Source and Save file, but no implementation task adds it there",
+      "step": "analyze"
+    },
+    {
+      "note": "HIGH: FR-039 and SC-009 require the same icon in toolbar, panel and toolbox, but T022 (PropertiesPanel) does not use the shared icons",
+      "step": "analyze"
+    },
+    {
+      "note": "HIGH: no task renders getting-started help when nothing is selected (US2-AS1)",
+      "step": "analyze"
+    },
+    {
+      "note": "HIGH: constitution III is NON-NEGOTIABLE; T007 (strings) and T011 (Editor wiring) have no failing test task ahead of them",
+      "step": "analyze"
+    },
+    {
+      "note": "MEDIUM: plan and research R1 place the Escape resolver in keyboard.ts; T005 places it in escape.ts",
+      "step": "analyze"
+    },
+    {
+      "note": "MEDIUM: plan says SaveStatus gains an explicit unsaved state; data-model says it keeps five values and unsaved is derived",
+      "step": "analyze"
+    },
+    {
+      "note": "MEDIUM: Verification plan missing from plan.md; integrated-TDD checks not run",
+      "step": "analyze"
+    },
+    {
+      "note": "MEDIUM: tasks T032 still calls the sequence and C4 preview scope an open question, contradicting plan Open Question 1 and T056",
+      "step": "analyze"
+    },
+    {
+      "note": "MEDIUM: plan.md Project Structure omits Phase 9b files (sequence and c4 canvases, typeWording.ts); scale note still says about 40 tasks, now 59",
+      "step": "analyze"
+    },
+    {
+      "note": "MEDIUM: SC-005 keyboard-only coverage is not stated for sequence and C4; T039 names no diagram type",
+      "step": "analyze"
+    },
+    {
+      "note": "MEDIUM: plan.md has no Verification Plan; integrated-TDD plan and tasks checks not run",
+      "step": "analyze"
+    },
+    {
+      "note": "HIGH: FR-042 says icon-only only where the toolbar has no room, but room is never defined. VO-038, T028 and T031 cannot decide text versus icon at 360 px and wide widths. Plan Open Question 1 still needs the Business Analyst; the stated default is unconfirmed.",
+      "step": "analyze"
+    },
+    {
+      "note": "HIGH: Constitution 2.0.0 Principle V allows a conditional action to be shown disabled only with its unmet condition stated as text and announced as unavailable. FR-016 and VO-009 require disabled and announced but do not require the stated condition text. T023 mentions the reason, the obligation does not.",
+      "step": "analyze"
+    },
+    {
+      "note": "HIGH: FR-032 requires add, label, select, move, connect, delete, undo and redo from the keyboard. VO-019 expects only keyboard move. T042 tests the other actions but carries only VO-020 and VO-050, so no expected outcome verifies them.",
+      "step": "analyze"
+    },
+    {
+      "note": "MEDIUM: SC-005 and the Clarifications cover all three diagram types, but T042 names only flowchart keyboard-only files and Phase 9b has no keyboard-only task for sequence or C4.",
+      "step": "analyze"
+    },
+    {
+      "note": "MEDIUM: spec FR-017 lists four View items (Zoom in, Zoom out, Fit to view, Preview). contracts/ui-contract.md also places Mermaid source (show or hide) and Appearance under View. The spec and contract disagree on group membership.",
+      "step": "analyze"
+    },
+    {
+      "note": "MEDIUM: FR-046 requires shared toolbar icon size, button size, spacing and alignment. No obligation expects it. VO-027 covers state differences only, and T003 checks icon size only in a unit test of the icon module.",
+      "step": "analyze"
+    },
+    {
+      "note": "LOW: tasks.md line 3 cites plan.md Open Questions for the preview scope. plan.md Open Questions now lists only toolbar overflow. The preview scope is settled in spec Clarifications and research R5, so the cross-reference is stale.",
+      "step": "analyze"
+    },
+    {
+      "note": "LOW: tasks.md Wave 5 says one Escape press fires one listener from the start. T011 in Wave 4 routes Escape through the resolver while FlowchartCanvas and useDrag still handle Escape until T014 and T015 in Wave 5, so two listeners are active between waves.",
+      "step": "analyze"
+    },
+    {
+      "note": "LOW: the spec does not place Change type and Move to in a toolbar group. Only ui-contract places them under Diagram editing. Rename appears both as a diagram action in the toolbar and as a node action in the panel, which FR-015 separation makes easy to confuse.",
+      "step": "analyze"
+    },
+    {
+      "note": "Full e2e run (T058) was killed by Claude Code for low system memory; not re-run. Typecheck, lint and 1619 unit tests pass (#102-#104)",
+      "step": "implement"
+    },
+    {
+      "note": "Approvals pending before gates pass: EX-01..EX-07 (US1 built before reds were recorded), XC-03 (old panel tests), XC-06 (sequence/C4 Preview in inventories), XC-10 (per-type empty hint). Materialize checked T048, T051-T054 although their gates fail only on these approvals",
+      "step": "implement"
+    },
+    {
+      "note": "Dead code left after the panel change: en.properties.things/sequenceThings/c4Things, wording().things, the needsSelection reason and controls.changeEnd; remove once the suite can be re-run",
+      "step": "implement"
+    },
+    {
+      "note": "T058 cannot pass its gate: VO-037 has no passing e2e baseline from before the change (baseline runs #3 and #4 timed out, yet T001 was checked), and EX-08 (behaviour-preserving) makes G4 demand that before/after pair. The suite itself passes (e2e-all #107: 1353 passed). Needs a human decision; no after-the-fact baseline was fabricated.",
+      "step": "implement"
+    },
+    {
+      "note": "e2e-all #105 failed only on the Firefox flowchart zoom timing (286.7 ms vs 283.8 ms ceiling); classified unreliable, passed on re-run #107. The timing check runs close to its ceiling in Firefox.",
+      "step": "implement"
+    }
+  ],
+  "currentTask": "T057",
+  "task_summaries": {
+    "T006": {
+      "status": "DONE",
+      "did": "tests green, recorded",
+      "files": [
+        "app/editor/escape.ts"
+      ]
+    },
+    "T009": {
+      "status": "DONE",
+      "did": "tests green, recorded",
+      "files": [
+        "app/editor/reducer.ts"
+      ]
+    },
+    "T002": {
+      "status": "DONE",
+      "did": "Escape order tests written; pass via T006 resolver (6/6)",
+      "files": [
+        "app/editor/escape.test.ts"
+      ]
+    },
+    "T004": {
+      "status": "DONE",
+      "did": "Cancel label and connection reducer tests pass via T009 (4/4)",
+      "files": [
+        "app/editor/reducerCancel.test.ts"
+      ]
+    },
+    "T007": {
+      "status": "DONE",
+      "did": "tests green, recorded",
+      "files": [
+        "app/rendering/shared/icons.tsx"
+      ]
+    },
+    "T003": {
+      "status": "DONE",
+      "did": "tests green, recorded",
+      "files": [
+        "app/rendering/shared/icons.test.tsx icons.tsx"
+      ]
+    },
+    "T005": {
+      "status": "DONE",
+      "did": "Copy presence test written; passes (18/18) once T008 strings exist, checkpoint unit-all green",
+      "files": [
+        "app/text/en.test.ts"
+      ]
+    },
+    "T008": {
+      "status": "DONE",
+      "did": "Added contract and spec strings; blueprintLabel kept beside blueprint",
+      "files": [
+        "app/text/en.ts"
+      ]
+    },
+    "T010": {
+      "status": "DONE",
+      "did": "Keyboard tests: Escape via resolver, Delete, text entry excluded; no new add/connect keys, buttons already dispatch",
+      "files": [
+        "app/editor/keyboard.test.ts"
+      ]
+    },
+    "T011": {
+      "status": "DONE",
+      "did": "Escape routed through escape.ts; hook takes a context of selection, labelEditing, connecting",
+      "files": [
+        "app/editor/keyboard.ts"
+      ]
+    },
+    "T012": {
+      "status": "DONE",
+      "did": "Wiring test mocks canvas and status bar; checks save text, unsaved flag, cancel target",
+      "files": [
+        "app/editor/Editor.test.tsx"
+      ]
+    },
+    "T013": {
+      "status": "DONE",
+      "did": "Editor derives unsaved and cancelTarget and passes them to StatusBar and FlowchartCanvas; hasUnsavedChange shared with leavePage",
+      "files": [
+        "app/editor/Editor.tsx app/editor/leavePage.ts app/rendering/shared/StatusBar.tsx app/rendering/flowchart/FlowchartCanvas.tsx"
+      ]
+    },
+    "T014": {
+      "status": "DONE",
+      "did": "Drag Escape now runs in capture and marks the press handled; existing gesture e2e pass",
+      "files": [
+        "app/rendering/shared/useDrag.ts"
+      ]
+    },
+    "T015": {
+      "status": "DONE",
+      "did": "Canvas Escape cancels only an in-flight drag or line and marks it handled; arrow nudging kept",
+      "files": [
+        "app/rendering/flowchart/FlowchartCanvas.tsx"
+      ]
+    },
+    "T001": {
+      "status": "DONE",
+      "did": "Baseline: typecheck and 1481 unit tests pass; e2e 1196 pass, one load-sensitive timing test (import-error.spec.ts:24) already failing"
+    },
+    "T027": {
+      "status": "DONE",
+      "did": "Unit tests for toolbar groups and layout placement",
+      "files": [
+        "app/rendering/shared/toolbarGroups.test.ts"
+      ]
+    },
+    "T028": {
+      "status": "DONE",
+      "did": "E2E tests for groups, overflow, focus, note placement, labels",
+      "files": [
+        "e2e/toolbar-groups.spec.ts"
+      ]
+    },
+    "T029": {
+      "status": "DONE",
+      "did": "Grouping and layout placement as data",
+      "files": [
+        "app/rendering/shared/toolbarGroups.ts"
+      ]
+    },
+    "T030": {
+      "status": "DONE",
+      "did": "Overflow menu items carry the toolbar icon",
+      "files": [
+        "app/rendering/shared/MoreActions.tsx"
+      ]
+    },
+    "T031": {
+      "status": "DONE",
+      "did": "Grouped toolbar with icons, labels, tooltips and note beside export actions",
+      "files": [
+        "app/rendering/shared/Toolbar.tsx"
+      ]
+    },
+    "T032": {
+      "status": "DONE",
+      "did": "Checkpoint: toolbar unit and e2e green at 1440, 768 and 360 px per the gate records; older toolbar specs still to run"
+    },
+    "T036": {
+      "status": "DONE",
+      "did": "Unit tests for derived unsaved state, saved-after-newest-write and unsafeToLeave",
+      "files": [
+        "app/editor/saveStatus.test.ts",
+        "app/editor/leavePage.test.ts"
+      ]
+    },
+    "T037": {
+      "status": "DONE",
+      "did": "E2E tests for failed-save message, Save file wording, separate validity, preview failure",
+      "files": [
+        "e2e/storage-wording.spec.ts"
+      ]
+    },
+    "T038": {
+      "status": "DONE",
+      "did": "Moved hasUnsavedChange into saveStatus.ts as the derived unsaved state",
+      "files": [
+        "app/editor/saveStatus.ts"
+      ]
+    },
+    "T039": {
+      "status": "DONE",
+      "did": "leavePage imports and re-exports hasUnsavedChange from saveStatus",
+      "files": [
+        "app/editor/leavePage.ts"
+      ]
+    },
+    "T040": {
+      "status": "DONE",
+      "did": "StatusBar shows a visible not-saved alert when unsaved and not saving",
+      "files": [
+        "app/rendering/shared/StatusBar.tsx"
+      ]
+    },
+    "T022": {
+      "status": "DONE",
+      "did": "Failing unit tests for type name and action list per selection and diagram type",
+      "files": [
+        "app/editor/selection.test.ts"
+      ]
+    },
+    "T023": {
+      "status": "DONE",
+      "did": "Failing e2e tests for panel/canvas agreement, type naming, connection ends, disabled Reverse on self-connection",
+      "files": [
+        "e2e/selection-panel.spec.ts"
+      ]
+    },
+    "T024": {
+      "status": "DONE",
+      "did": "selection.ts returns type name, ends and action offers with unavailable reasons per type",
+      "files": [
+        "app/editor/selection.ts",
+        "app/text/en.ts"
+      ]
+    },
+    "T033": {
+      "status": "DONE",
+      "did": "Failing e2e for flowchart preview: current source, refresh, Back to editing, error state, escaping, copy",
+      "files": [
+        "e2e/preview-round-trip.spec.ts"
+      ]
+    },
+    "T034": {
+      "status": "DONE",
+      "did": "Preview gains Back to editing, the layout explanation, and keeps the error state",
+      "files": [
+        "app/rendering/flowchart/Preview.tsx",
+        "app/editor/Editor.tsx"
+      ]
+    },
+    "T050": {
+      "status": "DONE",
+      "did": "Sequence and C4 preview e2e: current source, refresh, Back to editing, no position note (decision)",
+      "files": [
+        "e2e/per-type-preview.spec.ts"
+      ]
+    },
+    "T041": {
+      "status": "DONE",
+      "did": "US5 checkpoint: editor unit tests and 7 storage/status e2e specs pass in both browsers (#76, #77)",
+      "files": [
+        "-"
+      ]
+    },
+    "T042": {
+      "status": "DONE",
+      "did": "e2e: keyboard-only flow at 360 px, and a selected element's properties in view when Tools opens",
+      "files": [
+        "e2e/keyboard-only.spec.ts",
+        "e2e/narrow-layout.spec.ts"
+      ]
+    },
+    "T043": {
+      "status": "DONE",
+      "did": "Narrow Tools panel opens on the selected element's properties, above the toolbox",
+      "files": [
+        "app/rendering/shared/Workspace.tsx",
+        "app/editor/Editor.tsx"
+      ]
+    },
+    "T044": {
+      "status": "DONE",
+      "did": "Checkpoint: keyboard-only and narrow-layout e2e pass at 360 px in Chromium and Firefox (#79)",
+      "files": [
+        "-"
+      ]
+    },
+    "T045": {
+      "status": "DONE",
+      "did": "e2e: same icon and label across toolbar, preview and More actions; toolbox illustrations; icons clear of canvas and save status; button states differ without colour in both appearances; 360 px and 200% zoom; icon-only names, focus and states",
+      "files": [
+        "e2e/icon-consistency.spec.ts",
+        "e2e/accessible-names.spec.ts"
+      ]
+    },
+    "T046": {
+      "status": "DONE",
+      "did": "Shared icons on the preview's zoom and fit; theme gives hover, pressed and unavailable button states non-colour cues; toolbox illustrations kept",
+      "files": [
+        "app/rendering/flowchart/Preview.tsx",
+        "app/rendering/theme/tokens.ts"
+      ]
+    },
+    "T047": {
+      "status": "DONE",
+      "did": "Checkpoint: icon consistency e2e passes in Blueprint Studio and Light, both browsers (#83)",
+      "files": [
+        "-"
+      ]
+    },
+    "T048": {
+      "status": "DONE",
+      "did": "Per-type first-use e2e for sequence and C4: hint steps, new element selected with label open, Enter/Escape, empty label, connection prompt; red #85, green #98",
+      "files": [
+        "e2e/per-type-first-use.spec.ts"
+      ]
+    },
+    "T049": {
+      "status": "DONE",
+      "did": "Per-type selection e2e for sequence and C4: getting-started steps, type name, only relevant actions, aria-disabled reason, Change endpoints; red #86, green #99",
+      "files": [
+        "e2e/per-type-selection.spec.ts"
+      ]
+    },
+    "T051": {
+      "status": "DONE",
+      "did": "Unit tests that each type's steps and connection prompts use its own element names and no flowchart wording; red #84, green #90",
+      "files": [
+        "app/text/typeWording.test.ts"
+      ]
+    },
+    "T052": {
+      "status": "DONE",
+      "did": "Pure typeWording(type) with per-type steps and connection prompts, strings in en.canvasHelp.byType; green #87, #97",
+      "files": [
+        "app/text/typeWording.ts",
+        "app/text/en.ts"
+      ]
+    },
+    "T053": {
+      "status": "DONE",
+      "did": "Sequence: new participant selected with label open, per-type hint and panel steps, label and receiving-participant prompts; helpers and pre-existing specs updated (XC-09, XC-10); green #92-#94",
+      "files": [
+        "app/rendering/sequence/SequenceCanvas.tsx",
+        "app/editor/Editor.tsx",
+        "app/rendering/shared/PropertiesPanel.tsx",
+        "e2e/support/sequence.ts",
+        "e2e/support/items.ts",
+        "e2e/empty-state.spec.ts",
+        "e2e/keyboard-only.spec.ts",
+        "e2e/accessible-names.spec.ts"
+      ]
+    },
+    "T054": {
+      "status": "DONE",
+      "did": "C4: new item selected with label open, per-type hint and panel steps, label and target-element prompts; green #95, #96",
+      "files": [
+        "app/rendering/c4/C4Canvas.tsx",
+        "app/editor/Editor.tsx",
+        "e2e/support/c4.ts"
+      ]
+    },
+    "T056": {
+      "status": "DONE",
+      "did": "Checkpoint: per-type first-use and selection e2e pass for sequence and C4 (#100)",
+      "files": [
+        "-"
+      ]
+    },
+    "T057": {
+      "status": "DONE",
+      "did": "Checkpoint: per-type first-use, selection and preview pass in Chromium and Firefox, 48/48 (#100)",
+      "files": [
+        "-"
+      ]
+    }
+  },
+  "last_action": "Firefox projects removed; e2e-all #113 passed (697) in Chromium and the emulated Android phone"
+}

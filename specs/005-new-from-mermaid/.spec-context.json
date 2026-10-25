@@ -4,7 +4,15 @@
   "branch": "005-new-from-mermaid",
   "selectedAt": "2026-10-20T22:37:54.607Z",
   "currentStep": "specify",
-  "status": "draft",
-  "history": [],
+  "status": "completed",
+  "history": [
+    {
+      "step": "specify",
+      "substep": null,
+      "kind": "complete",
+      "by": "extension",
+      "at": "2026-10-24T00:10:06.957Z"
+    }
+  ],
   "telemetryInstanceId": "7a43aa14-2c9a-4655-a871-bc9c9e39956d"
 }

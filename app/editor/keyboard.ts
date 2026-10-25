@@ -1,5 +1,6 @@
 import { useEffect, type Dispatch } from "react";
 import { en } from "../text/en";
+import { escapeTarget, type EscapeTarget } from "./escape";
 import type { EditorAction } from "./reducer";
 
 /** True where the key belongs to the browser's own text editing, which has its own undo. */
@@ -23,6 +24,15 @@ function itemIdOf(target: EventTarget | null): number | null {
   return Number.isInteger(id) ? id : null;
 }
 
+/** What the editor holds right now, as far as the keyboard is concerned. */
+export interface KeyboardContext {
+  readonly selection: number | null;
+  /** A label is being edited in place. */
+  readonly labelEditing: boolean;
+  /** A connection is armed and waiting for its second shape. */
+  readonly connecting: boolean;
+}
+
 /** What a key press asks for: editor actions, or nothing. */
 interface Shortcut {
   readonly actions?: readonly EditorAction[];
@@ -43,25 +53,44 @@ function renameShortcut(event: KeyboardEvent, selection: number | null): Shortcu
   return itemId === null ? NO_SHORTCUT : { actions: [{ type: "select", itemId }, { type: "startInlineEdit" }] };
 }
 
+const CANCELS = new Map<EscapeTarget, EditorAction>([
+  ["label", { type: "cancelDraft" }],
+  ["connection", { type: "cancelConnection" }],
+  ["selection", { type: "select", itemId: null }],
+]);
+
+/**
+ * Escape cancels only the innermost active operation, as `escape.ts` decides; a focused text field keeps its own Escape.
+ * A drag or a line being drawn is cancelled first, by the gesture itself, which marks the press handled.
+ */
+function escapeShortcut(event: KeyboardEvent, context: KeyboardContext): Shortcut {
+  if (event.defaultPrevented) return NO_SHORTCUT;
+  const target = escapeTarget({ ...context, typing: isTextEntry(event.target) });
+  const action = target && CANCELS.get(target);
+  return action ? { actions: [action] } : NO_SHORTCUT;
+}
+
 /** The shortcut for a key press, or none. Typing in a text field is left alone. */
-function shortcutFor(event: KeyboardEvent, selection: number | null): Shortcut {
+function shortcutFor(event: KeyboardEvent, context: KeyboardContext): Shortcut {
+  const { selection } = context;
+  if (event.key === "Escape") return escapeShortcut(event, context);
   if (isTextEntry(event.target)) return NO_SHORTCUT;
   if (event.ctrlKey || event.metaKey) return historyShortcut(event);
   if (event.key === "F2" && inCanvas(event.target)) return renameShortcut(event, selection);
   if (selection === null) return NO_SHORTCUT;
-  if (event.key === "Escape") return { actions: [{ type: "select", itemId: null }] };
   const deletes = event.key === "Delete" || event.key === "Backspace";
   return deletes && onCanvas(event.target) ? { actions: [{ type: "commit", operation: { op: "deleteItem", itemId: selection } }] } : NO_SHORTCUT;
 }
 
 /**
- * Ctrl/Cmd+Z undoes; Ctrl/Cmd+Shift+Z and Ctrl+Y redo; Escape clears the selection. On a canvas item, Delete or Backspace
+ * Ctrl/Cmd+Z undoes; Ctrl/Cmd+Shift+Z and Ctrl+Y redo; Escape cancels the innermost active operation. On a canvas item, Delete or Backspace
  * deletes the selected item and F2 opens its label for editing where it sits. Shortcuts are left alone while text is being typed.
  */
-export function useEditorKeyboard(dispatch: Dispatch<EditorAction>, selection: number | null): void {
+export function useEditorKeyboard(dispatch: Dispatch<EditorAction>, context: KeyboardContext): void {
+  const { selection, labelEditing, connecting } = context;
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
-      const shortcut = shortcutFor(event, selection);
+      const shortcut = shortcutFor(event, { selection, labelEditing, connecting });
       if (!shortcut.actions) return;
       for (const action of shortcut.actions) dispatch(action);
       event.preventDefault();
@@ -70,5 +99,5 @@ export function useEditorKeyboard(dispatch: Dispatch<EditorAction>, selection: n
     return () => {
       window.removeEventListener("keydown", onKeyDown);
     };
-  }, [dispatch, selection]);
+  }, [dispatch, selection, labelEditing, connecting]);
 }

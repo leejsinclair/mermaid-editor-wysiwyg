@@ -114,6 +114,11 @@ async function fixture(page: Page, view: View): Promise<Fixture> {
   await addItem(page, "System", "Beta");
   await addItem(page, "System", "Gamma");
   await addRelationship(page, "One-way relationship", "Alpha", "Beta");
+  // The relationship button sits below the fold, so pressing it scrolls the page; Firefox scrolls back when the line takes
+  // focus and Chromium does not. Back at the top the whole drawing is on screen, where a user would press its handles.
+  await page.evaluate(() => {
+    window.scrollTo(0, 0);
+  });
   const relationship = c4Canvas(page).getByTestId("c4-relationship").first();
   await relationship.focus();
   await page.keyboard.press("Enter");

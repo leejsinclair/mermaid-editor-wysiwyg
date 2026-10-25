@@ -70,16 +70,19 @@ export function useDrag<K>(svg: RefObject<SVGSVGElement | null>, viewport: RefOb
       const inside = box !== undefined && visible !== undefined && withinVisibleBounds({ x: event.clientX, y: event.clientY }, box, visible);
       if (current && Math.hypot(point.x - current.startX, point.y - current.startY) >= DRAG_THRESHOLD) onDrop({ what: current.what, ...point, inside });
     };
+    // Escape ends the drag and is marked handled, so the editor's own Escape does not also act on this press.
     const onKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape") update(undefined);
+      if (event.key !== "Escape") return;
+      update(undefined);
+      event.preventDefault();
     };
     window.addEventListener("pointermove", onMove);
     window.addEventListener("pointerup", onUp);
-    window.addEventListener("keydown", onKey);
+    window.addEventListener("keydown", onKey, true);
     return () => {
       window.removeEventListener("pointermove", onMove);
       window.removeEventListener("pointerup", onUp);
-      window.removeEventListener("keydown", onKey);
+      window.removeEventListener("keydown", onKey, true);
     };
   }, [active, svg, viewport, onDrop, update, zoom]);
 
