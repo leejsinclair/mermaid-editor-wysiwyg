@@ -4,11 +4,6 @@ import { job, readWorkflow } from "./support/workflow";
 // VO-006 (FR-007, US2-AS2, DC-03): the deploy job waits for a check job that runs type checking, unit tests and the
 // end-to-end tests with Chromium installed, and no step can fail without stopping the deploy.
 
-test.beforeEach(({ browserName }) => {
-  // Skipped outside Chromium on purpose: the workflow is read as text, so the browser makes no difference.
-  test.skip(browserName !== "chromium", "The workflow is read as text; one browser is enough");
-});
-
 test("the deploy job needs the check job", () => {
   expect(job(readWorkflow(), "deploy")).toMatch(/^ {4}needs: check$/m);
 });

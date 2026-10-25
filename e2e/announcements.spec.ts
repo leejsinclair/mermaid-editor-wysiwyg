@@ -34,7 +34,7 @@ test("a rejection, the copy results and the file result are announced without mo
   await canvas.locator(".react-flow__node").first().click();
   const label = page.getByRole("region", { name: "Properties" }).getByRole("textbox", { name: "Label" });
   await label.fill("   ");
-  await expectAnnouncedWithoutMovingFocus(page, messages(page), "A label needs at least one visible character.", () => label.press("Enter"));
+  await expectAnnouncedWithoutMovingFocus(page, messages(page), "A label cannot be empty.", () => label.press("Enter"));
 
   const copy = page.getByRole("button", { name: "Copy Source" });
   await copy.focus();

@@ -9,9 +9,6 @@ import { addParticipants, canvas as sequenceCanvas, participantLabelled, partici
 // an unselected item and shows its handles. VO-029 (FR-019, US5-AS3): a double-tap on an item or a line opens the editor.
 
 test.use({ hasTouch: true });
-test.beforeEach(({ browserName }, testInfo) => {
-  testInfo.skip(browserName !== "chromium", "Touch and pen are driven through the Chromium DevTools protocol");
-});
 
 interface Point {
   x: number;

@@ -5,10 +5,10 @@ import { CONNECTION_TYPES, FLOWCHART_SHAPES } from "../model/flowchart/catalogue
 import { offerFile, saveDiagram } from "./library";
 import { recallSession, rememberSession } from "./sessions";
 import { createSaver, type SaveStatus } from "./saveStatus";
+import { escapeTarget } from "./escape";
 import { useEditorKeyboard } from "./keyboard";
-import { unsafeToLeave, useLeaveWarning } from "./leavePage";
+import { hasUnsavedChange, unsafeToLeave, useLeaveWarning } from "./leavePage";
 import { canRedo, canUndo, createHistory } from "../history/history";
-import { rejectionMessage } from "../validation/messages";
 import type { Diagram } from "../model/types";
 import { Preview } from "../rendering/flowchart/Preview";
 import { FlowchartCanvas, type FlowchartHandle } from "../rendering/flowchart/FlowchartCanvas";
@@ -24,7 +24,7 @@ import { MessageDialog } from "../rendering/shared/MessageDialog";
 import { MESSAGE_STYLE_NAMES } from "../model/sequence/catalogue";
 import type { Operation } from "../model/operations";
 import type { Direction, MessageStyle } from "../model/types";
-import { defaultEnd, describeSelection, extraFieldsOf, wording, messageInsertIndex, moveToOptions, participantInsertIndex, steppedIndex, steppedRelationshipIndex } from "./selection";
+import { defaultEnd, describeSelection, extraFieldsOf, messageInsertIndex, nothingSelected, moveToOptions, participantInsertIndex, steppedIndex, steppedRelationshipIndex } from "./selection";
 import "../rendering/shared/canvas.css";
 import { Feedback, withAppearanceNotice } from "../rendering/shared/Feedback";
 import { AppearanceSwitch } from "../rendering/theme/AppearanceSwitch";
@@ -41,6 +41,7 @@ import { StatusBar } from "../rendering/shared/StatusBar";
 import { createZoomStore } from "../rendering/shared/zoomStore";
 import { en } from "../text/en";
 import { typeLabel } from "../text/typeLabel";
+import { typeWording } from "../text/typeWording";
 import { copyText, markdownFence } from "./clipboard";
 import { inlineEditOf } from "./inlineEdit";
 import { reducer, type EditorAction, type EditorState } from "./reducer";
@@ -80,8 +81,8 @@ export function Editor({ initial, stored = false, onFirstSaved, locked = false }
     if (locked) dispatchAction({ type: "release" });
   }, [locked]);
   const diagram = state.history.present;
-  const flowchart = diagram.type === "flowchart" ? diagram : undefined;
-  const { kind: selectionKind, label: selectedLabel, typeOptions, targets } = describeSelection(diagram, state.selection);
+  const selection = describeSelection(diagram, state.selection);
+  const { kind: selectionKind, label: selectedLabel, typeOptions, targets } = selection;
   const navigate = useNavigate();
   const nameField = useRef<HTMLInputElement>(null);
   const renaming = state.nameDraft !== null;
@@ -118,6 +119,18 @@ export function Editor({ initial, stored = false, onFirstSaved, locked = false }
     else if (c4) toIndex = steppedRelationshipIndex(c4, itemId, direction);
     if (toIndex !== undefined) dispatch({ type: "commit", operation: { op: "reorder", itemId, toIndex } });
   };
+  /**
+   * Adds an item, selects it and opens its label, so the next thing typed names it (FR-004). The label opens a tick later:
+   * Firefox drops the next pointer press if focus moves while a drag from the toolbox is still ending.
+   */
+  const addAndLabel = (operation: Operation) => {
+    const itemId = diagram.nextId;
+    dispatch({ type: "commit", operation });
+    dispatch({ type: "select", itemId });
+    window.setTimeout(() => {
+      dispatch({ type: "startInlineEdit" });
+    }, 0);
+  };
   const commitOperation = (operation: Parameters<typeof reducer>[1] & { type: "commit" }) => {
     dispatch(operation);
   };
@@ -125,8 +138,13 @@ export function Editor({ initial, stored = false, onFirstSaved, locked = false }
   const viewHandle = useRef<ViewHandle>(null);
   /** The canvas of the open diagram, which owns its own zoom. */
   const view = () => (diagram.type === "flowchart" ? canvasHandle : viewHandle).current;
-  useEditorKeyboard(dispatch, state.selection);
+  const labelEditing = state.draft !== null;
+  const connecting = state.armed !== null;
+  useEditorKeyboard(dispatch, { selection: state.selection, labelEditing, connecting });
+  /** What the next Escape cancels, for the prompts that name it (data-model.md). */
+  const cancelTarget = escapeTarget({ labelEditing, connecting, selection: state.selection, typing: false });
   const [saveStatus, setSaveStatus] = useState<SaveStatus>(() => recallSession(initial.id)?.saveStatus ?? (stored ? "saved" : "new"));
+  const unsaved = hasUnsavedChange(state, saveStatus);
   const saver = useMemo(() => createSaver({ write: saveDiagram, onStatus: setSaveStatus }), []);
   const persisted = useRef<Diagram>(recallSession(initial.id)?.state.history.present ?? initial);
   useEffect(() => {
@@ -217,6 +235,7 @@ export function Editor({ initial, stored = false, onFirstSaved, locked = false }
           <AppearanceSwitch appearance={appearance} onChoose={chooseAppearance} />
         </Box>
         <Toolbar
+          showLayoutNote={diagram.type === "flowchart"}
           previewOpen={previewOpen}
           onTogglePreview={() => {
             setPreviewOpen((open) => !open);
@@ -229,7 +248,6 @@ export function Editor({ initial, stored = false, onFirstSaved, locked = false }
           onRedo={() => {
             dispatch({ type: "redo" });
           }}
-          showLayoutNote={diagram.type === "flowchart"}
           onCopySource={() => {
             void copyText(source, status).then((feedback) => {
               dispatch({ type: "feedback", feedback });
@@ -257,6 +275,7 @@ export function Editor({ initial, stored = false, onFirstSaved, locked = false }
       </Box>
       <Feedback feedback={withAppearanceNotice(state.feedback, kept)} />
       <Workspace
+        selected={selectionKind !== null}
         toolbox={
           <>
             {diagram.type === "sequence" && (
@@ -266,7 +285,7 @@ export function Editor({ initial, stored = false, onFirstSaved, locked = false }
                 onActivate={(id) => {
                   if (id === "participant" || id === "actor") {
                     const index = sequence ? participantInsertIndex(sequence, state.selection) : undefined;
-                    dispatch({ type: "commit", operation: { op: "addParticipant", role: id, ...(index !== undefined && { index }) } });
+                    addAndLabel({ op: "addParticipant", role: id, ...(index !== undefined && { index }) });
                   } else if (MESSAGE_STYLE_NAMES.has(id as MessageStyle)) {
                     setMessageStyle(id as MessageStyle);
                   }
@@ -276,7 +295,7 @@ export function Editor({ initial, stored = false, onFirstSaved, locked = false }
             {c4 && <Toolbox fullWidth={stacked} groups={c4Toolbox(c4.kind)} onActivate={(id) => {
               const action = c4ToolboxAction(id);
               if (action.kind === "relationship") setRelationshipDirection(action.direction);
-              else dispatch({ type: "commit", operation: action.operation });
+              else addAndLabel(action.operation);
             }} />}
             {diagram.type === "flowchart" && <Toolbox
                 fullWidth={stacked}
@@ -285,7 +304,7 @@ export function Editor({ initial, stored = false, onFirstSaved, locked = false }
                 onActivate={(id) => {
                   const shape = FLOWCHART_SHAPES.find((candidate) => candidate.shape === id);
                   if (shape !== undefined) {
-                    dispatch({ type: "commit", operation: { op: "addNode", shape: shape.shape, position: canvasHandle.current?.visibleCentre() ?? { x: 0, y: 0 } } });
+                    addAndLabel({ op: "addNode", shape: shape.shape, position: canvasHandle.current?.visibleCentre() ?? { x: 0, y: 0 } });
                     return;
                   }
                   const entry = CONNECTION_TYPES.find((type) => `${type.line}-${type.ending}` === id);
@@ -300,15 +319,16 @@ export function Editor({ initial, stored = false, onFirstSaved, locked = false }
           <PropertiesPanel
             fullWidth={stacked}
             kind={selectionKind}
+            typeName={selection.typeName}
+            actions={selection.actions}
+            ends={selection.ends}
             label={selectedLabel}
-            nothingSelected={wording(diagram).nothingSelected}
+            nothingSelected={nothingSelected(diagram)}
+            steps={typeWording(diagram.type).steps}
             draft={draftText}
             draftField={draft?.field}
             extraFields={extraFieldsOf(diagram, state.selection)}
             typeOptions={typeOptions}
-            onNeed={(thing) => {
-              dispatch({ type: "feedback", feedback: { tone: "error", message: rejectionMessage({ reason: "needsSelection", details: { thing: wording(diagram).things.get(thing) ?? thing } }) } });
-            }}
             onChangeType={(change) => {
               if (state.selection !== null) commitOperation({ type: "commit", operation: { op: "changeType", itemId: state.selection, to: change } });
             }}
@@ -404,7 +424,7 @@ export function Editor({ initial, stored = false, onFirstSaved, locked = false }
               inlineEdit={inlineEdit}
               onStartEdit={startEdit}
               onAddNode={(shape, position) => {
-                dispatch({ type: "commit", operation: { op: "addNode", shape, position } });
+                addAndLabel({ op: "addNode", shape, position });
               }}
               onMoveNode={(id, position) => {
                 dispatch({ type: "commit", operation: { op: "moveNode", id, position } });
@@ -416,6 +436,7 @@ export function Editor({ initial, stored = false, onFirstSaved, locked = false }
                 dispatch({ type: "seal" });
               }}
               selection={state.selection}
+              cancelTarget={cancelTarget}
               cancelDragSignal={state.gesture}
               onMoveEnd={(linkId, end, targetId) => {
                 dispatch({ type: "commit", operation: { op: "moveEnd", linkId, end, targetId } });
@@ -492,9 +513,17 @@ export function Editor({ initial, stored = false, onFirstSaved, locked = false }
           }}
         />
       )}
-      {previewOpen && flowchart && <Preview source={source} />}
+      {previewOpen && (
+        <Preview
+          source={source}
+          showLayoutNote={diagram.type === "flowchart"}
+          onBack={() => {
+            setPreviewOpen(false);
+          }}
+        />
+      )}
       <SourcePanel source={source} notices={notices} status={status} />
-      <StatusBar zoomStore={zoomStore} saveText={SAVE_TEXT.get(saveStatus) ?? ""} sourceText={statusText(status)} sourceTone={statusTone(status)} />
+      <StatusBar zoomStore={zoomStore} saveText={SAVE_TEXT.get(saveStatus) ?? ""} unsaved={unsaved} sourceText={statusText(status)} sourceTone={statusTone(status)} />
     </Box>
   );
 }

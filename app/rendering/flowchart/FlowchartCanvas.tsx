@@ -10,7 +10,7 @@ import { fill } from "../../text/fill";
 import { TOOLBOX_DRAG_TYPE } from "../shared/dnd";
 import type { InlineEdit } from "../shared/InlineLabelEditor";
 import { useDoubleActivation } from "../shared/useDoubleActivation";
-import { CanvasHelp } from "../shared/CanvasHelp";
+import { CanvasHelp, CanvasPrompt } from "../shared/CanvasHelp";
 import { EmptyHint } from "../shared/EmptyHint";
 import { HANDLE_HIT } from "../shared/handleSize";
 import { useReportZoom, type ViewHandle } from "../shared/viewport";
@@ -50,6 +50,8 @@ interface FlowchartCanvasProps {
   readonly armed: { readonly line: LineStyle; readonly ending: Ending } | null;
   readonly onAddConnection: (from: number, to: number, line: LineStyle, ending: Ending) => void;
   readonly selection: number | null;
+  /** What the next Escape cancels, for the prompts that name it; the prompts are filled by T019. */
+  readonly cancelTarget?: "label" | "connection" | "selection" | null;
   /** A changed value cancels any drag in progress (Undo and Redo). */
   readonly cancelDragSignal: number;
   readonly onMoveEnd: (linkId: number, end: "from" | "to", targetId: number) => void;
@@ -99,6 +101,13 @@ function coveredSides(content: FlowchartDiagram["content"], dragging: ReadonlyMa
   return covered;
 }
 
+/** What the canvas is waiting for, in words: a label being edited, a line being drawn, or a connection type chosen and no line begun. */
+function promptFor(editing: boolean, drawing: boolean, armed: boolean): string | null {
+  if (editing) return en.canvasHelp.labelEditing;
+  if (drawing) return en.canvasHelp.connectDestination;
+  return armed ? en.canvasHelp.connectSource : null;
+}
+
 function Canvas({ handleRef, onZoomChange, diagram, inlineEdit, onStartEdit, onAddNode, armed, onAddConnection, onMoveNode, onNudgeNode, onFocusLeave, onSelect, selection, cancelDragSignal, onMoveEnd }: FlowchartCanvasProps) {
   const { screenToFlowPosition, zoomIn, zoomOut, fitView } = useReactFlow();
   const zoom = useStore((state) => state.transform[2]);
@@ -132,8 +141,10 @@ function Canvas({ handleRef, onZoomChange, diagram, inlineEdit, onStartEdit, onA
     setDrag(NO_DRAG);
   };
   useEffect(() => {
+    // Escape ends a drag or a line being drawn and is marked handled, so the editor's own Escape does not also act on this press.
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key !== "Escape") return;
+      if (dragToken.current !== 0 || connecting.current) event.preventDefault();
       dragToken.current = 0;
       setDrag(NO_DRAG);
       if (connecting.current) {
@@ -141,9 +152,9 @@ function Canvas({ handleRef, onZoomChange, diagram, inlineEdit, onStartEdit, onA
         flow.getState().cancelConnection();
       }
     };
-    window.addEventListener("keydown", onKeyDown);
+    window.addEventListener("keydown", onKeyDown, true);
     return () => {
-      window.removeEventListener("keydown", onKeyDown);
+      window.removeEventListener("keydown", onKeyDown, true);
     };
   }, [flow]);
 
@@ -178,6 +189,10 @@ function Canvas({ handleRef, onZoomChange, diagram, inlineEdit, onStartEdit, onA
           // The nominal footprint, so a node is never unmeasured (and hidden) for a frame after it is re-created.
           width: NODE_WIDTH,
           height: NODE_HEIGHT,
+          // Every shape has this footprint and the same side handles. Without `measured`, React Flow drops a node's handle
+          // bounds each time the node object is rebuilt, and a re-measure lost in a quick run of changes (adding a shape and
+          // opening its label) leaves the node's connections undrawn.
+          measured: { width: NODE_WIDTH, height: NODE_HEIGHT },
           position,
           data: { node, name, ...(edit && { edit }) },
           selected,
@@ -191,6 +206,7 @@ function Canvas({ handleRef, onZoomChange, diagram, inlineEdit, onStartEdit, onA
 
   // While a line is drawn from a handle, every node is a valid end.
   const drawing = useConnection((connection) => connection.inProgress);
+  const promptText = promptFor(inlineEdit !== null, drawing, armed !== null);
   const dropTargets = useMemo(() => (drawing ? new Set(validEnds(diagram)) : null), [drawing, diagram]);
   const covered = useMemo(() => coveredSides(diagram.content, dragging, selection), [diagram.content, dragging, selection]);
 
@@ -405,7 +421,8 @@ function Canvas({ handleRef, onZoomChange, diagram, inlineEdit, onStartEdit, onA
     </DropTargets>
     </CoveredSides>
     <CanvasHelp id={helpId} text={en.canvasHelp.flowchart} />
-    {diagram.content.nodes.length === 0 && <EmptyHint />}
+    {diagram.content.nodes.length === 0 && <EmptyHint lines={Object.values(en.canvasHelp.gettingStarted)} />}
+    <CanvasPrompt text={promptText} />
     </div>
   );
 }

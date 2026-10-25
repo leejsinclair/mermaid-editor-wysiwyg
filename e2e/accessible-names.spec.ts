@@ -12,6 +12,15 @@ async function activate(page: Page, button: Locator): Promise<void> {
   await page.keyboard.press("Enter");
 }
 
+/** Names an item just added in the label editor that opens on it (spec 008), and confirms with Enter. */
+async function nameNew(page: Page, text: string): Promise<void> {
+  const editor = page.getByTestId("inline-label-editor");
+  await expect(editor).toBeFocused();
+  await editor.fill(text);
+  await editor.press("Enter");
+  await expect(editor).toHaveCount(0);
+}
+
 async function relabel(page: Page, item: Locator, text: string): Promise<void> {
   await item.focus();
   await page.keyboard.press("Enter");
@@ -64,10 +73,10 @@ test("flowchart nodes and connections are named by type, label and ends, with a 
 test("sequence participants and messages are named by type, label and ends, with a visible focus indicator", async ({ page }) => {
   await page.goto("#/new/sequence");
   await activate(page, toolbox(page).getByRole("button", { name: "Participant", exact: true }));
+  await nameNew(page, "Alice");
   await activate(page, toolbox(page).getByRole("button", { name: "Actor", exact: true }));
+  await nameNew(page, "Bob");
   const participants = canvas(page).getByTestId("participant");
-  await relabel(page, participants.nth(0), "Alice");
-  await relabel(page, participants.nth(1), "Bob");
   await activate(page, toolbox(page).getByRole("button", { name: "Dashed open arrow", exact: true }));
   const dialog = page.getByRole("dialog", { name: "Add message" });
   await dialog.getByRole("radiogroup", { name: "Sender" }).getByRole("radio", { name: /^Alice / }).focus();
@@ -85,10 +94,10 @@ test("sequence participants and messages are named by type, label and ends, with
 test("C4 elements and relationships are named by type, label and ends, with a visible focus indicator", async ({ page }) => {
   await page.goto("#/new/c4/context");
   await activate(page, toolbox(page).getByRole("button", { name: "Person", exact: true }));
+  await nameNew(page, "Customer");
   await activate(page, toolbox(page).getByRole("button", { name: "System", exact: true }));
+  await nameNew(page, "Shop");
   const elements = canvas(page).getByTestId("c4-element");
-  await relabel(page, elements.nth(0), "Customer");
-  await relabel(page, elements.nth(1), "Shop");
   await activate(page, toolbox(page).getByRole("button", { name: "One-way relationship", exact: true }));
   const dialog = page.getByRole("dialog", { name: "Add relationship" });
   await dialog.getByRole("radiogroup", { name: "Source" }).getByRole("radio", { name: /^Customer / }).focus();
@@ -101,4 +110,41 @@ test("C4 elements and relationships are named by type, label and ends, with a vi
   await expectNamedWithVisibleFocus(page, elements.nth(0), /^Person: Customer$/);
   await expectNamedWithVisibleFocus(page, elements.nth(1), /^System: Shop$/);
   await expectNamedWithVisibleFocus(page, canvas(page).getByTestId("c4-relationship").first(), /^One-way relationship from Customer to Shop: Buys from$/);
+});
+
+// Spec 008, VO-023 (FR-033, FR-043, FR-047, US7-AS3): an icon-only toolbar control is named by itself, not by its tooltip
+// alone, shows a visible focus, and the disabled, pressed and expanded states of the controls are exposed.
+test("at 360 px icon-only toolbar controls are named without their tooltip, show focus, and expose their states", async ({ page }) => {
+  await page.setViewportSize({ width: 360, height: 740 });
+  await page.goto("#/new/flowchart");
+  const bar = page.getByRole("toolbar", { name: "Diagram actions" });
+  const undo = bar.getByRole("button", { name: "Undo", exact: true });
+
+  await expect(undo).toHaveText("");
+  await expect(undo).toHaveAttribute("aria-label", "Undo");
+  await expect(page.getByRole("tooltip")).toHaveCount(0);
+  await expect(undo).toHaveAccessibleName("Undo");
+
+  const zoomIn = bar.getByRole("button", { name: "Zoom in", exact: true });
+  const resting = await indicator(zoomIn);
+  await page.getByRole("button", { name: "Tools", exact: true }).focus();
+  for (let presses = 0; presses < 40 && !(await zoomIn.evaluate((element) => element === document.activeElement)); presses += 1) await page.keyboard.press("Shift+Tab");
+  await expect(zoomIn).toBeFocused();
+  expect(await indicator(zoomIn)).not.toBe(resting);
+
+  await expect(bar.getByRole("button", { name: "Redo", exact: true })).toBeDisabled();
+  const tools = page.getByRole("button", { name: "Tools", exact: true });
+  await expect(tools).toHaveAttribute("aria-expanded", "false");
+  const more = page.getByRole("button", { name: "More actions", exact: true });
+  await expect(more).toHaveAttribute("aria-expanded", "false");
+  await more.click();
+  // The open menu hides the rest of the page from the accessibility tree, so the button is found by what it controls.
+  await expect(page.locator('[aria-controls="more-actions-menu"]')).toHaveAttribute("aria-expanded", "true");
+  await page.keyboard.press("Escape");
+
+  await page.setViewportSize({ width: 1280, height: 900 });
+  const toggle = page.getByRole("button", { name: "Preview as Mermaid draws it" });
+  await expect(toggle).toHaveAttribute("aria-pressed", "false");
+  await toggle.click();
+  await expect(toggle).toHaveAttribute("aria-pressed", "true");
 });

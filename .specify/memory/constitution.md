@@ -45,14 +45,16 @@ Every committed editing operation MUST be undoable and redoable; a completed dra
 is one operation. After any edit, Undo or Redo, the model, the rendering and the generated source
 MUST agree. Unavailable, invalid or failed operations (including render, generation and clipboard
 failures) MUST produce understandable feedback, and success MUST be reported only after it has
-actually occurred. Controls MUST NOT be offered for unsupported actions.
+actually occurred. Controls MUST NOT be offered for unsupported actions. A conditional action that
+applies to the current selection MAY be shown disabled, with its unmet condition stated as text and
+announced to assistive technology as unavailable.
 
 ## Technology and Scope Constraints
 
 - Language is TypeScript in strict mode; `any` requires a comment stating why.
 - The deliverable is a browser web app with no server component.
-- Supported browsers are current stable Chromium-based browsers and Firefox on desktop, Chrome on Android and Safari on
-  iOS. Desktop Safari is unsupported. Support for a browser MUST be verified by automated tests before release.
+- Supported browsers are current stable Chromium-based browsers on desktop, and Chrome on Android.
+  Firefox, desktop Safari and Safari on iOS are unsupported. Support for a browser MUST be verified by automated tests before release.
 - Supported diagram types are Mermaid flowchart, sequence diagram and C4 diagram (Context, Container,
   Component, Dynamic, Deployment). Another diagram type MAY be added only after its elements,
   relationships, editing operations and validation rules are explicitly specified and tested, and
@@ -68,11 +70,10 @@ actually occurred. Controls MUST NOT be offered for unsupported actions.
 - Lifecycle: constitution → specify (grill follows automatically) → clarify if needed → plan →
   tasks → analyze → implement. The human Business Analyst takes part in the interactive stages.
 - Source of truth, in order: `setup.md` acceptance criteria and business rules; `spec.md`
-  including Clarifications; this constitution; `plan.md`, `tasks.md` and the behaviour checklist;
-  `.crews/decisions.md`. A lower item never overrides a higher one.
+  including Clarifications; this constitution; `plan.md`, `tasks.md` and the behaviour checklist. A lower item never overrides a higher one.
 - Ambiguity or contradiction in the spec MUST be raised as an open question, not resolved by
   assumption.
-- Agents commit and push only when the user asks; the crew (`scripts/crew.sh`) never commits or pushes.
+- Agents commit and push only when the user asks.
 - The Definition of Done in `setup.md` (all AC1–AC17 passing, among other items) gates release.
 
 ## Governance
@@ -83,10 +84,29 @@ with a version bump and a migration note for any affected specs, plans or tasks.
 semantic: MAJOR for backward-incompatible removal or redefinition of a principle, MINOR for a new
 principle or materially expanded guidance, PATCH for clarifications. Every plan, analysis and
 review MUST check compliance with these principles, and any departure MUST be justified in the
-plan's complexity record. Runtime guidance lives in `CLAUDE.md` and `.crews/directives.md`.
+plan's complexity record. Runtime guidance lives in `CLAUDE.md`.
 
-**Version**: 1.4.0 | **Ratified**: 2026-10-18 | **Last Amended**: 2026-10-22
+**Version**: 3.0.0 | **Ratified**: 2026-10-18 | **Last Amended**: 2026-10-25
 
 Migration note (1.4.0, MINOR: supported browsers named, mobile added; approved by the Business Analyst, Lee Sinclair,
 2026-10-22): 002 FR-021's exclusion of mobile browsers is superseded; features before 007 were verified on desktop only,
 and feature 007-blueprint-redesign adds the mobile verification (ADR 0002).
+
+Migration note (1.4.1, PATCH: crew removed from the project; approved by the Business Analyst, Lee Sinclair,
+2026-10-24): references to the crew (`scripts/crew.sh`, `.crews/`) are removed from the lifecycle, the source-of-truth
+list and the runtime guidance. No principle changed; no spec, plan or task depends on the crew.
+
+Migration note (1.5.0, MINOR: Principle V allows disabled-and-announced controls for conditional actions; approved by the
+Business Analyst, Lee Sinclair, 2026-10-24): feature 008-ux-workflow-clarity FR-016 and US2-AS4 rely on this. No other
+principle changed.
+
+Migration note (2.0.0, MAJOR: Safari on iOS removed from the supported browsers; approved by the Business Analyst, Lee
+Sinclair, 2026-10-24, who cannot run Safari on iOS, so it cannot be verified by automated tests as the constitution
+requires): this withdraws the support stated in 1.4.0. Feature 008-ux-workflow-clarity T058 is narrowed to match. Features
+before this one that claimed iOS Safari support need the same correction in their own documents.
+
+Migration note (3.0.0, MAJOR: Firefox removed from the supported browsers; approved by the Business Analyst, Lee
+Sinclair, 2026-10-25, who dropped the Firefox tests): the Playwright `firefox` and `firefox-timing` projects and the
+Firefox timing baselines are removed. Feature 008-ux-workflow-clarity T058 is narrowed to Chromium and the emulated
+Android phone. Earlier features verified in Firefox keep their records as history; their claims of Firefox support
+no longer hold.

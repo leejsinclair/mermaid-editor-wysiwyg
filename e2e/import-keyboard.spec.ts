@@ -23,7 +23,8 @@ test("an import is completed with the keyboard alone, in order, and Escape retur
   await openImportWithPointer(page);
   const dialog = importDialog(page);
   await paste(page, SUBGRAPH);
-  await expect(dialog.getByRole("region", { name: "Import report" })).toContainText("subgraph", { timeout: 1000 });
+  // The one-second budget (FR-003) is timed by the import timing checks; here the report only has to be there before tabbing.
+  await expect(dialog.getByRole("region", { name: "Import report" })).toContainText("subgraph");
   await expect(dialog.getByRole("textbox", { name: TEXT_LABEL })).toBeFocused();
 
   const visited: string[] = [];

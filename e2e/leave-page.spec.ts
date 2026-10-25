@@ -81,9 +81,7 @@ test("while a label edit is open it asks, and once the edit is cancelled it stop
   expect(await asksBeforeLeaving(page)).toBe(false);
 });
 
-test("closing the tab shows the browser's own confirmation while saving has failed", async ({ page, browserName }) => {
-  // Playwright reports the browser's own leave-page prompt as a dialog in Chromium only; the other tests cover Firefox.
-  test.skip(browserName !== "chromium", "Only Chromium lets a test see the browser's leave-page prompt");
+test("closing the tab shows the browser's own confirmation while saving has failed", async ({ page }) => {
   await fillStorage(page);
   await page.goto("#/new/flowchart");
   await addOneNode(page);

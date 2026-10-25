@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { addShape } from "./support/flowchart";
 
 // VO-005: a shape dragged from the toolbox and dropped on a free spot becomes a node at the drop location.
 
@@ -7,7 +8,7 @@ test("dropping a shape on a free spot adds a node there, labelled with its type 
   const canvas = page.getByRole("region", { name: "Diagram canvas" });
   const drop = { x: 400, y: 250 };
 
-  await page.getByRole("button", { name: "Diamond", exact: true }).dragTo(canvas, { targetPosition: drop });
+  await addShape(page, canvas, "Diamond", drop);
 
   const node = canvas.getByLabel("Diamond node: Diamond");
   await expect(node).toBeVisible();
@@ -24,7 +25,7 @@ test("the source panel lists exactly the node that was added", async ({ page }) 
   await page.goto("#/new/flowchart");
   const canvas = page.getByRole("region", { name: "Diagram canvas" });
 
-  await page.getByRole("button", { name: "Diamond", exact: true }).dragTo(canvas, { targetPosition: { x: 300, y: 200 } });
+  await addShape(page, canvas, "Diamond", { x: 300, y: 200 });
 
   await page.getByRole("button", { name: "Mermaid source" }).click();
   await expect(page.getByRole("region", { name: "Mermaid source" })).toHaveText(/^flowchart TD\s+n1\{"Diamond"\}$/);

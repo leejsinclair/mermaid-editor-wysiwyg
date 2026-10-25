@@ -3,7 +3,7 @@
   "specName": "Import Review Fixes",
   "branch": "feature/005-new-from-mermaid",
   "currentStep": "implement",
-  "status": "implementing",
+  "status": "completed",
   "history": [
     {
       "step": "specify",
@@ -637,6 +637,13 @@
       "kind": "complete",
       "by": "extension",
       "at": "2026-10-21T22:22:02.655Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "kind": "complete",
+      "by": "extension",
+      "at": "2026-10-24T00:10:17.546Z"
     }
   ],
   "telemetryInstanceId": "a9ceb94b-69f1-4e08-948a-6d4b9a7e689c",

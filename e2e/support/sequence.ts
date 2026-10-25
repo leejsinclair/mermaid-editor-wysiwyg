@@ -44,13 +44,20 @@ export async function relabel(page: Page, item: Locator, text: string): Promise<
   await field.press("Enter");
 }
 
-/** Adds participants (`Participant` or `Actor`) from the toolbox, then names them in order. */
+/** Types a label into the editor that opens on an item just added, and confirms it with Enter. */
+export async function nameNewItem(page: Page, label: string): Promise<void> {
+  const editor = page.getByTestId("inline-label-editor");
+  await expect(editor).toBeFocused();
+  await editor.fill(label);
+  await editor.press("Enter");
+  await expect(editor).toHaveCount(0);
+}
+
+/** Adds participants (`Participant` or `Actor`) from the toolbox, names each in the label editor that opens on it, then clears the selection. */
 export async function addParticipants(page: Page, ...named: readonly (readonly [role: "Participant" | "Actor", name: string])[]): Promise<void> {
   for (const [role, name] of named) {
     await page.getByRole("region", { name: "Toolbox" }).getByRole("button", { name: role, exact: true }).click();
-    const added = canvas(page).getByTestId("participant").filter({ hasText: exactly(role) });
-    await expect(added).toHaveCount(1);
-    await relabel(page, added.first(), name);
+    await nameNewItem(page, name);
     await expect(participantLabelled(page, name)).toHaveCount(1);
     await page.keyboard.press("Escape");
   }

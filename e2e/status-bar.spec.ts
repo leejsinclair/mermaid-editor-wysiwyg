@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
+import { settleNewShape } from "./support/flowchart";
 
 // VO-031 (FR-008): in each diagram type the status area shows "Zoom n%", which follows the zoom buttons (and the mouse wheel on a
 // flowchart), the "Save status" region with its texts after an edit, and the source check text; it has no grid or snap control.
@@ -41,6 +42,7 @@ for (const { type, address, add } of CASES) {
 test("the mouse wheel on a flowchart changes the zoom shown", async ({ page }) => {
   await page.goto("#/new/flowchart");
   await page.getByRole("region", { name: "Toolbox" }).getByRole("button", { name: "Rectangle", exact: true }).click();
+  await settleNewShape(page);
   const before = await zoomOf(page);
   const canvas = await page.getByRole("region", { name: "Diagram canvas" }).boundingBox();
   if (!canvas) throw new Error("no canvas");

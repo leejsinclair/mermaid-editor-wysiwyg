@@ -1,12 +1,19 @@
 import { useEffect } from "react";
-import { canUndo } from "../history/history";
 import type { EditorState } from "./reducer";
-import type { SaveStatus } from "./saveStatus";
+import { describeSelection } from "./selection";
+import { hasUnsavedChange, type SaveStatus } from "./saveStatus";
+
+export { hasUnsavedChange };
+
+/** True where a label has been typed over and not confirmed; a label editor opened and left as it was holds nothing to lose. */
+function halfTyped(state: EditorState): boolean {
+  const { draft } = state;
+  return draft !== null && draft.text !== describeSelection(state.history.present, draft.itemId).label;
+}
 
 /** True where leaving the page would lose work: saving has failed or is under way, or a label is half typed (FR-044). */
 export function unsafeToLeave(state: EditorState, saveStatus: SaveStatus): boolean {
-  const unsaved = saveStatus !== "saved" && (saveStatus !== "new" || canUndo(state.history));
-  return unsaved || state.draft !== null || state.nameDraft !== null;
+  return hasUnsavedChange(state, saveStatus) || halfTyped(state) || state.nameDraft !== null;
 }
 
 /** Asks the browser to confirm before the page is closed, reloaded or left, for as long as `unsafe` holds. */

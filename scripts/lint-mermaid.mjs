@@ -12,7 +12,7 @@ globalThis.window = dom.window;
 globalThis.document = dom.window.document;
 const { default: mermaid } = await import("mermaid");
 
-const SKIP = new Set(["node_modules", "build", ".git", ".react-router", "playwright-report", "test-results", ".crews", "tools"]);
+const SKIP = new Set(["node_modules", "build", ".git", ".react-router", "playwright-report", "test-results", "tools"]);
 
 function* walk(dir) {
   for (const name of readdirSync(dir)) {

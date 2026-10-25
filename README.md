@@ -8,9 +8,9 @@ no server.
 
 ## Use it
 
-Open the [live demo](https://leejsinclair.github.io/mermaid-editor-wysiwyg/) in a current Chromium-based browser or
-Firefox on a desktop, or in Chrome on Android or Safari on iOS. Nothing needs installing, and nothing you draw leaves
-your browser unless you save it to a file.
+Open the [live demo](https://leejsinclair.github.io/mermaid-editor-wysiwyg/) in a current Chromium-based browser on a
+desktop, or in Chrome on Android. Nothing needs installing, and nothing you draw leaves your browser unless you save it
+to a file.
 
 ## Appearance
 
@@ -24,7 +24,7 @@ saved in a diagram, a file or the copied Mermaid source. Mermaid's own preview a
 Below 900 px wide the toolbox and Properties move into a **Tools** panel above the canvas, and below 600 px the document
 actions are under **More actions**. Everything the desktop layout offers is still there. On a touch screen, drag on
 empty canvas to pan, pinch to zoom, and double-tap an item to rename it. Phone support is checked in emulation of
-Android Chrome and iOS Safari, not on real devices.
+Android Chrome, not on real devices.
 
 ## Start a diagram
 
@@ -70,7 +70,7 @@ C4 support in Mermaid is experimental, so other tools may render these diagrams 
 The site is published to GitHub Pages by the `Publish` workflow (`.github/workflows/pages.yml`).
 
 - **Automatic:** when a change is merged into `main`, the workflow runs type checking, the unit tests and the
-  end-to-end tests in Chromium and Firefox, and only if all of them pass builds and deploys the site. A failing
+  end-to-end tests in Chromium, and only if all of them pass builds and deploys the site. A failing
   run leaves the live site as it was and shows in the repository's Actions tab. The one timing test (an edit within a
   second, 100 elements) is not part of this gate because a hosted runner's speed varies; it still runs locally.
 - **Manual:** open the repository's Actions tab, choose **Publish**, and press **Run workflow** with branch `main`.

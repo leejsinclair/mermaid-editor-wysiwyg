@@ -18,7 +18,6 @@ export const REJECTION_REASONS = [
   "outOfRange",
   "parentNotAllowed",
   "nestingCycle",
-  "needsSelection",
 ] as const;
 
 export type RejectionReason = (typeof REJECTION_REASONS)[number];

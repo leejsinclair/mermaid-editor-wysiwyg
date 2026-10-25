@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { addShape } from "./support/flowchart";
 
 // VO-010: a drag from the toolbox, and a drag of an existing node, that end outside the canvas change nothing.
 // Undo availability is asserted here once Undo exists (T081).
@@ -19,7 +20,7 @@ test("a node dragged out of the canvas follows the pointer, then stays where it 
 }) => {
   await page.goto("#/new/flowchart");
   const canvas = page.getByRole("region", { name: "Diagram canvas" });
-  await page.getByRole("button", { name: "Rectangle", exact: true }).dragTo(canvas, { targetPosition: { x: 300, y: 200 } });
+  await addShape(page, canvas, "Rectangle", { x: 300, y: 200 });
   const node = canvas.getByLabel("Rectangle node: Rectangle", { exact: true });
   const before = await node.boundingBox();
   const header = await page.getByRole("banner").boundingBox();

@@ -1,5 +1,5 @@
-import { Button, Menu, MenuItem } from "@mui/material";
-import { useState } from "react";
+import { Button, ListItemIcon, ListItemText, Menu, MenuItem } from "@mui/material";
+import { useState, type ReactNode } from "react";
 import { en } from "../../text/en";
 
 export interface MoreAction {
@@ -7,10 +7,12 @@ export interface MoreAction {
   readonly run: () => void;
   /** A toggle that is on. */
   readonly on?: boolean;
+  /** The icon the action has as a button, so it looks the same in the menu (FR-039). */
+  readonly icon?: ReactNode;
 }
 
 /**
- * The actions a narrow toolbar has no room for, under one labelled button (spec 007, FR-010). Each is a menu item with the name and
+ * The less frequent actions a compact toolbar has no room for, under one labelled button (spec 007, FR-010; spec 008, FR-018). Each is a menu item with the name and
  * the effect it has as a button on a wider toolbar; choosing one closes the menu first.
  */
 export function MoreActions({ actions }: { readonly actions: readonly MoreAction[] }) {
@@ -46,7 +48,8 @@ export function MoreActions({ actions }: { readonly actions: readonly MoreAction
               action.run();
             }}
           >
-            {action.name}
+            {action.icon !== undefined && <ListItemIcon>{action.icon}</ListItemIcon>}
+            <ListItemText>{action.name}</ListItemText>
           </MenuItem>
         ))}
       </Menu>

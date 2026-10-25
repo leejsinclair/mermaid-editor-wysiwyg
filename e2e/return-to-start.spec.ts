@@ -27,8 +27,9 @@ test("Start screen lists the changed diagram, and it opens unchanged", async ({ 
 test("Start screen waits for a write still under way, so the diagram is listed with its changes", async ({ page }) => {
   await delayStorageCompletion(page);
   await page.goto("#/new/flowchart");
+  // Long enough that "Saving…" is still showing under a full parallel run, and well inside the listing's expect timeout.
   await page.evaluate(() => {
-    (window as unknown as { __idbDelay: number }).__idbDelay = 1200;
+    (window as unknown as { __idbDelay: number }).__idbDelay = 5000;
   });
   const canvas = page.getByRole("region", { name: "Diagram canvas" });
   await addShape(page, canvas, "Rectangle", { x: 200, y: 100 });

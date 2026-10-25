@@ -17,8 +17,10 @@ test("confirming a blank node label is refused with an announced explanation and
   await page.keyboard.press("Enter");
 
   const messages = page.getByRole("status", { name: "Messages" });
-  await expect(messages).toContainText("A label needs at least one visible character. The previous label was kept.");
+  await expect(messages).toContainText("A label cannot be empty.");
   await expect(messages).toBeVisible();
+  // The field stays open for correcting (spec 008, FR-005); leaving it with Escape keeps the previous label.
+  await label.press("Escape");
   await expect(node.getByTestId("node-label")).toHaveText("Rectangle");
   await expect(label).toHaveValue("Rectangle");
   await page.getByRole("button", { name: /Mermaid source/ }).click();
@@ -38,6 +40,7 @@ test("confirming blank message text is refused with an announced explanation and
 
   const messages = page.getByRole("status", { name: "Messages" });
   await expect(messages).toContainText("A message needs text with at least one visible character. The previous text was kept.");
+  await label.press("Escape");
   expect(await messageTexts(page)).toEqual(["Hello"]);
   await expect(label).toHaveValue("Hello");
 });

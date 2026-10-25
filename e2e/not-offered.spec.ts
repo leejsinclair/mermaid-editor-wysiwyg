@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
+import { settleNewShape } from "./support/flowchart";
 
 // VO-092 (AC17): the source is shown read-only in an expandable panel, and no screen offers source editing or import,
 // image export, collaboration, version history, cloud storage, multi-select, copy and paste of items, grid snapping
@@ -58,7 +59,9 @@ async function twoNodes(page: Page) {
   await page.goto("#/new/flowchart");
   await page.reload();
   await page.getByRole("region", { name: "Toolbox" }).getByRole("button", { name: "Rectangle", exact: true }).click();
+  await settleNewShape(page);
   await page.getByRole("region", { name: "Toolbox" }).getByRole("button", { name: "Circle", exact: true }).click();
+  await settleNewShape(page);
   const nodes = canvas(page).locator(".react-flow__node");
   await expect(nodes).toHaveCount(2);
   return nodes;

@@ -1,8 +1,8 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
 import { addShape, connect } from "./support/flowchart";
 
-// VO-093 (EC-09, FR-005, FR-041): a control that needs a selection or input and is used without one says what is
-// needed and changes nothing; with a valid selection it does exactly what it advertises. Flowchart, Sequence and C4.
+// VO-093 (EC-09, FR-005, FR-041): a control that needs a selection or input is offered only with one, and with a
+// valid selection it does exactly what it advertises. Flowchart, Sequence and C4.
 
 interface Scene {
   readonly canvas: Locator;
@@ -34,38 +34,23 @@ async function scene(page: Page): Promise<Scene> {
   };
 }
 
-const sourceText = async (page: Page) => {
-  const panel = page.getByRole("button", { name: /Mermaid source/ });
-  if ((await panel.getAttribute("aria-expanded")) !== "true") await panel.click();
-  return (await page.getByRole("region", { name: /Mermaid source/ }).textContent()) ?? "";
-};
+// Spec 008 (FR-014): with nothing selected the panel offers no element action, and a selection is offered only the
+// actions that apply to it, so no control can be used without the selection it needs.
+const ELEMENT_ACTIONS = ["Rename", "Change type", "Connect…", "Change endpoints", "Reverse", "Move up", "Move down", "Move to…", "Delete"];
 
-test("controls used without a selection say what is needed and change nothing", async ({ page }) => {
-  const { properties, messages } = await scene(page);
-  const before = await sourceText(page);
-  const cases = [
-    ["Delete", "Select a node or connection first."],
-    ["Change type", "Select a node or connection first."],
-    ["Rename", "Select a node or connection first."],
-    ["Connect…", "Select a node first."],
-    ["Change end…", "Select a connection first."],
-    ["Reverse", "Select a connection first."],
-  ] as const;
+async function expectOffered(properties: Locator, offered: readonly string[]) {
+  for (const name of ELEMENT_ACTIONS) await expect(properties.getByRole("button", { name, exact: true }), name).toHaveCount(offered.includes(name) ? 1 : 0);
+}
 
-  for (const [control, explanation] of cases) {
-    await properties.getByRole("button", { name: control, exact: true }).click();
-    await expect(messages).toContainText(explanation);
-    expect(await sourceText(page)).toBe(before);
-  }
+test("with nothing selected no element control is offered", async ({ page }) => {
+  const { properties } = await scene(page);
+  await expectOffered(properties, []);
 });
 
-test("a control that needs the other kind of selection says so", async ({ page }) => {
-  const { properties, messages, rectangle } = await scene(page);
+test("a selected node is offered no connection-only control", async ({ page }) => {
+  const { properties, rectangle } = await scene(page);
   await rectangle.click();
-
-  await properties.getByRole("button", { name: "Reverse", exact: true }).click();
-
-  await expect(messages).toContainText("Select a connection first.");
+  await expectOffered(properties, ["Rename", "Change type", "Connect…", "Delete"]);
 });
 
 test("Rename puts the cursor in the label field", async ({ page }) => {
@@ -105,11 +90,11 @@ test("Connect… lists the other nodes as label, type and number and joins the c
   await expect(canvas.getByLabel(/connection from Rectangle to Diamond/)).toHaveCount(1);
 });
 
-test("Change end… moves the chosen end of the selected connection to the chosen node", async ({ page }) => {
+test("Change endpoints moves the chosen end of the selected connection to the chosen node", async ({ page }) => {
   const { canvas, properties } = await scene(page);
   await canvas.locator(".react-flow__edge-interaction").click({ force: true });
 
-  await properties.getByRole("button", { name: "Change end…", exact: true }).click();
+  await properties.getByRole("button", { name: "Change endpoints", exact: true }).click();
   const dialog = page.getByRole("dialog", { name: "Change end" });
   await dialog.getByRole("radio", { name: "End", exact: true }).check();
   await dialog.getByRole("button", { name: /^Diamond \(Diamond \d+\)$/ }).click();
@@ -173,34 +158,15 @@ const selectItem = async (item: Locator, page: Page) => {
   await page.keyboard.press("Enter");
 };
 
-test("in a sequence diagram, controls used without a selection say what is needed and change nothing", async ({ page }) => {
-  const { support, properties, messages } = await sequenceScene(page);
-  const before = await support.sourceLines(page);
-  const cases = [
-    ["Delete", "Select a participant or message first."],
-    ["Change type", "Select a participant or message first."],
-    ["Rename", "Select a participant or message first."],
-    ["Move up", "Select a participant or message first."],
-    ["Move down", "Select a participant or message first."],
-    ["Connect…", "Select a participant first."],
-    ["Change end…", "Select a message first."],
-    ["Reverse", "Select a message first."],
-  ] as const;
-
-  for (const [control, explanation] of cases) {
-    await properties.getByRole("button", { name: control, exact: true }).click();
-    await expect(messages).toContainText(explanation);
-    expect(await support.sourceLines(page)).toEqual(before);
-  }
+test("in a sequence diagram, with nothing selected no element control is offered", async ({ page }) => {
+  const { properties } = await sequenceScene(page);
+  await expectOffered(properties, []);
 });
 
-test("in a sequence diagram, a control that needs the other kind of selection says so", async ({ page }) => {
-  const { support, properties, messages } = await sequenceScene(page);
+test("in a sequence diagram, a selected participant is offered no message-only control", async ({ page }) => {
+  const { support, properties } = await sequenceScene(page);
   await selectItem(support.participantAt(page, 0), page);
-
-  await properties.getByRole("button", { name: "Reverse", exact: true }).click();
-
-  await expect(messages).toContainText("Select a message first.");
+  await expectOffered(properties, ["Rename", "Change type", "Connect…", "Move up", "Move down", "Delete"]);
 });
 
 test("in a sequence diagram, each control does what it advertises", async ({ page }) => {
@@ -221,7 +187,7 @@ test("in a sequence diagram, each control does what it advertises", async ({ pag
   await expect(page.locator(".MuiBackdrop-root")).toHaveCount(0);
 
   await selectItem(support.canvas(page).getByTestId("message").nth(1), page);
-  await properties.getByRole("button", { name: "Change end…", exact: true }).click();
+  await properties.getByRole("button", { name: "Change endpoints", exact: true }).click();
   await page.getByRole("dialog").getByRole("button", { name: /^B / }).click();
   expect((await support.sourceLines(page)).at(-1)).toBe("p1->>p2: Solid arrow");
   await expect(page.locator(".MuiBackdrop-root")).toHaveCount(0);
@@ -250,37 +216,19 @@ async function c4Scene(page: Page) {
   return { support, canvas: support.canvas(page), properties: page.getByRole("region", { name: "Properties" }), messages: page.getByRole("status", { name: "Messages" }) };
 }
 
-test("in a C4 diagram, controls used without a selection say what is needed and change nothing", async ({ page }) => {
-  const { support, properties, messages } = await c4Scene(page);
-  const before = await support.sourceLines(page);
-  const cases = [
-    ["Delete", "Select a C4 item first."],
-    ["Change type", "Select a C4 item first."],
-    ["Rename", "Select a C4 item first."],
-    ["Move to…", "Select a C4 item first."],
-    ["Connect…", "Select a C4 element first."],
-    ["Change end…", "Select a C4 relationship first."],
-    ["Reverse", "Select a C4 relationship first."],
-  ] as const;
-
-  for (const [control, explanation] of cases) {
-    await properties.getByRole("button", { name: control, exact: true }).click();
-    await expect(messages).toContainText(explanation);
-    expect(await support.sourceLines(page)).toEqual(before);
-  }
+test("in a C4 diagram, with nothing selected no element control is offered", async ({ page }) => {
+  const { properties } = await c4Scene(page);
+  await expectOffered(properties, []);
 });
 
-test("in a C4 diagram, a control that needs the other kind of selection says so", async ({ page }) => {
-  const { support, properties, messages } = await c4Scene(page);
+test("in a C4 diagram, a selected element is offered no relationship-only control", async ({ page }) => {
+  const { support, properties } = await c4Scene(page);
   await selectItem(support.itemLabelled(page, "Customer"), page);
-
-  await properties.getByRole("button", { name: "Reverse", exact: true }).click();
-
-  await expect(messages).toContainText("Select a C4 relationship first.");
+  await expectOffered(properties, ["Rename", "Change type", "Connect…", "Move to…", "Delete"]);
 });
 
 test("in a C4 diagram, each control does what it advertises", async ({ page }) => {
-  const { support, canvas, properties, messages } = await c4Scene(page);
+  const { support, canvas, properties } = await c4Scene(page);
 
   await selectItem(support.itemLabelled(page, "Shop"), page);
   await properties.getByRole("button", { name: "Change type", exact: true }).click();
@@ -298,7 +246,7 @@ test("in a C4 diagram, each control does what it advertises", async ({ page }) =
   await expect(page.locator(".MuiBackdrop-root")).toHaveCount(0);
 
   await selectItem(support.canvas(page).getByTestId("c4-relationship").nth(1), page);
-  await properties.getByRole("button", { name: "Change end…", exact: true }).click();
+  await properties.getByRole("button", { name: "Change endpoints", exact: true }).click();
   const dialog = page.getByRole("dialog", { name: "Change end" });
   await dialog.getByRole("radio", { name: "Start", exact: true }).check();
   await dialog.getByRole("button", { name: /^Shop \(System database \d+\)$/ }).click();
@@ -311,8 +259,9 @@ test("in a C4 diagram, each control does what it advertises", async ({ page }) =
   await properties.getByRole("button", { name: "Change type", exact: true }).click();
   await page.getByRole("menuitem", { name: "Two-way relationship", exact: true }).click();
   expect((await support.relationshipNames(page))[1]).toBe("Two-way relationship from Bank to Shop: Uses");
-  await properties.getByRole("button", { name: "Reverse", exact: true }).click();
-  await expect(messages).toContainText("This connection has no single direction, so reversing it would change nothing.");
+  const reason = "This connection has no single direction, so reversing it would change nothing.";
+  await expect(properties.getByRole("button", { name: "Reverse", exact: true })).toHaveAttribute("aria-disabled", "true");
+  await expect(properties.getByText(reason)).toBeVisible();
 
   await properties.getByRole("button", { name: "Delete", exact: true }).click();
   expect(await support.relationshipNames(page)).toEqual(["One-way relationship from Customer to Shop: Uses"]);

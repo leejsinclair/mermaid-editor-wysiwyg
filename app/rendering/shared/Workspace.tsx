@@ -8,6 +8,8 @@ interface WorkspaceProps {
   readonly toolbox: ReactNode;
   /** The properties of the selected item. */
   readonly properties: ReactNode;
+  /** Something is selected: the narrow panel then opens on its properties, above the toolbox (spec 008, FR-034, EC-10). */
+  readonly selected: boolean;
   /** The canvas. */
   readonly children: ReactNode;
 }
@@ -18,7 +20,7 @@ interface WorkspaceProps {
  * above it and closes again. The panel's state is its own, so opening it redraws nothing else, and what the author has selected or
  * is typing is held by the editor, not the panel.
  */
-export function Workspace({ toolbox, properties, children }: WorkspaceProps) {
+export function Workspace({ toolbox, properties, selected, children }: WorkspaceProps) {
   const layout = useLayout();
   const [open, setOpen] = useState(false);
   if (layout === "wide") {
@@ -47,8 +49,8 @@ export function Workspace({ toolbox, properties, children }: WorkspaceProps) {
       </Box>
       {open && (
         <Box component="section" id="tools-panel" aria-label={en.workspace.tools} sx={{ maxHeight: "45vh", overflow: "auto", borderBottom: 1, borderColor: "divider" }}>
-          {toolbox}
-          {properties}
+          {selected ? properties : toolbox}
+          {selected ? toolbox : properties}
         </Box>
       )}
       <Box sx={{ display: "flex", flex: 1, minHeight: "55vh", minWidth: 0 }}>{children}</Box>

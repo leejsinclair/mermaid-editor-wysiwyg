@@ -67,8 +67,11 @@ test("a flowchart is built and edited with the keyboard alone", async ({ page })
   const nodes = canvas(page).locator(".react-flow__node");
   const edges = canvas(page).locator(".react-flow__edge");
 
-  // Add: activating a toolbox button places a node.
-  for (const shape of ["Rectangle", "Diamond", "Circle"]) await press(page, toolbox(page).getByRole("button", { name: shape, exact: true }));
+  // Add: activating a toolbox button places a node and opens its label, which takes focus; Enter keeps the label and goes on (spec 008, FR-004).
+  for (const shape of ["Rectangle", "Diamond", "Circle"]) {
+    await press(page, toolbox(page).getByRole("button", { name: shape, exact: true }));
+    await page.getByTestId("inline-label-editor").press("Enter");
+  }
   await expect(nodes).toHaveCount(3);
 
   // Select, move, rename, change type.
@@ -88,7 +91,7 @@ test("a flowchart is built and edited with the keyboard alone", async ({ page })
   await press(page, page.getByRole("dialog").getByRole("button", { name: /^Diamond \(Diamond 1\)/ }));
   await expect(edges).toHaveCount(1);
   await press(page, edges.first());
-  await press(page, properties(page).getByRole("button", { name: "Change end…" }));
+  await press(page, properties(page).getByRole("button", { name: "Change endpoints" }));
   await press(page, page.getByRole("dialog").getByRole("radio", { name: "End" }), "Space");
   await press(page, page.getByRole("dialog").getByRole("button", { name: /^Circle \(Circle 1\)/ }));
   await expect(edges).toHaveCount(1);
@@ -108,7 +111,11 @@ test("a sequence diagram is built and edited with the keyboard alone", async ({ 
   const participants = canvas(page).getByTestId("participant");
   const rows = canvas(page).getByTestId("message");
 
-  for (const role of ["Participant", "Actor", "Participant"]) await press(page, toolbox(page).getByRole("button", { name: role, exact: true }));
+  // Activating a toolbox button adds a participant and opens its label, which takes focus; Enter keeps the label and goes on (spec 008, FR-004).
+  for (const role of ["Participant", "Actor", "Participant"]) {
+    await press(page, toolbox(page).getByRole("button", { name: role, exact: true }));
+    await page.getByTestId("inline-label-editor").press("Enter");
+  }
   await expect(participants).toHaveCount(3);
   await press(page, participants.first());
   await rename(page, "Alice");
@@ -134,7 +141,7 @@ test("a sequence diagram is built and edited with the keyboard alone", async ({ 
   await press(page, rows.nth(1));
   await press(page, properties(page).getByRole("button", { name: "Move up" }));
   expect(await order()).toEqual([...first].reverse());
-  await press(page, properties(page).getByRole("button", { name: "Change end…" }));
+  await press(page, properties(page).getByRole("button", { name: "Change endpoints" }));
   await press(page, page.getByRole("dialog").getByRole("radio", { name: "End" }), "Space");
   await press(page, page.getByRole("dialog").getByRole("button").filter({ hasText: /\(Participant 1\)$/ }).first());
 
@@ -158,8 +165,11 @@ test("a C4 diagram is built and edited with the keyboard alone", async ({ page }
   const elements = canvas(page).getByTestId("c4-element");
   const relationships = canvas(page).getByTestId("c4-relationship");
 
-  for (const type of ["Person", "System", "System"]) await press(page, toolbox(page).getByRole("button", { name: type, exact: true }));
-  await press(page, toolbox(page).getByRole("button", { name: "System boundary", exact: true }));
+  // Activating a toolbox button adds an item and opens its label, which takes focus; Enter keeps the label and goes on (spec 008, FR-004).
+  for (const type of ["Person", "System", "System", "System boundary"]) {
+    await press(page, toolbox(page).getByRole("button", { name: type, exact: true }));
+    await page.getByTestId("inline-label-editor").press("Enter");
+  }
   await expect(items).toHaveCount(4);
 
   await press(page, elements.first());
@@ -176,7 +186,7 @@ test("a C4 diagram is built and edited with the keyboard alone", async ({ page }
 
   // Change an end; change boundary membership.
   await press(page, relationships.first());
-  await press(page, properties(page).getByRole("button", { name: "Change end…" }));
+  await press(page, properties(page).getByRole("button", { name: "Change endpoints" }));
   await press(page, page.getByRole("dialog").getByRole("radio", { name: "End" }), "Space");
   await press(page, page.getByRole("dialog").getByRole("button").filter({ hasText: /\(System 2\)$/ }).first());
   await press(page, elements.nth(1));
@@ -195,4 +205,41 @@ test("a C4 diagram is built and edited with the keyboard alone", async ({ page }
   await undoThenRedo(page, elements, 3, 2);
 
   await copiesSaveAndOpen(page, elements, 2);
+});
+
+// Spec 008, VO-020 (FR-034, US6-AS1, US6-AS2): at the narrowest supported width the same edits complete with the keyboard
+// alone, through the Tools panel, and the page never scrolls sideways.
+test("at 360 px a flowchart is built and edited with the keyboard alone", async ({ page }) => {
+  await page.setViewportSize({ width: 360, height: 740 });
+  await page.goto("#/new/flowchart");
+  const nodes = canvas(page).locator(".react-flow__node");
+  const edges = canvas(page).locator(".react-flow__edge");
+  const tools = page.getByRole("button", { name: "Tools", exact: true });
+  const noSidewaysScroll = async () => {
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), "the page scrolls sideways").toBe(true);
+  };
+
+  await press(page, tools);
+  for (const shape of ["Rectangle", "Circle"]) {
+    await press(page, toolbox(page).getByRole("button", { name: shape, exact: true }));
+    await page.getByTestId("inline-label-editor").press("Enter");
+  }
+  await expect(nodes).toHaveCount(2);
+  await noSidewaysScroll();
+
+  await press(page, nodes.first());
+  const before = await nodes.first().getAttribute("style");
+  await page.keyboard.press("ArrowRight");
+  await expect.poll(() => nodes.first().getAttribute("style")).not.toBe(before);
+
+  await press(page, properties(page).getByRole("button", { name: "Connect…", exact: true }));
+  await press(page, page.getByRole("dialog").getByRole("button", { name: /^Circle \(Circle 1\)/ }));
+  await expect(edges).toHaveCount(1);
+  await noSidewaysScroll();
+
+  await press(page, nodes.nth(1));
+  await press(page, properties(page).getByRole("button", { name: "Delete", exact: true }));
+  await expect(nodes).toHaveCount(1);
+  await undoThenRedo(page, nodes, 2, 1);
+  await noSidewaysScroll();
 });

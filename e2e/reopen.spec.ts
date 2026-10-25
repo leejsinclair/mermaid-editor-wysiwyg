@@ -1,4 +1,4 @@
-import { chromium, expect, firefox, test, type BrowserContext, type Page } from "@playwright/test";
+import { chromium, expect, test, type BrowserContext, type Page } from "@playwright/test";
 import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -19,11 +19,10 @@ async function layout(page: Page, count: number): Promise<string[]> {
   );
 }
 
-test("diagrams reopen exactly as last saved after the browser is closed and opened again", async ({ browserName, baseURL }) => {
+test("diagrams reopen exactly as last saved after the browser is closed and opened again", async ({ baseURL }) => {
   test.slow(); // builds a diagram and launches two browsers: a hosted runner can take over the default 30 s
-  const launcher = browserName === "firefox" ? firefox : chromium;
   const profile = await mkdtemp(join(tmpdir(), "mermaid-editor-profile-"));
-  const open = (): Promise<BrowserContext> => launcher.launchPersistentContext(profile, baseURL === undefined ? {} : { baseURL });
+  const open = (): Promise<BrowserContext> => chromium.launchPersistentContext(profile, baseURL === undefined ? {} : { baseURL });
   try {
     // First session: build and save two diagrams.
     let context = await open();
@@ -80,11 +79,10 @@ test("diagrams reopen exactly as last saved after the browser is closed and open
   }
 });
 
-test("a sequence diagram reopens with its participants and messages in the order last saved", async ({ browserName, baseURL }) => {
+test("a sequence diagram reopens with its participants and messages in the order last saved", async ({ baseURL }) => {
   test.slow(); // builds a diagram and launches two browsers: a hosted runner can take over the default 30 s
-  const launcher = browserName === "firefox" ? firefox : chromium;
   const profile = await mkdtemp(join(tmpdir(), "mermaid-editor-profile-"));
-  const open = (): Promise<BrowserContext> => launcher.launchPersistentContext(profile, baseURL === undefined ? {} : { baseURL });
+  const open = (): Promise<BrowserContext> => chromium.launchPersistentContext(profile, baseURL === undefined ? {} : { baseURL });
   try {
     let context = await open();
     let page = await context.newPage();
@@ -123,11 +121,10 @@ test("a sequence diagram reopens with its participants and messages in the order
   }
 });
 
-test("a C4 diagram reopens with its order, boundaries, relationships and title as last saved", async ({ browserName, baseURL }) => {
+test("a C4 diagram reopens with its order, boundaries, relationships and title as last saved", async ({ baseURL }) => {
   test.slow(); // builds a diagram and launches two browsers: a hosted runner can take over the default 30 s
-  const launcher = browserName === "firefox" ? firefox : chromium;
   const profile = await mkdtemp(join(tmpdir(), "mermaid-editor-profile-"));
-  const open = (): Promise<BrowserContext> => launcher.launchPersistentContext(profile, baseURL === undefined ? {} : { baseURL });
+  const open = (): Promise<BrowserContext> => chromium.launchPersistentContext(profile, baseURL === undefined ? {} : { baseURL });
   try {
     let context = await open();
     let page = await context.newPage();

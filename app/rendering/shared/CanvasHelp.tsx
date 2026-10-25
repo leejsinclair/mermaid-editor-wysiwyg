@@ -9,3 +9,19 @@ export function CanvasHelp({ id, text }: Readonly<{ id: string; text: string }>)
     </div>
   );
 }
+
+/**
+ * The one sentence that says what the canvas is waiting for: a label being edited, or a connection being chosen. It is seen as
+ * well as announced, sits at the top of the canvas and never takes the pointer. Nothing is drawn when there is nothing to say.
+ */
+export function CanvasPrompt({ text }: Readonly<{ text: string | null }>) {
+  return (
+    <div role="status" style={{ position: "absolute", top: 8, left: 8, right: 8, zIndex: 5, pointerEvents: "none", textAlign: "center" }}>
+      {text !== null && (
+        <span style={{ display: "inline-block", padding: "4px 12px", borderRadius: 4, background: "var(--prompt-background, Canvas)", color: "var(--prompt-ink, CanvasText)", border: "1px solid currentColor" }}>
+          {text}
+        </span>
+      )}
+    </div>
+  );
+}

@@ -2,6 +2,7 @@ import { Alert, Box, Button, Typography } from "@mui/material";
 import { useEffect, useMemo, useRef, useState, type KeyboardEvent, type PointerEvent } from "react";
 import { en } from "../../text/en";
 import { fill } from "../../text/fill";
+import { FitToViewIcon, ZoomInIcon, ZoomOutIcon } from "../shared/icons";
 import { drawWithMermaid, type Drawn } from "../shared/MermaidPicture";
 import { useAppearance } from "../theme/appearanceContext";
 import { latestOnly } from "../shared/latestOnly";
@@ -30,10 +31,14 @@ const zoomed = (view: ViewBox, factor: number): ViewBox => ({
 
 interface PreviewProps {
   readonly source: string;
+  /** Closes the preview; the diagram, its layout and its undo history are untouched by it (FR-022). */
+  readonly onBack: () => void;
+  /** Only a flowchart has node positions of its own, so only it says they stay in the editor (FR-023, FR-024). */
+  readonly showLayoutNote: boolean;
 }
 
 /** A read-only view of the diagram as Mermaid draws it, with zoom, pan and fit (FR-016, EC-06). */
-export function Preview({ source }: PreviewProps) {
+export function Preview({ source, onBack, showLayoutNote }: PreviewProps) {
   const latest = useMemo(() => latestOnly(), []);
   const [drawn, setDrawn] = useState<{ source: string; result: Drawn } | undefined>();
   const [base, setBase] = useState<ViewBox | undefined>();
@@ -119,17 +124,25 @@ export function Preview({ source }: PreviewProps) {
   const failure = drawn && "error" in drawn.result ? drawn.result.error : undefined;
   return (
     <Box component="section" aria-label={en.toolbar.preview} sx={{ borderTop: 1, borderColor: "divider", p: 1 }}>
-      <Box sx={{ display: "flex", gap: 1, mb: 1 }}>
-        <Button size="small" variant="outlined" onClick={() => { zoom(ZOOM_STEP); }}>
+      <Box sx={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 1, mb: 1 }}>
+        <Button size="small" variant="contained" onClick={onBack}>
+          {en.preview.backToEditing}
+        </Button>
+        <Button size="small" variant="outlined" startIcon={<ZoomInIcon />} onClick={() => { zoom(ZOOM_STEP); }}>
           {en.preview.zoomIn}
         </Button>
-        <Button size="small" variant="outlined" onClick={() => { zoom(1 / ZOOM_STEP); }}>
+        <Button size="small" variant="outlined" startIcon={<ZoomOutIcon />} onClick={() => { zoom(1 / ZOOM_STEP); }}>
           {en.preview.zoomOut}
         </Button>
-        <Button size="small" variant="outlined" onClick={() => { setView(base); }}>
+        <Button size="small" variant="outlined" startIcon={<FitToViewIcon />} onClick={() => { setView(base); }}>
           {en.preview.fit}
         </Button>
       </Box>
+      {showLayoutNote && (
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+          {en.toolbar.layoutNote}
+        </Typography>
+      )}
       {failure === undefined ? (
         // A pan-and-zoom drawing is a custom widget: it takes focus, arrow keys, + and -, and pointer drags.
         // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions

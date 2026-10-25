@@ -42,3 +42,23 @@ for (const size of SIZES) {
     await expect(page.getByRole("region", { name: /Mermaid source/ })).toBeVisible();
   });
 }
+
+// Spec 008, VO-020 and VO-050 (FR-034, US6-AS2, EC-10): at 360 px, with an element selected on the canvas, the Tools panel opens
+// on that element's properties and actions, with no sideways page scroll.
+test("at 360 × 740 a selected element's properties and actions are in view when Tools opens", async ({ page }) => {
+  await page.setViewportSize({ width: 360, height: 740 });
+  await openFlowchart(page);
+  const tools = page.getByRole("button", { name: "Tools", exact: true });
+  await tools.click();
+  await page.getByRole("region", { name: "Toolbox" }).getByRole("button", { name: "Rectangle", exact: true }).click();
+  await page.getByTestId("inline-label-editor").press("Enter");
+  await tools.click();
+
+  await page.locator(".react-flow__node").first().click();
+  await tools.click();
+
+  const properties = page.getByRole("region", { name: "Properties" });
+  await expect(properties.getByText("Selected: Rectangle node", { exact: true })).toBeInViewport();
+  await expect(properties.getByRole("button", { name: "Delete", exact: true })).toBeInViewport();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), "the page scrolls sideways").toBe(true);
+});

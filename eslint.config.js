@@ -101,7 +101,6 @@ export default tseslint.config(
       "playwright-report/**",
       "test-results/**",
       ".specify/**",
-      ".crews/**",
       ".claude/**",
       "specs/**",
       "tools/**",

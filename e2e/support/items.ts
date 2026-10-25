@@ -1,4 +1,5 @@
 import { expect, type Locator, type Page } from "@playwright/test";
+import { settleNewShape } from "./flowchart";
 
 // One item of each kind that has a label, added with the toolbox to a fresh diagram (spec 004-canvas-usability).
 
@@ -33,6 +34,8 @@ export async function openItem(page: Page, kind: ItemKind): Promise<OpenedItem> 
   if (kind === "node") {
     await page.goto("#/new/flowchart");
     await page.getByRole("button", { name: "Rectangle", exact: true }).click();
+    // A new flowchart shape opens its label for editing (spec 008); the tests that use this item start from a settled canvas.
+    await settleNewShape(page);
     const item = canvas.locator(".react-flow__node");
     await expect(item).toHaveCount(1);
     return { item, body: item, label: item.getByTestId("node-label"), text: "Rectangle", lines: item.getByTestId("node-label") };
@@ -41,6 +44,8 @@ export async function openItem(page: Page, kind: ItemKind): Promise<OpenedItem> 
     await page.goto("#/new/sequence");
     const text = kind === "actor" ? "Actor" : "Participant";
     await toolbox(page, text).click();
+    // A new item opens its label for editing (spec 008); the tests that use this item start from a settled canvas.
+    await settleNewShape(page);
     const item = canvas.getByTestId("participant");
     await expect(item).toHaveCount(1);
     const header = item.getByTestId("participant-header");
@@ -49,6 +54,7 @@ export async function openItem(page: Page, kind: ItemKind): Promise<OpenedItem> 
   await page.goto(`#/new/c4/${kind === "c4-deployment-node" ? "deployment" : "container"}`);
   const text = C4_TEXT.get(kind) ?? "";
   await toolbox(page, text).click();
+  await settleNewShape(page);
   const item = canvas.locator('[data-testid="c4-element"], [data-testid="c4-boundary"], [data-testid="c4-node"]');
   await expect(item).toHaveCount(1);
   return { item, body: item, label: item.getByTestId("item-label"), text, lines: item.getByTestId("item-label").getByTestId("line") };

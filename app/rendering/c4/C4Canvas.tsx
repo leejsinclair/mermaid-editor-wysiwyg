@@ -1,5 +1,5 @@
 import { memo, useCallback, useEffect, useId, useMemo, useRef, useState, type CSSProperties, type MouseEvent, type Ref } from "react";
-import { CanvasHelp } from "../shared/CanvasHelp";
+import { CanvasHelp, CanvasPrompt } from "../shared/CanvasHelp";
 import { EmptyHint } from "../shared/EmptyHint";
 import { gridBackground } from "../shared/gridStyle";
 import { useTouchPan } from "../shared/touchPan";
@@ -9,6 +9,7 @@ import { findItem } from "../../model/c4/tree";
 import type { C4Diagram, C4Item, Relationship } from "../../model/types";
 import { en } from "../../text/en";
 import { fill } from "../../text/fill";
+import { typeWording } from "../../text/typeWording";
 import { c4Layout, type C4Box } from "../layout/c4Layout";
 import { MultilineText } from "../sequence/MultilineText";
 import { useDrag, type DragEnd } from "../shared/useDrag";
@@ -355,6 +356,14 @@ function relationshipIndexAt(boxes: readonly C4Box[], relationships: readonly Re
   return nearest?.index;
 }
 
+const WORDING = typeWording("c4");
+
+/** The prompt for what the canvas is waiting for: a label being typed, or the target of a relationship being drawn. */
+function promptFor(editing: boolean, drawing: boolean): string | null {
+  if (editing) return en.canvasHelp.labelEditing;
+  return drawing ? WORDING.connectDestination : null;
+}
+
 /** Elements, boundaries and nodes in the order and nesting Mermaid arranges them, with relationships between (research R3, FR-038). */
 export function C4Canvas({ handleRef, onZoomChange, diagram, inlineEdit, onStartEdit, selection, onSelect, onCreateRelationship, onMoveEnd, onMoveToParent, onReorder }: Readonly<C4CanvasProps>) {
   const svg = useRef<SVGSVGElement>(null);
@@ -444,7 +453,8 @@ export function C4Canvas({ handleRef, onZoomChange, diagram, inlineEdit, onStart
       }}
     >
       <CanvasHelp id={helpId} text={en.canvasHelp.c4} />
-      {content.tree.length === 0 && <EmptyHint />}
+      {content.tree.length === 0 && <EmptyHint lines={WORDING.steps} />}
+      <CanvasPrompt text={promptFor(inlineEdit !== null, drawing)} />
       {diagram.title !== "" && (
         <div data-testid="c4-title" style={{ padding: "16px 32px 0", fontSize: 18, fontWeight: "bold", whiteSpace: "pre-wrap" }}>
           {diagram.title}

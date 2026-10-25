@@ -32,9 +32,7 @@ test("when the editing tab is closed, another tab edits without being asked", as
   await editsWithoutBeingAsked(context, address);
 });
 
-test("when the editing tab crashes, another tab edits without being asked", async ({ context, browserName }) => {
-  // Skipped outside Chromium on purpose: Playwright cannot crash a Firefox tab, so the close test covers it there.
-  test.skip(browserName !== "chromium", "Only Chromium can crash a tab on request (chrome://crash)");
+test("when the editing tab crashes, another tab edits without being asked", async ({ context }) => {
   const { editing, address } = await editingTab(context);
   await editing.goto("chrome://crash").catch(() => undefined);
   await expect.poll(() => editing.evaluate(() => 1).then(() => "alive", () => "crashed")).toBe("crashed");
