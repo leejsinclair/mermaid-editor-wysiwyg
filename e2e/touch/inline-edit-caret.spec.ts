@@ -23,6 +23,17 @@ test("on a phone, typing at the start and in the middle of a shape label keeps t
   await expect(editor).toHaveValue("abRcdectangle");
   expect(await editor.evaluate((field: HTMLTextAreaElement) => field.selectionStart)).toBe(5);
 
+  const ime = await page.context().newCDPSession(page);
+  await ime.send("Input.imeSetComposition", { text: "にほ", selectionStart: 2, selectionEnd: 2 });
+  await expect(editor).toHaveValue("abRcdにほectangle");
+  await ime.send("Input.imeSetComposition", { text: "にほん", selectionStart: 3, selectionEnd: 3 });
+  await expect(editor).toHaveValue("abRcdにほんectangle");
+  await ime.send("Input.imeSetComposition", { text: "日本", selectionStart: 2, selectionEnd: 2 });
+  await ime.send("Input.insertText", { text: "日本" });
+  await expect(editor).toHaveValue("abRcd日本ectangle");
+  expect(await editor.evaluate((field: HTMLTextAreaElement) => field.selectionStart)).toBe(7);
+  await ime.detach();
+
   await page.keyboard.press("Enter");
-  await expect(node.getByTestId("node-label")).toHaveText("abRcdectangle");
+  await expect(node.getByTestId("node-label")).toHaveText("abRcd日本ectangle");
 });
