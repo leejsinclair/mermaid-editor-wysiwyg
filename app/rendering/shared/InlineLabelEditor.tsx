@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef, type CSSProperties, type SyntheticEvent } from "react";
+import { useLayoutEffect, useRef, useState, type CSSProperties, type SyntheticEvent } from "react";
 import { en } from "../../text/en";
 import { fill } from "../../text/fill";
 
@@ -28,6 +28,14 @@ const keep = (event: SyntheticEvent): void => {
 /** The one editor for a label in place: a plain text field with the whole label selected, drawn at the label. */
 export function InlineLabelEditor({ name, edit, style }: Readonly<InlineLabelEditorProps>) {
   const field = useRef<HTMLTextAreaElement>(null);
+  // The field keeps the text it shows. On a flowchart the draft comes back through the canvas library a render late, and a field
+  // that waited for it would be rewritten after each key, throwing the caret to the end.
+  const [shown, setShown] = useState({ itemId: edit.itemId, text: edit.text });
+  if (shown.itemId !== edit.itemId) setShown({ itemId: edit.itemId, text: edit.text });
+  const show = (text: string): void => {
+    setShown({ itemId: edit.itemId, text });
+    edit.onChange(text);
+  };
   // Where the caret goes once pasted text has been set as the draft, or none.
   const caret = useRef<number | null>(null);
   const { itemId } = edit;
@@ -64,7 +72,7 @@ export function InlineLabelEditor({ name, edit, style }: Readonly<InlineLabelEdi
       element.setSelectionRange(caret.current, caret.current);
       caret.current = null;
     }
-  }, [edit.text]);
+  }, [shown.text]);
   return (
     <textarea
       ref={field}
@@ -72,10 +80,10 @@ export function InlineLabelEditor({ name, edit, style }: Readonly<InlineLabelEdi
       className="nodrag nopan nowheel"
       aria-label={fill(en.editor.inlineLabel, { name })}
       rows={1}
-      value={edit.text}
+      value={shown.text}
       style={{ width: "100%", boxSizing: "border-box", resize: "none", overflow: "hidden", font: "inherit", textAlign: "center", ...style }}
       onChange={(event) => {
-        edit.onChange(event.target.value);
+        show(event.target.value);
       }}
       onBlur={(event) => {
         // A press on the drawing's own background (nothing that takes focus) closes the editor and hands focus back to the item.
@@ -90,7 +98,7 @@ export function InlineLabelEditor({ name, edit, style }: Readonly<InlineLabelEdi
         const pasted = event.clipboardData.getData("text/plain");
         const { value, selectionStart, selectionEnd } = event.currentTarget;
         caret.current = selectionStart + pasted.length;
-        edit.onChange(value.slice(0, selectionStart) + pasted + value.slice(selectionEnd));
+        show(value.slice(0, selectionStart) + pasted + value.slice(selectionEnd));
       }}
       onClick={keep}
       onDoubleClick={keep}
