@@ -56,6 +56,20 @@ On a touch screen, dragging empty canvas pans it, pinching zooms it, and double-
 - **WHEN** the person double-taps a node on a touch screen
 - **THEN** the node's label opens for editing
 
+### Typing a label in place keeps the caret where it is typed
+
+This holds for shape, connection, sequence and C4 labels, and when typing with a phone's on-screen keyboard.
+
+#### Scenario: typing at the start of a shape label
+
+- **WHEN** a flowchart shape labelled "Rectangle" is open for editing, the caret is at the start and the person types "ab"
+- **THEN** the field reads "abRectangle" and the caret sits just before "R"
+
+#### Scenario: typing in the middle of a shape label
+
+- **WHEN** a flowchart shape labelled "Rectangle" is open for editing, the caret is just after "R" and the person types "cd"
+- **THEN** the field reads "Rcdectangle" and the caret sits just before "e"
+
 ## Uncovered
 
 - Nothing in this area is left without an owner.
